@@ -4,7 +4,7 @@
 
 %% Explore different parameter sets
 alpha1 = 0.01; beta11 = -1; beta12 =  -10; neps1 = 1; % Linear
-alpha2 =   -1; beta21 =  4; beta22 = -2.5; neps2 = 1; % Critical
+alpha2 =   -1; beta21 =  4; beta22 =  -3; neps2 = 1; % Critical
 
 %% Make the model
 s = stimulusMake('fcn', [0 1], 4000, {'exp'}, [100], .025, 0, 'ramp', 0.01, 1);

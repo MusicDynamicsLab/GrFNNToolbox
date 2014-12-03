@@ -4,7 +4,7 @@
 
 %% Explore different parameter sets
 alpha1 = 0.01; beta11 = -1; beta12 =  -10; neps1 = 1; % Linear
-alpha2 =   -1; beta21 =  4; beta22 = -2.5; neps2 = 1; % Critical
+alpha2 =   -1; beta21 =  4; beta22 =  -3; neps2 = 1; % Critical
 w = .025; 
 lambda =  0; mu1 = -1; mu2 = -1; ceps = 1, kappa = 1; % Critical
 
