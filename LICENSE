@@ -1,6 +1,13 @@
 By downloading GrFNN Toolbox 1.0, or any subroutine thereof, you agree to 
-the terms below. If you don’t agree to the these terms, please remove the 
-software from your system.
+the terms below. All rights, title and interest in the Toolbox not specifically 
+granted in the license agreement are retained by the copyright holder. If you 
+don’t agree to the these terms, please remove the software from your system.
+
+As stated below it is not possible to include this software library in a commercial 
+or proprietary program. If you desire to copy, distribute, or modify the Program, 
+including in connection with your own proprietary work, other than in accordance 
+with the terms below, you may contact license@circular-logic.com to obtain a commercial 
+license for such rights.
 
 GNU GENERAL PUBLIC LICENSE
                        Version 2, June 1991
@@ -259,16 +266,9 @@ make exceptions for this.  Our decision will be guided by the two goals
 of preserving the free status of all derivatives of our free software and
 of promoting the sharing and reuse of software generally.
 
-  11. All rights, title and interest in the Program not specifically granted herein 
-are retained by the copyright holder. If you desire to copy, distribute, or 
-modify the Program, including in connection with your own proprietary work, 
-other than in accordance with the terms of this license, you must contact 
-license@circular-logic.com to discuss obtaining a commercial license for such 
-rights.
-
                             NO WARRANTY
 
-  12. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
 FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
 OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
 PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED
@@ -278,7 +278,7 @@ TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE
 PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,
 REPAIR OR CORRECTION.
 
-  13. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
 WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
 REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,
 INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING
