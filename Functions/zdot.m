@@ -65,7 +65,7 @@ end
 
 %% The differential equation
 % $\dot{\vec{z}} = \vec{z} (a + b_1 \vec{z}^2) +x$
-dzdt = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-sqrt(e)*abs(z).^2)) + x;
+dzdt = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-e*abs(z).^2)) + x;
 
 %%  Nonlinear Function Definitions
 function y = P(epsilon, x)

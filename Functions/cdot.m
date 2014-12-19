@@ -66,7 +66,7 @@ X = single(X);
 
 %% oops ...not scaling by frequency
 % Why not con.e?
-dCdt = C.*(lambda + mu1.*abs(C).^2 + e*mu2.*(abs(C).^4)./(1-sqrt(e)*abs(C).^2)) + X;
+dCdt = C.*(lambda + mu1.*abs(C).^2 + e*mu2.*(abs(C).^4)./(1-e*abs(C).^2)) + X;
 end
 
 %% Nonlinear Function Definitions
