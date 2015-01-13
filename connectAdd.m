@@ -220,21 +220,19 @@ con.n2 = n2.id;
 %                                       This could be inverted guassian
 %                                       too
 
+mask = 1;
 if strcmpi(con.type, '2freq') && con.no11
     mask = ~(con.N==1 & con.D==1);
-elseif strcmpi(con.type, '3freq')
-    mask = 1;
-else
+elseif con.n1 == con.n2
     mask = ~eye(size(con.C));          % ... Won't learn self-connections
 end
 
 %% Return network n2
 n = n2;
-if con.n1 == con.n2
-    con.kappa = con.kappa .* mask;
-    con.C0    = con.C0    .* mask;
-    con.C     = con.C     .* mask;
-end
+con.kappa = con.kappa .* mask;
+con.C0    = con.C0    .* mask;
+con.C     = con.C     .* mask;
+
 n.con{length(n.con)+1} = con;
 
 %% Add index to conLearn if learn

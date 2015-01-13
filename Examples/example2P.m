@@ -2,9 +2,9 @@
 %
 % A simple afferent chain network with no learning
 
-%% Explore different parameter sets
+%% Parameters
 alpha1 = 0.01; beta11 = -1; beta12 =  -10; neps1 = 1; % Linear
-alpha2 =   -1; beta21 =  4; beta22 =  -3; neps2 = 1; % Critical
+alpha2 =   -1; beta21 =  4; beta22 =   -3; neps2 = 1; % Critical
 w = .025; 
 lambda =  0; mu1 = -1; mu2 = -1; ceps = 1, kappa = 1; % Critical
 
@@ -40,10 +40,3 @@ a2 = subplot(2,1,2);
 
 outputDisplay(M,'net',1,a1,'ampx')
 outputDisplay(M,'net',2,a2,'ampx')
-
-figure(12); 
-a3 = subplot(2,1,1);
-a4 = subplot(2,1,2);
-
-outputDisplay(M,'net',1,a3,'fft')
-outputDisplay(M,'net',2,a4,'fft')

@@ -118,6 +118,13 @@ end
 %MS1 - added 12/19/08
 s.useDirectIndex = 0; %used in stimulusRun
 s.lenx = length(s.x);
+s.inputType = '1freq';
+
+for i = 1:length(varargin)
+    if strcmpi(varargin{i},'inputType') %&& length(varargin) > i && ischar(varargin{i+1})
+        s.inputType = varargin{i+1};
+    end
+end
 
 %% Make type 'function'
 function s = makeFcnInput(varargin)
@@ -294,9 +301,9 @@ for i=2:nargin
                 melody = 1;
                 out_type = {'sin'};
                 midi_note2freq_map = 440*pow2((-68:59)*1/12);
-            otherwise
-                s.x=0;
-                error('Unknown argument')
+%             otherwise
+%                 s.x=0;
+%                 error('Unknown argument')
         end
     elseif i == 2 %error check that not text (&& ~ischar())
         s.ts   = varargin{2};

@@ -21,13 +21,20 @@ con = n.con;
 s    = stimulusRun(t, M.s, []);  % External signal, scalar
 
 %%   External stimulus
+x = 0;
 if ext
-    x = s; % C, 0.010, -10, -10, .1, s.t, 20, 1000);
-else
-    x = 0;
+    x = s;
 end
-x = single(x);
-x = n.w .* x;
+switch lower(M.s.inputType)
+    case 'allfreq'
+        x = n.w .* P_new(e, x) .* A(e, z);
+    case 'all2freq'
+        x = n.w .* P(e, x) .* A(e, z);
+    case 'active'
+        x = n.w .* x .* A(e, z);
+    otherwise
+        x = n.w .* x;
+end
 
 %% Connection input
 for cx = 1:length(con)
@@ -59,7 +66,7 @@ for cx = 1:length(con)
     elseif strcmpi(con{cx}.type, 'All2freq')
         x = x + con{cx}.w .* (con{cx}.C*P(e, z1).*A(e, z));
     elseif strcmpi(con{cx}.type, 'Allfreq')
-        x = x + con{cx}.w .* (con{cx}.C*P_new(e, z1).*A(e, z));
+        x =  x + con{cx}.w .* (con{cx}.C*P_new(e, z1).*A(e, z));
     end
 end
 
