@@ -206,7 +206,7 @@ if ix == 0
     end
     
     grid on
-    colorbar;
+    colormap(flipud(hot)); colorbar;
     
     if isfield(con,'pAx') && ishghandle(con.pAx)
         axes(con.pAx)
