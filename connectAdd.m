@@ -109,8 +109,8 @@ end
 
 %% Connection types
 
-F1 = repmat(n1.f, 1, n2.N);
-F2 = repmat(n2.f', n1.N, 1);
+F1 = repmat(n1.f', n2.N, 1);
+F2 = repmat(n2.f, 1, n1.N);
 
 switch lower(con.type)
     
@@ -118,7 +118,7 @@ switch lower(con.type)
         F = (F1 + F2)/2;
         
     case '2freq' % two-frequency monomials
-        R = F1./F2;
+        R = F2./F1;
         sz = size(R);
         [N D] = fareyratio(R(:)', .05);
         N = reshape(N,sz);
