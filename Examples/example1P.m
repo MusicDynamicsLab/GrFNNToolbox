@@ -7,10 +7,10 @@ alpha = 1; beta1 = -1; beta2 = -1000; neps = 1; % Limit Cycle
 
 %% Parameter sets for Hebbian plasiticity
 w = .05; 
-% lambda =  -.1; mu1 =  0; mu2 =  0; ceps =  4, kappa = 1; % Linear learning rule
-% lambda =   0; mu1 = -1; mu2 = -50; ceps =  4, kappa = 1; % Critical learning rule
-% lambda =   0; mu1 = -1; mu2 = -50; ceps = 16, kappa = 1; % Critical, stronger nonlinearity
-lambda = .001; mu1 = -1; mu2 = -50; ceps = 16, kappa = 1; % Supercritical learning rule
+% lambda =  -.1; mu1 =  0; mu2 =  0; ceps =  4; kappa = 1; % Linear learning rule
+% lambda =   0; mu1 = -1; mu2 = -50; ceps =  4; kappa = 1; % Critical learning rule
+% lambda =   0; mu1 = -1; mu2 = -50; ceps = 16; kappa = 1; % Critical, stronger nonlinearity
+lambda = .001; mu1 = -1; mu2 = -50; ceps = 16; kappa = 1; % Supercritical learning rule
 
 %% Make the model
 s = stimulusMake('fcn', [0 100], 40, {'exp'}, [1], [0]);

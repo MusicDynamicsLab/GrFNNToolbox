@@ -6,7 +6,7 @@
 alpha1 = 0.01; beta11 = -1; beta12 =  -10; neps1 = 1; % Linear
 alpha2 =   -1; beta21 =  4; beta22 =   -3; neps2 = 1; % Critical
 w = .025; 
-lambda =  0; mu1 = -1; mu2 = -1; ceps = 1, kappa = 1; % Critical
+lambda =  0; mu1 = -1; mu2 = -1; ceps = 1; kappa = 1; % Critical
 
 %% Make the model
 s = stimulusMake('fcn', [0 1; 1 1.5], 4000, {'exp'; 'exp'}, [100 149; 100 149], .025*[1 1; 0 0], 0, 'ramp', 0.01, 1);
