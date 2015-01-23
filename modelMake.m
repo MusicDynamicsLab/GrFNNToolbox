@@ -77,6 +77,35 @@ function model = modelMake(varargin)
   % encapsulate stimulus in model
   model.s = s;
 
+%% Cast everything as complex and single
+
+model.s.x = CS(model.s.x);
+
+for nx = 1:length(model.n)
+    model.n{nx}.z0 = CS(model.n{nx}.z0);
+    model.n{nx}.z  = CS(model.n{nx}.z);
+    model.n{nx}.Z  = CS(model.n{nx}.Z);
+    model.n{nx}.a  = CS(model.n{nx}.a);
+    model.n{nx}.b1 = CS(model.n{nx}.b1);
+    model.n{nx}.b2 = CS(model.n{nx}.b2);
+    model.n{nx}.e  = CS(model.n{nx}.e);
+    for cx = 1:length(model.n{nx}.con)
+        if any(model.n{nx}.conLearn) && any(model.n{nx}.conLearn == cx)
+            model.n{nx}.con{cx}.C0 = CS(model.n{nx}.con{cx}.C0);
+            model.n{nx}.con{cx}.C  = CS(model.n{nx}.con{cx}.C);
+            model.n{nx}.con{cx}.C3 = CS(model.n{nx}.con{cx}.C3);
+        end
+        model.n{nx}.con{cx}.w      = CS(model.n{nx}.con{cx}.w);
+        model.n{nx}.con{cx}.lambda = CS(model.n{nx}.con{cx}.lambda);
+        model.n{nx}.con{cx}.mu1    = CS(model.n{nx}.con{cx}.mu1);
+        model.n{nx}.con{cx}.mu2    = CS(model.n{nx}.con{cx}.mu2);
+        model.n{nx}.con{cx}.kappa  = CS(model.n{nx}.con{cx}.kappa);
+        model.n{nx}.con{cx}.e      = CS(model.n{nx}.con{cx}.e);
+    end
+end
+  
+  
+  
 %% If dotfunc (override) option is empty, then use base dotfunc from network and oscillator-model
 
 if isempty(model.dotfunc)
@@ -102,3 +131,7 @@ end
 
 n.gpuT  = @gpuT_undefined; 
 
+
+function output=CS(input)
+
+output=complex(single(input));
