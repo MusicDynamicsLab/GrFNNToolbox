@@ -225,7 +225,7 @@ if ix == 0
     xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',M.n{con.n1}.id));
     ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',nx));
     set(gca, 'xscale', 'log', 'yscale', 'log');
-    set(gca, 'CLim', [.001 .75/sqrt(con.e)]);
+    set(gca, 'CLim', [.001 1/sqrt(con.e)]);
     
 % Commenting out old way of doing this
 % 
