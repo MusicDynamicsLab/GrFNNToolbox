@@ -38,7 +38,10 @@ step = single(1);
 h = single(s.dt);                   % For variable step size, else h = dt;
 numNet = length(M.n);
 
-%% Display initial conditions if dStep > 0
+%% Display stimulus and initial conditions if dStep > 0
+if s.dStep
+    stimulusDisplay(0)
+end
 for nx = 1:numNet
     if M.n{nx}.dStep
         networkDisplay(0, nx);
@@ -115,6 +118,9 @@ for ix = ispan(1) : step : ispan(2)-step
                         end
                     end
                 end
+                if M.s.dStep && ~mod(ix, M.s.dStep)
+                    stimulusDisplay(ix);
+                end
         end
     end
 end
@@ -129,6 +135,34 @@ end
 %  k4 = h*f(t(i+1), yi+k3)
 %
 %  y(i+1) = yi + 1/6*(k1 + 2*k2 + 2*k3 + k4)
+
+%% function: Displays stimulus and progress bar
+function stimulusDisplay(ix)
+global M 
+s = M.s;
+if ix == 0
+    if isfield(s,'sAx') && ishghandle(s.sAx)
+        axes(s.sAx)
+    else
+        figure(10000);
+    end
+    
+    plot(s.t, real(s.x(s.dispChan,:)), 'k')
+    hold on
+    M.s.bH = plot([1 1]*s.t(1), get(gca,'YLim'), 'r'); % handle for progress bar
+    hold off
+    title(['Stimulus ', 'Channel ', num2str(s.dispChan)])
+    xlabel('Time')
+    ylabel('Real part')
+    grid
+    
+else
+    set(M.s.bH, 'XData', [1 1]*s.t(ix))
+end
+
+drawnow
+
+end
 
 %% function: Displays instantaneous network state
 function networkDisplay(ix, nx)
@@ -152,7 +186,7 @@ if ix == 0
         case 'lin'
             M.n{nx}.nH = plot(net.f, abs(net.z), '.-');  % nH: lineseries object handle
     end
-    title(sprintf('Amplitudes of oscillators in network %d',nx));
+    M.n{nx}.tH = title(sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, M.s.t(1)));
     xlabel('Oscillator natural frequency (Hz)');
     ylabel('Amplitude');
     set(gca, 'XLim',[min(net.f) max(net.f)]);
@@ -164,6 +198,7 @@ if ix == 0
     grid
 else
     set(net.nH, 'YData', abs(net.z));
+    set(net.tH, 'String', sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, M.s.t(ix)))
 end
 
 drawnow
@@ -186,7 +221,7 @@ if ix == 0
         figure(10000+1000*nx+100*cx);
     end
     M.n{nx}.con{cx}.aH = imagesc(f1, f2, abs(con.C));
-    title(sprintf('Amplitudes of connection matrix %d to network %d',cx,nx));
+    M.n{nx}.con{cx}.atH = title(sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)',cx,nx,M.s.t(1)));
     xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',M.n{con.n1}.id));
     ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',nx));
     set(gca, 'xscale', 'log', 'yscale', 'log');
@@ -217,7 +252,7 @@ if ix == 0
         figure(10000+1000*nx+100*cx+1);  
     end
     M.n{nx}.con{cx}.pH = imagesc(f1, f2, angle(con.C));
-    title(sprintf('Phases of connection matrix %d to network %d',cx,nx));
+    M.n{nx}.con{cx}.ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,M.s.t(1)));
     xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',M.n{con.n1}.id));
     ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',nx));
     set(gca, 'xscale', 'log', 'yscale', 'log');
@@ -244,7 +279,9 @@ if ix == 0
     
 else
     set(con.aH, 'CData', (abs(con.C)));
+    set(con.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)',cx,nx,M.s.t(ix)))
     set(con.pH, 'CData', angle(con.C));
+    set(con.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,M.s.t(ix)))
 end
 
 drawnow

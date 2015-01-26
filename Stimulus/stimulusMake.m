@@ -119,10 +119,22 @@ end
 s.useDirectIndex = 0; %used in stimulusRun
 s.lenx = length(s.x);
 s.inputType = '1freq';
+s.dStep = 0;
+s.dispChan = 1;
 
 for i = 1:length(varargin)
     if strcmpi(varargin{i},'inputType') %&& length(varargin) > i && ischar(varargin{i+1})
         s.inputType = varargin{i+1};
+    end
+    if strcmpi(varargin{i},'display') %&& length(varargin) > i && ischar(varargin{i+1})
+        s.dStep = varargin{i+1};
+    end
+    if strcmpi(varargin{i},'displayChannel') %&& length(varargin) > i && ischar(varargin{i+1})
+        if ismember(varargin{i+1}, 1:size(s.x,1))
+            s.dispChan = varargin{i+1};
+        else
+            error('not available stimulus channel')
+        end
     end
 end
 
