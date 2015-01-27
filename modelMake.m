@@ -132,6 +132,14 @@ end
 n.gpuT  = @gpuT_undefined; 
 
 
-function output=CS(input)
+function output = CS(input)
 
-output=complex(single(input));
+if isreal(input) && isa(input,'double')
+    output = complex(single(input));
+elseif isreal(input) && isa(input,'single')
+    output = complex(input);
+elseif ~isreal(input) && isa(input,'double')
+    output = single(input);
+else
+    output = input;
+end
