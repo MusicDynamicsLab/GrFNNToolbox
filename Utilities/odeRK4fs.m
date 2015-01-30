@@ -1,11 +1,11 @@
 %% odeRK4fs
-%   M = odeRK4fs(M)
+%   M = odeRK4fs(M,s)
 %
 %  Fixed-step 4th-order Runge-Kutta ODE numerical integration.
 %  Steps by *direct indexing* of stimulus vector.
 %
 %  Params
-%   Model    
+%   Model, stimulus
 %
 %  Output
 %   M - Model
