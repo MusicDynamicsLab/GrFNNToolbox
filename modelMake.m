@@ -23,6 +23,7 @@ function model = modelMake(varargin)
       s              = varargin{2};
       ind            = 3;
   end
+  model.fs           = s.fs;
   model.dt           = s.dt;
   model.tspan        = s.ts;
   
@@ -74,33 +75,28 @@ function model = modelMake(varargin)
       model.n{1}.ext = 1;
   end
   
-  % encapsulate stimulus in model
-  model.s = s;
-
 %% Cast everything as complex and single
 
-model.s.x = CS(model.s.x);
-
 for nx = 1:length(model.n)
-    model.n{nx}.z0 = CS(model.n{nx}.z0);
-    model.n{nx}.z  = CS(model.n{nx}.z);
-    model.n{nx}.Z  = CS(model.n{nx}.Z);
-    model.n{nx}.a  = CS(model.n{nx}.a);
-    model.n{nx}.b1 = CS(model.n{nx}.b1);
-    model.n{nx}.b2 = CS(model.n{nx}.b2);
-    model.n{nx}.e  = CS(model.n{nx}.e);
+    model.n{nx}.z0 = castCS(model.n{nx}.z0);
+    model.n{nx}.z  = castCS(model.n{nx}.z);
+    model.n{nx}.Z  = castCS(model.n{nx}.Z);
+    model.n{nx}.a  = castCS(model.n{nx}.a);
+    model.n{nx}.b1 = castCS(model.n{nx}.b1);
+    model.n{nx}.b2 = castCS(model.n{nx}.b2);
+    model.n{nx}.e  = castCS(model.n{nx}.e);
     for cx = 1:length(model.n{nx}.con)
         if any(model.n{nx}.conLearn) && any(model.n{nx}.conLearn == cx)
-            model.n{nx}.con{cx}.C0 = CS(model.n{nx}.con{cx}.C0);
-            model.n{nx}.con{cx}.C  = CS(model.n{nx}.con{cx}.C);
-            model.n{nx}.con{cx}.C3 = CS(model.n{nx}.con{cx}.C3);
+            model.n{nx}.con{cx}.C0 = castCS(model.n{nx}.con{cx}.C0);
+            model.n{nx}.con{cx}.C  = castCS(model.n{nx}.con{cx}.C);
+            model.n{nx}.con{cx}.C3 = castCS(model.n{nx}.con{cx}.C3);
         end
-        model.n{nx}.con{cx}.w      = CS(model.n{nx}.con{cx}.w);
-        model.n{nx}.con{cx}.lambda = CS(model.n{nx}.con{cx}.lambda);
-        model.n{nx}.con{cx}.mu1    = CS(model.n{nx}.con{cx}.mu1);
-        model.n{nx}.con{cx}.mu2    = CS(model.n{nx}.con{cx}.mu2);
-        model.n{nx}.con{cx}.kappa  = CS(model.n{nx}.con{cx}.kappa);
-        model.n{nx}.con{cx}.e      = CS(model.n{nx}.con{cx}.e);
+        model.n{nx}.con{cx}.w      = castCS(model.n{nx}.con{cx}.w);
+        model.n{nx}.con{cx}.lambda = castCS(model.n{nx}.con{cx}.lambda);
+        model.n{nx}.con{cx}.mu1    = castCS(model.n{nx}.con{cx}.mu1);
+        model.n{nx}.con{cx}.mu2    = castCS(model.n{nx}.con{cx}.mu2);
+        model.n{nx}.con{cx}.kappa  = castCS(model.n{nx}.con{cx}.kappa);
+        model.n{nx}.con{cx}.e      = castCS(model.n{nx}.con{cx}.e);
     end
 end
   
@@ -130,16 +126,3 @@ end
 
 
 n.gpuT  = @gpuT_undefined; 
-
-
-function output = CS(input)
-
-if isreal(input) && isa(input,'double')
-    output = complex(single(input));
-elseif isreal(input) && isa(input,'single')
-    output = complex(input);
-elseif ~isreal(input) && isa(input,'double')
-    output = single(input);
-else
-    output = input;
-end

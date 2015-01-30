@@ -27,5 +27,5 @@ model = modelMake(@zdot, @cdot, s, n);
 
 %% Run the network
 tic
-model = odeRK4fs(model);
+model = odeRK4fs(model,s);
 toc

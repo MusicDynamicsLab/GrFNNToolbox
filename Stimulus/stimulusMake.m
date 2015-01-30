@@ -138,6 +138,8 @@ for i = 1:length(varargin)
     end
 end
 
+s.x = castCS(s.x);
+
 %% Make type 'function'
 function s = makeFcnInput(varargin)
 

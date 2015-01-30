@@ -4,10 +4,10 @@
 % Integrates a single network
 
 %%
-function [dzdt] = zdot(t, nx, varargin)
+function [dzdt] = zdot(M, stimulus, t, nx, varargin)
 %% Initialize variables and stimulus
 
-global M
+% global M
 
 n   = M.n{nx};
 z   = n.z;
@@ -18,14 +18,13 @@ e   = n.e;
 ext = n.ext;
 con = n.con;
 
-s    = stimulusRun(t, M.s, []);  % External signal, scalar
-
+s    = stimulusRun(t, stimulus, []);  % External signal, scalar
 %%   External stimulus
 x = 0;
 if ext
     x = s;
 end
-switch lower(M.s.inputType)
+switch lower(stimulus.inputType)
     case 'allfreq'
         x = n.w .* P_new(e, x) .* A(e, z);
     case 'all2freq'

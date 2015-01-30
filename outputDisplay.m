@@ -242,7 +242,7 @@ drawnow;
 function simpleSpec(M,id,handle)
 freqLim = max(M.n{id}.f)*2;
 Z = real(mean(M.n{id}.Z));
-fs = M.s.fs/M.n{id}.sStep;
+fs = M.fs/M.n{id}.sStep;
 NFFT = length(Z)*8;
 freqs = fs/2*linspace(0,1,NFFT/2+1);
 ind = floor(length(freqs)*freqLim/(fs/2));
@@ -295,7 +295,7 @@ drawnow;
 %% Network mean-field spectrogram
 function spectrogramMeanField(M,id,handle)
 Z = real(mean(M.n{id}.Z));
-fs = M.s.fs/M.n{id}.sStep;
+fs = M.fs/M.n{id}.sStep;
 NFFT = length(Z)*8;
 freqLim = max(M.n{id}.f)*2;
 percentages = [0 100*freqLim/(fs/2)];
@@ -310,7 +310,7 @@ title(sprintf('Spectrogram for mean field of network %d',id));
 %% Network mean-field autocorrelogram
 function autocorrelogramMeanField(M,id,handle)
 Z = real(mean(M.n{id}.Z));
-fs = M.s.fs/M.n{id}.sStep;
+fs = M.fs/M.n{id}.sStep;
 NFFT = length(Z)*8;
 freqLim = max(M.n{id}.f)*2;
 percentages = [0 100*freqLim/(fs/2)];
@@ -329,7 +329,7 @@ Z = real(n.Z)';
 NFFT = size(Z,1)*8;
 f = n.f;
 freqLim = max(f)*2;
-fs = M.s.fs/n.sStep;
+fs = M.fs/n.sStep;
 freqs = fs/2*linspace(0,1,NFFT/2+1);
 ind = floor(length(freqs)*freqLim/(fs/2));
 % ticks = tickMake(f,8);

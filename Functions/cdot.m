@@ -4,10 +4,10 @@
 % Integrates one connection
 
 %%
-function [dCdt] = cdot(nx, cx)
+function [dCdt] = cdot(M, nx, cx)
 
 %% Initialize variables and stimulus
-global M
+% global M
 %dbg = 0;
 
 con  = M.n{nx}.con{cx};

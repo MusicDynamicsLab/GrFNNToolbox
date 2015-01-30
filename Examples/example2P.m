@@ -9,7 +9,7 @@ w = .025;
 lambda =  0; mu1 = -1; mu2 = -1; ceps = 1; kappa = 1; % Critical
 
 %% Make the model
-s = stimulusMake('fcn', [0 1; 1 1.5], 4000, {'exp'; 'exp'}, [100 149; 100 149], .025*[1 1; 0 0], 0, 'ramp', 0.01, 1);
+s = stimulusMake('fcn', [0 1; 1 1.5], 4000, {'exp'; 'exp'}, [100 149; 100 149], .025*[1 1; 0 0], 0, 'ramp', 0.01, 1, 'display', 10);
 stimulusShow(s, 1); drawnow;
 
 n1 = networkMake(1, 'hopf', alpha1, beta11,  beta12,  0, 0, neps1, ...
@@ -30,7 +30,7 @@ M = modelMake(@zdot, @cdot, s, n1, n2);
 
 %% Run the network
 tic
-M = odeRK4fs(M);
+M = odeRK4fs(M,s);
 toc
 
 %% Display the output

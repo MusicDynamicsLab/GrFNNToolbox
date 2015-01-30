@@ -25,7 +25,7 @@ M = modelMake(@zdot, @cdot, s, n);
 
 %% Run the network
 tic
-M = odeRK4fs(M);
+M = odeRK4fs(M,s);
 drawnow
 toc
 
