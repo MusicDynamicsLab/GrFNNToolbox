@@ -195,7 +195,7 @@ for a = 1:size(s.ts,1)                % For each section of the signal
         temp = temp + noise;
     end
     
-    s.x(t0n:tfn) = temp;            %write temp vector to approp. part of s.x
+    s.x(t0n:tfn) = s.x(t0n:tfn) + temp;            %write temp vector to approp. part of s.x
     
 end
 
