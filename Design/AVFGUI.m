@@ -26,12 +26,12 @@ if nargin < 5
   force = 0;
 end
 
-figure(999)
+figure(998)
 set(gcf,'Visible','off','Toolbar','figure','Color',[.8 .8 .8],...
   'Position',[100,100,1000,670]);
 initialRun([],[],alpha,beta1,beta2,epsilon,force)
-movegui(999,'center')
-set(999,'Visible','on')
+movegui(998,'center')
+set(998,'Visible','on')
 
 % =========================================================================
 function initialRun(source,eventdata,alpha,beta1,beta2,epsilon,force)
