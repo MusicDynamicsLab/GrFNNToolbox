@@ -7,7 +7,7 @@ end
 y=y(:);
 if nargout>1, error('Can have only one arg out: Struct with .spec (spectrogram mat), .t (time vector) and .f (freq vector)');end
 loop=0;
-dbg=1;
+dbg=0;
 if isempty(varargin)
     portion=[0 100];
     N=ceil(length(y)^(1/1.4));
