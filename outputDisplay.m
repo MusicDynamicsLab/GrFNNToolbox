@@ -54,7 +54,7 @@
 %   hand3=gca;
 %   subplot(2,2,4)
 %   hand4=gca;
-%   outputDisplay(M,'net',1,hand1,'fft','net',1,hand3,'spec','net',2,hand2,'fft','net',2,hand4,'spec')
+%   outputDisplay(M,'net',1,hand1,'fft',hand3,'spec','net',2,hand2,'fft',hand4,'spec')
 
 %%
 function outputDisplay(M,varargin)
