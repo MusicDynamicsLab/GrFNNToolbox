@@ -243,7 +243,7 @@ function simpleSpec(M,id,handle)
 freqLim = max(M.n{id}.f)*2;
 Z = real(mean(M.n{id}.Z));
 fs = M.fs/M.n{id}.sStep;
-NFFT = length(Z)*8;
+NFFT = 16384;
 freqs = fs/2*linspace(0,1,NFFT/2+1);
 ind = floor(length(freqs)*freqLim/(fs/2));
 % ind = length(freqs)-1';
@@ -296,7 +296,7 @@ drawnow;
 function spectrogramMeanField(M,id,handle)
 Z = real(mean(M.n{id}.Z));
 fs = M.fs/M.n{id}.sStep;
-NFFT = length(Z)*8;
+NFFT = 16384;
 freqLim = max(M.n{id}.f)*2;
 percentages = [0 100*freqLim/(fs/2)];
 if isempty(handle)
@@ -311,7 +311,7 @@ title(sprintf('Spectrogram for mean field of network %d',id));
 function autocorrelogramMeanField(M,id,handle)
 Z = real(mean(M.n{id}.Z));
 fs = M.fs/M.n{id}.sStep;
-NFFT = length(Z)*8;
+NFFT = 16384;
 freqLim = max(M.n{id}.f)*2;
 percentages = [0 100*freqLim/(fs/2)];
 if isempty(handle)
@@ -326,7 +326,7 @@ title(sprintf('Autocorrelogram for mean field of network %d',id));
 function allFFT(M,id,handle)
 n = M.n{id};
 Z = real(n.Z)';
-NFFT = size(Z,1)*8;
+NFFT = 16384;
 f = n.f;
 freqLim = max(f)*2;
 fs = M.fs/n.sStep;

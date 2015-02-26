@@ -7,19 +7,19 @@ end
 y=y(:);
 if nargout>1, error('Can have only one arg out: Struct with .spec (spectrogram mat), .t (time vector) and .f (freq vector)');end
 loop=0;
-dbg=0;
+dbg=1;
 if isempty(varargin)
     portion=[0 100];
-    N=floor(fs/20);
-    windowStep=50;
+    N=ceil(length(y)^(1/1.4));
+    windowStep=ceil(length(y)^(1/2.5));
 elseif length(varargin)==1
     portion=varargin{1};
-    N=floor(fs/20);
-    windowStep=50;
+    N=ceil(length(y)^(1/1.4));
+    windowStep=ceil(length(y)^(1/2.5));
 elseif length(varargin)==2
     portion=varargin{1};
     N=varargin{2};
-    windowStep=50;
+    windowStep=ceil(length(y)^(1/2.5));
 elseif length(varargin)==3
     portion=varargin{1};
     N=varargin{2};
@@ -86,7 +86,8 @@ else
     % disp(size(buffer(y,N,N-windowStep,'nodelay')));
     
     [Y ~]=buffer(y,N,N-windowStep,'nodelay');
-    Sfft = fft(repmat(window,1,size(Y,2)).*Y,NFFT);
+%     Sfft = fft(repmat(window,1,size(Y,2)).*Y,NFFT);
+    Sfft = fft(bsxfun(@times,Y,window),NFFT);
     if dbg, toc;end
     
 end
