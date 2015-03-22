@@ -1,14 +1,12 @@
-function z = midearfilt(s)
+function z = midearfilt(s,varargin)
 
-% NOTE: The stimulus s must be sampled at 100kHz
-
-
+% Sampling Frequency (this code should work/stable for Fs > 70e3)
+Fs = 100e3;
+if nargin==2, Fs=varargin{1};end;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 cat_or_human = 2; % Choose 1 for cat and 2 for human
 
-% Sampling Frequency (this code should work/stable for Fs > 70e3)
-Fs = 100e3;
 
 tdres = 1/Fs;
 fp    = 1e3;  % prewarping frequency 1 kHz 
