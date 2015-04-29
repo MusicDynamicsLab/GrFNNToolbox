@@ -122,7 +122,4 @@ if isempty(model.dotfunc)
         model.dotfunc = @zdotw_sc;
     end
 
-end
-
-
-n.gpuT  = @gpuT_undefined; 
+end 

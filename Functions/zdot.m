@@ -18,11 +18,10 @@ e   = n.e;
 ext = n.ext;
 con = n.con;
 
-s    = stimulusRun(t, stimulus, []);  % External signal, scalar
 %%   External stimulus
 x = 0;
 if ext
-    x = s(ext);
+  x = stimulusRun(t, stimulus, ext);  % External signal, scalar
 end
 switch lower(stimulus.inputType)
     case 'allfreq'
@@ -94,22 +93,22 @@ function y = H(epsilon, r)
 y = (epsilon * r.^4 ./ (1- epsilon * r.^2) );
 
 %% Interpolate stimulus value for given t
-function y = stimulusRun(t, varargin)
+function y = stimulusRun(t, s, ext)
 
 %t is an index into stimulus data
 %check out of bounds. Clamp if needed.
-s = varargin{1};
+  
 if t >= s.lenx %much faster than (length(s.x))
-    y = s.x(:,s.lenx);
+    y = s.x(ext,s.lenx);
 end
 
 %First check if index is integer or not
 rm = t - floor(t); %NOTE don't name this 'rem'! That's a func and will slow things!
 if rm == 0
    %integer, so valid index
-   y = s.x(:,t);
+   y = s.x(ext,t);
 else
     %We're between indices, so linear interpolation
-    y = s.x(:,t-rm) * (1-rm) + s.x(:,t+1-rm) * rm;
+    y = s.x(ext,t-rm) * (1-rm) + s.x(ext,t+1-rm) * rm;
     %(t-rm) & (t+1-rm) are much faster than floor(t) & ceil(t)
 end
