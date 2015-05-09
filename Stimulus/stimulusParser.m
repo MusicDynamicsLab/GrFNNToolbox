@@ -132,10 +132,10 @@ if strcmpi(s.type,'fcn')
                 s.iter = varargin{i+1};
                 s.Niter = varargin{i+2};
                 if length(varargin) > i + 2 && ~ischar(varargin{i+3})
-                    error('Iter takes two variables: Length in ms of delay and number of iterations')
+                    error('Iter takes two variables: Length in seconds of delay and number of iterations')
                 end
             else
-                error('Iter takes two variables: Length in ms of delay and number of iterations')
+                error('Iter takes two variables: Length in seconds of delay and number of iterations')
             end
         end
         if strcmpi(varargin{i},'filtstim')
