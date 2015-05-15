@@ -413,6 +413,68 @@ elseif strcmpi(s.type,'wav')
     end
     
     for i = 1:length(varargin)
+        if strcmpi(varargin{i},'mask')
+            if length(varargin) > i && ~ischar(varargin{i+1})
+                s.mask = varargin{i+1};
+                if length(varargin) > i + 1 && ~ischar(varargin{i+2})
+                    error('Noise (for masking stim time course(s)) takes one variable: Signal-to-noise ratio (in dB)')
+                end
+            else
+                error('Noise (for masking stim time course(s)) takes one variable: Signal-to-noise ratio (in dB)')
+            end
+        end
+        if strcmpi(varargin{i},'filtstim')
+            if length(varargin) > i && ~ischar(varargin{i+1})
+                s.filtstim = varargin{i+1};
+                if length(varargin) > i + 1 && ~ischar(varargin{i+2})
+                    error('Filtstim takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function')
+                end
+            else
+                error('Filtstim takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function')
+            end
+            if size(s.filtstim,2) ~= 2
+                error('Filtstim takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function')
+            end
+        end
+        if strcmpi(varargin{i},'filtmask')
+            if length(varargin) > i && ~ischar(varargin{i+1})
+                s.filtmask = varargin{i+1};
+                if length(varargin) > i + 1 && ~ischar(varargin{i+2})
+                    error('Filtmask takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function')
+                end
+            else
+                error('Filtmask takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function')
+            end
+            if size(s.filtmask,2) ~= 2
+                error('Filtmask takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function')
+            end
+        end
+        if strcmpi(varargin{i},'maskall')
+            if length(varargin) > i && ~ischar(varargin{i+1})
+                s.maskall = varargin{i+1};
+                if length(varargin) > i + 1 && ~ischar(varargin{i+2})
+                    error('Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)')
+                end
+            else
+                error('Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)')
+            end
+            if numel(s.maskall) ~= 1
+                error('Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)')
+            end
+        end
+        if strcmpi(varargin{i},'filtmaskall')
+            if length(varargin) > i && ~ischar(varargin{i+1})
+                s.filtmaskall = varargin{i+1};
+                if length(varargin) > i + 1 && ~ischar(varargin{i+2})
+                    error('Filtmaskall takes one variable: A 1-by-2 array, b and a, vectors to filter() function')
+                end
+            else
+                error('Filtmaskall takes one variable: A 1-by-2 array, b and a, vectors to filter() function')
+            end
+            if numel(s.filtmaskall) ~= 2
+                error('Filtmaskall takes one variable: A 1-by-2 array, b and a, vectors to filter() function')
+            end
+        end
         if isstr(varargin{i}) && strcmpi(varargin{i},'ts')
             s.ts = varargin{i+1};
             s0 = round(s.ts(  1)*s.fs+1); %MGS - 6/28/09 Added round(...) to allow non-integer time spans
@@ -437,15 +499,12 @@ elseif strcmpi(s.type,'wav')
             end
             s.x = temp;
         end
-        
-    end
-    
-    for i = 1:length(varargin)
         if isstr(varargin{i}) && strcmpi(varargin{i},'ramp')
             s.sc = varargin{i+1};
             s.sp = varargin{i+2};
             s.x  = stimulusRamp(s.x,s.sc,s.sp,s.fs);
         end
+        
     end
     
 end

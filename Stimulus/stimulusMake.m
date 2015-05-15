@@ -190,7 +190,7 @@ for a = 1:size(s.ts,1)                % For each section of the signal
             noise = filter(s.filtmask{a,1},s.filtmask{a,2},noise);
         end
         noise = noise * (1/rms(noise)) * 10^(-s.mask(a)/20) * rms(temp);    %interpret noise input as SNR in dB with reference to stim
-
+        
         noise = stimulusRamp(noise, s.sc(a), s.sp(a), s.fs);
         temp = temp + noise;
     end
@@ -227,7 +227,7 @@ if iscell(varargin{1})           % If multiple wavreads
         
         s.fn{numRead} = varargin{1}{numRead};
         
-        [temp s.fs] = wavread(s.fn{numRead});
+        [temp,s.fs] = wavread(s.fn{numRead});
         
         temp = sum(temp,2) / size(temp,2);
         
@@ -239,7 +239,7 @@ else                             % else one wavread
     
     s.fn = varargin{1};
     
-    [s.x s.fs] = wavread(s.fn);
+    [s.x,s.fs] = wavread(s.fn);
     
 end
 
@@ -250,6 +250,24 @@ s.t  = linspace(s.ts(1),s.ts(2),size(s.x,1));
 
 s.x  = s.x';                     % Transpose because toolbox expects row vector(s)
 
+
+if isfield(s, 'filtstim') && ~isempty(s.filtstim{1}) && ~isempty(s.filtstim{2})
+    s.x = filter(s.filtstim{1},s.filtstim{2},s.x);
+end
+
+if isfield(s, 'mask')
+    noise = zeros(size(s.x));
+    for i = 1:length(s.x)
+        noise(i) = rand*2 - 1;
+    end
+    if isfield(s, 'filtmask') && ~isempty(s.filtmask{1}) && ~isempty(s.filtmask{2})
+        noise = filter(s.filtmask{1},s.filtmask{2},noise);
+    end
+    noise = noise * (1/rms(noise)) * 10^(-s.mask/20) * rms(s.x);    %interpret noise input as SNR in dB with reference to stim
+    
+    noise = stimulusRamp(noise, s.sc, s.sp, s.fs);
+    s.x = s.x + noise;
+end
 
 %% Make type 'midi'
 
@@ -281,7 +299,7 @@ out_type = {'pls'};
 
 % Parse arguments
 for i=2:nargin
-    if ischar(varargin{i}) 
+    if ischar(varargin{i})
         switch varargin{i}
             case 'tempo_mod'
                 if (i+1)<=length(varargin) && iscell(varargin{i+1})
@@ -301,7 +319,7 @@ for i=2:nargin
                     num_stim_chans = hi_note - lo_note + 1;
                     midi_notes = (lo_note:hi_note);
                 end
-
+                
                 stim_chan_map = containers.Map(midi_notes, (1:num_stim_chans));
                 %stim_chan_map_keys = midi_notes;
                 col_ind = 4;
@@ -315,9 +333,9 @@ for i=2:nargin
                 melody = 1;
                 out_type = {'sin'};
                 midi_note2freq_map = 440*pow2((-68:59)*1/12);
-%             otherwise
-%                 s.x=0;
-%                 error('Unknown argument')
+                %             otherwise
+                %                 s.x=0;
+                %                 error('Unknown argument')
         end
     elseif i == 2 %error check that not text (&& ~ischar())
         s.ts   = varargin{2};
@@ -358,7 +376,7 @@ if ~isempty(s.ts)
     Ntmp = Ntmp(Ntmp(:,6)<s.ts(end), :);
     N = Ntmp(Ntmp(:,6)>s.ts(1), :);
     too_long_note_rows = find((N(:,6)+N(:,7))>s.ts(end));
-
+    
     for i=1:length(too_long_note_rows)
         N(too_long_note_rows(i),7) = s.ts(end) - N(too_long_note_rows(i),6);
     end
@@ -386,7 +404,7 @@ else
 end
 
 % If creating a melodic stimulus get frequencies for tone synthesis
-if melody ~= 0 
+if melody ~= 0
     freq = midi_note2freq_map(N(:,4)+1);
 else
     freq = 1./N(:,7);
@@ -396,7 +414,7 @@ end
 O  = zeros(num_stim_chans, length(s.t));
 
 for n = 1:final_note_ind
-
+    
     stim_chan = N(n, 3);
     note_on = round(N(n,6)*s.fs) - s0;
     
@@ -404,7 +422,7 @@ for n = 1:final_note_ind
     xb = note.x;
     %required because makeFcnInput sometimes returns .x one sample short
     note_off = note_on+length(xb);
-
+    
     O(stim_chan, (note_on:note_off-1)+1) = O(stim_chan, (note_on:note_off-1)+1) + xb;
 end
 
@@ -421,101 +439,101 @@ s.x = O./a;
 %  Calls canonMake and creates a time series stimulus from the matrix.
 %  For now, cannot enter a sample rate without time span.
 function s = makeRfcnInput(varargin)
-    
-    s.type = 'rfcn';
-    s.analytic = 0;
-    
-    s.ts = [];
-    s.fs = 100;
-    
-    if numel(varargin{1}) == 2 %it's a time span
-        s.ts = varargin{1};
+
+s.type = 'rfcn';
+s.analytic = 0;
+
+s.ts = [];
+s.fs = 100;
+
+if numel(varargin{1}) == 2 %it's a time span
+    s.ts = varargin{1};
+    varargin(1) = [];
+    if varargin{1} >= 50 %presume sample rate and not time sign numerator, can likely be higher ask Ed lowest used for rhythms
+        s.fs = varargin{1};
         varargin(1) = [];
-        if varargin{1} >= 50 %presume sample rate and not time sign numerator, can likely be higher ask Ed lowest used for rhythms
-            s.fs = varargin{1};
-            varargin(1) = []; 
-        end
     end
-    
-    s.dt = 1/s.fs;
-    s.N  = 1;
-    
-    temp_mod = 0;
-    for i=5:length(varargin)
-        if strcmp(varargin{i}, 'tempo_mod') %note its value needs to be cell array of....
-            temp_mod = 1;
+end
+
+s.dt = 1/s.fs;
+s.N  = 1;
+
+temp_mod = 0;
+for i=5:length(varargin)
+    if strcmp(varargin{i}, 'tempo_mod') %note its value needs to be cell array of....
+        temp_mod = 1;
+        varargin(i) = [];
+        %to not have any values need to check if next value is numeric
+        if i<=length(varargin) && iscell(varargin{i})
+            mod_args = varargin{i};
             varargin(i) = [];
-            %to not have any values need to check if next value is numeric
-            if i<=length(varargin) && iscell(varargin{i})
-                mod_args = varargin{i};
-                varargin(i) = [];
-            else
-                mod_args = [];
-            end
-            break
-        end
-    end
-    
-    if length(varargin) > 4
-        N = canonMake(varargin{1}, varargin{2}, varargin{3}, varargin{4}, varargin{5:end});
-    else
-        N = canonMake(varargin{1}, varargin{2}, varargin{3}, varargin{4});
-    end
-    
-    if temp_mod
-        if isempty(mod_args)
-            [N, ~, ~, ~] = moduRhythm(N);
         else
-            [N, ~, ~, ~] = moduRhythm(N, mod_args{:});
+            mod_args = [];
         end
+        break
     end
-    
-    N(:, 7) = .12*ones(1, length(N(:, 7)));
-    freq = 1./N(1,7);
-    
-    if ~isempty(s.ts)
-        s0 = floor(s.ts(  1)*s.fs); 
-        sf = floor(s.ts(end)*s.fs);
-        n  = s0:1:sf;
-        s.t = n/s.fs;
-        Ntmp = sortrows(N, 6);
-        Ntmp = Ntmp(Ntmp(:,6)<s.ts(end), :);
-        N = Ntmp(Ntmp(:,6)>s.ts(1), :);
-        too_long_note_rows = find((N(:,6)+N(:,7))>s.ts(end));
+end
 
-        for i=1:length(too_long_note_rows)
-            N(too_long_note_rows(i),7) = s.ts(end) - N(too_long_note_rows(i),6);
-        end
+if length(varargin) > 4
+    N = canonMake(varargin{1}, varargin{2}, varargin{3}, varargin{4}, varargin{5:end});
+else
+    N = canonMake(varargin{1}, varargin{2}, varargin{3}, varargin{4});
+end
+
+if temp_mod
+    if isempty(mod_args)
+        [N, ~, ~, ~] = moduRhythm(N);
     else
-        s0 = 0;
-        sf = floor( max(N(:,6)+N(:,7))*s.fs );
-        s.ts = [s0 sf]/s.fs;
-        n  = s0:sf;
-        s.t = n/s.fs;
+        [N, ~, ~, ~] = moduRhythm(N, mod_args{:});
     end
-    
-    N = N(N(:,7) >= 0.05, :);
-    final_note_ind = size(N,1);
-    NMAT = N;
-    
-    O  = zeros( 1, length(s.t));
+end
 
-    for n = 1:final_note_ind
-        note_on = round(N(n,6)*s.fs) - s0;
+N(:, 7) = .12*ones(1, length(N(:, 7)));
+freq = 1./N(1,7);
 
-        note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, {'pls'}, freq, N(n,5)/127/4); %max velocity is 127, 1/4 is legacy -DH
-        xb = note.x;
-        %required because makeFcnInput sometimes returns .x one sample short
-        note_off = note_on+length(xb);
-        %this summation for overlapping notes necessary for canonMake
-        %output?
-        O((note_on:note_off-1)+1) = O((note_on:note_off-1)+1) + xb;
+if ~isempty(s.ts)
+    s0 = floor(s.ts(  1)*s.fs);
+    sf = floor(s.ts(end)*s.fs);
+    n  = s0:1:sf;
+    s.t = n/s.fs;
+    Ntmp = sortrows(N, 6);
+    Ntmp = Ntmp(Ntmp(:,6)<s.ts(end), :);
+    N = Ntmp(Ntmp(:,6)>s.ts(1), :);
+    too_long_note_rows = find((N(:,6)+N(:,7))>s.ts(end));
+    
+    for i=1:length(too_long_note_rows)
+        N(too_long_note_rows(i),7) = s.ts(end) - N(too_long_note_rows(i),6);
     end
+else
+    s0 = 0;
+    sf = floor( max(N(:,6)+N(:,7))*s.fs );
+    s.ts = [s0 sf]/s.fs;
+    n  = s0:sf;
+    s.t = n/s.fs;
+end
+
+N = N(N(:,7) >= 0.05, :);
+final_note_ind = size(N,1);
+NMAT = N;
+
+O  = zeros( 1, length(s.t));
+
+for n = 1:final_note_ind
+    note_on = round(N(n,6)*s.fs) - s0;
+    
+    note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, {'pls'}, freq, N(n,5)/127/4); %max velocity is 127, 1/4 is legacy -DH
+    xb = note.x;
+    %required because makeFcnInput sometimes returns .x one sample short
+    note_off = note_on+length(xb);
+    %this summation for overlapping notes necessary for canonMake
+    %output?
+    O((note_on:note_off-1)+1) = O((note_on:note_off-1)+1) + xb;
+end
 %time span initial beat mihgt be cut off
 
-    s.Notes = N;
-    a = max(1,abs(hilbert(O)));
-    s.x = O./a;   
+s.Notes = N;
+a = max(1,abs(hilbert(O)));
+s.x = O./a;
 
 
 %% Revision history
@@ -526,7 +544,7 @@ function s = makeRfcnInput(varargin)
 %              variables AFTER all the carrier stuff OR at the end of the modulator
 %              stuff if using that. Affective for each individual timecourse. Must pass
 %              both values or neither. So pass 0, 0 to NOT use this.
-%  09/26/11 KDL Also added functionality for stimulusRamp for type 'wav'. Default values 
+%  09/26/11 KDL Also added functionality for stimulusRamp for type 'wav'. Default values
 %              are 50 ms and linear, but have not incorporated varargin's yet.
 %
 %  04/04/12 KDL Offloaded all error checking, repmat'ing, etc. to a new function,
