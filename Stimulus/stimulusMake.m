@@ -356,7 +356,7 @@ if ~isempty(s.ts)
     s.t = n/s.fs;
     Ntmp = sortrows(N, 6);
     Ntmp = Ntmp(Ntmp(:,6)<s.ts(end), :);
-    N = Ntmp(Ntmp(:,6)>s.ts(1), :);
+    N = Ntmp(Ntmp(:,6)>=s.ts(1), :);
     too_long_note_rows = find((N(:,6)+N(:,7))>s.ts(end));
 
     for i=1:length(too_long_note_rows)
@@ -480,7 +480,7 @@ function s = makeRfcnInput(varargin)
         s.t = n/s.fs;
         Ntmp = sortrows(N, 6);
         Ntmp = Ntmp(Ntmp(:,6)<s.ts(end), :);
-        N = Ntmp(Ntmp(:,6)>s.ts(1), :);
+        N = Ntmp(Ntmp(:,6)>=s.ts(1), :);
         too_long_note_rows = find((N(:,6)+N(:,7))>s.ts(end));
 
         for i=1:length(too_long_note_rows)

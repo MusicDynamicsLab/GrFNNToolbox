@@ -15,10 +15,12 @@ elseif (nargin<4)
 end
 
 %create note_off rows
-tmp_array = midMat(:, 2) +   midMat(:,1);
+%tmp_array = midMat(:, 2) +   midMat(:,1);
+tmp_array = midMat(:, 6) +   midMat(:, 7);
 note_off_rows = [tmp_array 144*ones(length(tmp_array) ,1) midMat(:, 3:5)];
 note_off_rows(:, 5) = 0; %zero velocity
 midMat(:, 2) = 144; %note on indication, replaces duration column
+midMat(:, 1) = midMat(:, 6); % replace onset beats with onset seconds
 eventsMat = [midMat(:, 1:5); note_off_rows];
 
 %each row is midi note on/off event, collapse message type with channel
@@ -31,7 +33,8 @@ eventsMat(:, 3) = [];
 eventsMat = sortrows(eventsMat, [1 4]);
 
 %convert beats into deltatimes
-eventsMat(:,1) = (eventsMat(:, 1) - [0; eventsMat(1:end-1, 1)]) * tpqn;
+%eventsMat(:,1) = (eventsMat(:, 1) - [0; eventsMat(1:end-1, 1)]) * tpqn;
+eventsMat(:,1) = round((eventsMat(:, 1) - [0; eventsMat(1:end-1, 1)])/60 * tempo * tpqn);
 
 debugMat = eventsMat;
 
