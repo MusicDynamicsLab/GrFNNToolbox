@@ -98,9 +98,9 @@ function y = stimulusRun(t, s, ext)
 %t is an index into stimulus data
 %check out of bounds. Clamp if needed.
   
-if t >= s.lenx %much faster than (length(s.x))
-    y = s.x(ext,s.lenx);
-end
+% if t >= s.lenx %much faster than (length(s.x))
+%     y = s.x(ext,s.lenx);
+% end
 
 %First check if index is integer or not
 rm = t - floor(t); %NOTE don't name this 'rem'! That's a func and will slow things!
