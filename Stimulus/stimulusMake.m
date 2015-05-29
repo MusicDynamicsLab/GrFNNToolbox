@@ -182,10 +182,7 @@ for a = 1:size(s.ts,1)                % For each section of the signal
     end
     
     if isfield(s, 'mask')
-        noise = zeros(size(temp));
-        for i = 1:length(temp)
-            noise(i) = rand*2 - 1;
-        end
+        noise = rand(size(temp))*2-1;
         if isfield(s, 'filtmask') && ~isempty(s.filtmask{a,1}) && ~isempty(s.filtmask{a,2})
             noise = filter(s.filtmask{a,1},s.filtmask{a,2},noise);
         end
@@ -200,10 +197,7 @@ for a = 1:size(s.ts,1)                % For each section of the signal
 end
 
 if isfield(s, 'maskall')
-    noise = zeros(size(s.x));
-    for i = 1:length(s.x)
-        noise(i) = rand*2 - 1;
-    end
+    noise = rand(size(s.x))*2-1;
     if isfield(s, 'filtmaskall') && ~isempty(s.filtmaskall{1}) && ~isempty(s.filtmaskall{2})
         noise = filter(s.filtmaskall{1},s.filtmaskall{2},noise);
     end
@@ -256,10 +250,7 @@ if isfield(s, 'filtstim') && ~isempty(s.filtstim{1}) && ~isempty(s.filtstim{2})
 end
 
 if isfield(s, 'mask')
-    noise = zeros(size(s.x));
-    for i = 1:length(s.x)
-        noise(i) = rand*2 - 1;
-    end
+    noise = rand(size(s.x))*2-1;
     if isfield(s, 'filtmask') && ~isempty(s.filtmask{1}) && ~isempty(s.filtmask{2})
         noise = filter(s.filtmask{1},s.filtmask{2},noise);
     end
