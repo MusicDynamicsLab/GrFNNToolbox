@@ -121,10 +121,10 @@ if strcmpi(s.type,'fcn')
             if length(varargin) > i && ~ischar(varargin{i+1})
                 s.mask = varargin{i+1};
                 if length(varargin) > i + 1 && ~ischar(varargin{i+2})
-                    error('Noise (for masking stim time course(s)) takes one variable: Signal-to-noise ratio (in dB)')
+                    error('Noise (for masking stim time course(s)) takes one variable: RMS signal-to-noise ratio(s) (in dB)')
                 end
             else
-                error('Noise (for masking stim time course(s)) takes one variable: Signal-to-noise ratio (in dB)')
+                error('Noise (for masking stim time course(s)) takes one variable: RMS signal-to-noise ratio(s) (in dB)')
             end
         end
         if strcmpi(varargin{i},'iter')
@@ -168,13 +168,13 @@ if strcmpi(s.type,'fcn')
             if length(varargin) > i && ~ischar(varargin{i+1})
                 s.maskall = varargin{i+1};
                 if length(varargin) > i + 1 && ~ischar(varargin{i+2})
-                    error('Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)')
+                    error('Maskall takes one scalar variable: RMS signal-to-noise ratio (in dB)')
                 end
             else
-                error('Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)')
+                error('Maskall takes one scalar variable: RMS signal-to-noise ratio (in dB)')
             end
             if numel(s.maskall) ~= 1
-                error('Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)')
+                error('Maskall takes one scalar variable: RMS signal-to-noise ratio (in dB)')
             end
         end
         if strcmpi(varargin{i},'filtmaskall')
@@ -417,10 +417,10 @@ elseif strcmpi(s.type,'wav')
             if length(varargin) > i && ~ischar(varargin{i+1})
                 s.mask = varargin{i+1};
                 if length(varargin) > i + 1 && ~ischar(varargin{i+2})
-                    error('Noise (for masking stim time course(s)) takes one variable: Signal-to-noise ratio (in dB)')
+                    error('Noise (for masking stim time course(s)) takes one variable: RMS signal-to-noise ratio (in dB)')
                 end
             else
-                error('Noise (for masking stim time course(s)) takes one variable: Signal-to-noise ratio (in dB)')
+                error('Noise (for masking stim time course(s)) takes one variable: RMS signal-to-noise ratio (in dB)')
             end
         end
         if strcmpi(varargin{i},'filtstim')
@@ -453,13 +453,13 @@ elseif strcmpi(s.type,'wav')
             if length(varargin) > i && ~ischar(varargin{i+1})
                 s.maskall = varargin{i+1};
                 if length(varargin) > i + 1 && ~ischar(varargin{i+2})
-                    error('Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)')
+                    error('Maskall takes one scalar variable: RMS signal-to-noise ratio (in dB)')
                 end
             else
-                error('Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)')
+                error('Maskall takes one scalar variable: RMS signal-to-noise ratio (in dB)')
             end
             if numel(s.maskall) ~= 1
-                error('Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)')
+                error('Maskall takes one scalar variable: RMS signal-to-noise ratio (in dB)')
             end
         end
         if strcmpi(varargin{i},'filtmaskall')
