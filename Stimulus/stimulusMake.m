@@ -256,7 +256,10 @@ if isfield(s, 'mask')
     end
     noise = noise * (1/rms(noise)) * 10^(-s.mask/20) * rms(s.x);    %interpret noise input as SNR in dB with reference to stim
     
-    noise = stimulusRamp(noise, s.sc, s.sp, s.fs);
+    if isfield(s, 'sc')
+        noise = stimulusRamp(noise, s.sc, s.sp, s.fs);
+    end
+    
     s.x = s.x + noise;
 end
 
