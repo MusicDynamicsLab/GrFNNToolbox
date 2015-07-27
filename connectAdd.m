@@ -74,7 +74,7 @@ for i = 1:length(varargin)
         
     end
     
-    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'wei') && length(varargin) > i && isscalar(varargin{i+1})
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'wei') && length(varargin) > i && isnumeric(varargin{i+1})
         
         w = varargin{i+1};
         
