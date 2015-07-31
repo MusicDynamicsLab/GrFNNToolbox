@@ -482,6 +482,7 @@ if temp_mod
     end
 end
 
+%pulse duration 120 ms
 N(:, 7) = .12*ones(1, length(N(:, 7)));
 freq = 1./N(1,7);
 
