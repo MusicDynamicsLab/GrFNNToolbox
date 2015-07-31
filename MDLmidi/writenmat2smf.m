@@ -3,7 +3,7 @@ function debugMat = writenmat2smf(midMat, filename, tempo, tpqn)
 %
 % Takes an nmat and writes to a midi file
 % 
-% Adapts some utility functions from Ken Schutte
+% Uses utility functions from Ken Schutte
 % http://www.kenschutte.com/midi
 
 %default tempo and tpqn (ticks per quarter note)
@@ -14,12 +14,11 @@ elseif (nargin<4)
     tpqn = 480;
 end
 
-%create note_off rows
-%tmp_array = midMat(:, 2) +   midMat(:,1);
-tmp_array = midMat(:, 6) +   midMat(:, 7);
-note_off_rows = [tmp_array 144*ones(length(tmp_array) ,1) midMat(:, 3:5)];
+
+tmp_array = midMat(:, 6) +   midMat(:, 7); %compute note_off times
+note_off_rows = [tmp_array 144*ones(length(tmp_array) ,1) midMat(:, 3:5)]; %this and the next row creates note off with note on message of 0 velocity
 note_off_rows(:, 5) = 0; %zero velocity
-midMat(:, 2) = 144; %note on indication, replaces duration column
+midMat(:, 2) = 144; %note on indication, replaces duration in beats column
 midMat(:, 1) = midMat(:, 6); % replace onset beats with onset seconds
 eventsMat = [midMat(:, 1:5); note_off_rows];
 
@@ -33,7 +32,6 @@ eventsMat(:, 3) = [];
 eventsMat = sortrows(eventsMat, [1 4]);
 
 %convert beats into deltatimes
-%eventsMat(:,1) = (eventsMat(:, 1) - [0; eventsMat(1:end-1, 1)]) * tpqn;
 eventsMat(:,1) = round((eventsMat(:, 1) - [0; eventsMat(1:end-1, 1)])/60 * tempo * tpqn);
 
 debugMat = eventsMat;
@@ -44,7 +42,7 @@ tempo_data = encode_int((floor((60/tempo)*1e6)), 3); %beat/quarter note duration
 databytes_track = [0; encode_meta_msg(hex2dec('51'), tempo_data')]; 
 
 [num_events, ~] = size(eventsMat);
-for j=1:num_events %loop required because delta times can be a varibale number of bytes
+for j=1:num_events %loop required because delta times can be a variable number of bytes
     
     %append delta time and note message to the previous track data
     databytes_track = [databytes_track; encode_var_length(eventsMat(j, 1)); eventsMat(j, 2:4)'];
