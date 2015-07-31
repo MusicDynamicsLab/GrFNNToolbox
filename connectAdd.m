@@ -120,7 +120,7 @@ switch lower(con.type)
     case '2freq' % two-frequency monomials
         R = F2./F1;
         sz = size(R);
-        [N D] = fareyratio(R(:)', .05);
+        [N, D] = fareyratio(R(:)', .01);
         N = reshape(N,sz);
         D = reshape(D,sz);
         con.N = N;
@@ -129,11 +129,11 @@ switch lower(con.type)
         
     case '3freq' % three-frequency monomials
         if n1.id == n2.id
-            [X1i X2i Zi] = inputShapeInternal(n1.N);
-            [N1  N2  D2] = inputExponentsInternal(n1.f, X1i, X2i, Zi);
+            [X1i, X2i, Zi] = inputShapeInternal(n1.N);
+            [N1,  N2,  D2] = inputExponentsInternal(n1.f, X1i, X2i, Zi);
         else
-            [X1i X2i Zi] = inputShapeOther(n1.N, n2.N);
-            [N1  N2  D2] = inputExponentsOther(n1.f, n2.f, X1i, X2i, Zi);
+            [X1i, X2i, Zi] = inputShapeOther(n1.N, n2.N);
+            [N1,  N2,  D2] = inputExponentsOther(n1.f, n2.f, X1i, X2i, Zi);
         end
         con.IDX1 = X1i;
         con.IDX2 = X2i;
@@ -229,6 +229,9 @@ end
 
 %% Return network n2
 n = n2;
+con.lambda = con.lambda .* mask;
+con.mu1 = con.mu1 .* mask;
+con.mu2 = con.mu2 .* mask;
 con.kappa = con.kappa .* mask;
 con.C0    = con.C0    .* mask;
 con.C     = con.C     .* mask;

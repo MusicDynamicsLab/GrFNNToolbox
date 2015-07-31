@@ -62,9 +62,20 @@ for cx = 1:length(con)
         % had to conjugate to make it work right
         x = x + con{cx}.w .* sum(x_int,2);
     elseif strcmpi(con{cx}.type, 'All2freq')
-        x = x + con{cx}.w .* (con{cx}.C*P(e, z1).*A(e, z));
+        if con{cx}.no11
+            N1 = M.n{con{cx}.n1}.N;
+            x = x + con{cx}.w .* sum(con{cx}.C.*( A(e, z)*P(e, z1.') ...
+                - P(e^2, conj(z)*z1.')./repmat(conj(z),1,N1) ), 2);
+        else
+            x = x + con{cx}.w .* sum(con{cx}.C.*( A(e, z)*P(e, z1.') ), 2);
+        end
     elseif strcmpi(con{cx}.type, 'Allfreq')
-        x =  x + con{cx}.w .* (con{cx}.C*P_new(e, z1).*A(e, z));
+        if con{cx}.no11
+            x =  x + con{cx}.w .* sum(con{cx}.C.*( A(e, z)*P_new(e, z1.') ...
+                - P(e^2, conj(z)*z1.').*((1./conj(z))*P(e^2, abs(z1.').^2)) ), 2);
+        else
+            x =  x + con{cx}.w .* sum(con{cx}.C.*( A(e, z)*P_new(e, z1.') ), 2);
+        end
     end
 end
 
