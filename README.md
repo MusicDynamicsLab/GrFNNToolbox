@@ -1,4 +1,4 @@
-GrFNN Toolbox is a Matlab software library for simulating signal processing, plasticity and pattern formation in gradient frequency neural networks. Please see the GitHub wiki (https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki) for an introduction to the toolbox, descriptions of serveral examples, and pointers to the function reference pages.
+GrFNN Toolbox is a Matlab software library for simulating signal processing, plasticity and pattern formation in the auditory system. Please see the GitHub wiki (https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki) for an introduction to the toolbox, descriptions of serveral examples, and pointers to the function reference pages.
 
 GrFNN Toolbox was written by Ed Large, Karl Lerud, Ji Chul Kim and Dameon Harrell, with additional contributions by Marc Velasco and Michael Stauffer. It was developed through collaboration between the Music Dynamics Laboratory at University of Connecticut, and Circular Logic, LLC. Development of GrFNN Toolbox was supported in part by funding from the National Science Foundation (BCS-1027761) and the Air Force Office of Scientific Research (FA9550-12-10388).
 
