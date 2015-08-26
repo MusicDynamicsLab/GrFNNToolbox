@@ -1,23 +1,20 @@
 %% freqToIndex
-%  FreqToIndex provides the closest index in network n for a given
-%  eigenfrequency
+%  freqToIndex provides the indices for oscillators in a network, n,
+%  whose natural frequencies are closest to given frequencies, freq.
 %
-%  index = FreqToIndex(n, freq)
-%
-%   x = abs(n.f - freq);
-%   index = find(x == min(x));
+%  index = freqToIndex(n, freq)
 %
 
 %%
 function index = freqToIndex(n, freq)
 
+[NF, FREQ] = meshgrid(n.f, freq);
+
 switch n.fspac
     case 'lin'
-        [c,i] = min(abs(n.f - freq));
-        index = i;
+        [~, index] = min(abs(NF - FREQ), [], 2);
     case 'log'
-        [c,i] = min(abs(log2(n.f / freq)));
-        index = i;
+        [~, index] = min(abs(log2(NF ./ FREQ)), [], 2);
     otherwise
         error('Unknown network type')
 end
