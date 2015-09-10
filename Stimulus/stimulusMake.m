@@ -290,6 +290,8 @@ num_stim_chans = 1;
 stim_chan_map = [];
 melody = 0;
 out_type = {'pls'};
+user_fs = 0;
+user_ramp = 0;
 
 % Parse arguments
 for i=2:nargin
@@ -325,20 +327,24 @@ for i=2:nargin
                 midi_notes = [];
             case 'melody'
                 melody = 1;
-                out_type = {'sin'};
-                midi_note2freq_map = 440*pow2((-68:59)*1/12);
+                %out_type = {'sin'};
+                out_type = {'exp'};
+                midi_note2freq_map = 440*pow2((-69:58)*1/12);
                 %             otherwise
                 %                 s.x=0;
                 %                 error('Unknown argument')
+            case 'ramp'
+                ramp_time = varargin{i+1};
+                ramp_power = varargin{i+2};
+                user_ramp = 1;
         end
     elseif i == 2 %error check that not text (&& ~ischar())
         s.ts   = varargin{2};
     elseif i == 3 && isnumeric(varargin{2}) %can't update i within loop
         s.fs   = varargin{3};
+        user_fs = 1;
     end
 end
-
-s.dt = 1/s.fs;
 
 s.N  = 1; %?
 
@@ -348,15 +354,19 @@ s.N  = 1; %?
 if melody == 0
     %pulse duration
     N(:, 7) = .12*ones(1, length(N(:, 7)));
-elseif ~isempty(stim_chan_map) && ~isempty(midi_notes)%Need to be this high if highest frequency is empty? Only do by truly highest?
-    %10 * Nyquist
-    s.fs = 10*2*midi_note2freq_map(midi_notes(end));
-else
-    unique_notes = unique(N(:,4));
-    hi_note = max(unique_notes);
-    %10 * Nyquist
-    s.fs = 10*2*midi_note2freq_map(hi_note);
+elseif user_fs == 0
+    if ~isempty(stim_chan_map) && ~isempty(midi_notes)%Need to be this high if highest frequency is empty? Only do by truly highest?
+        %10 * Nyquist
+        s.fs = 10*2*midi_note2freq_map(midi_notes(end));
+    else
+        unique_notes = unique(N(:,4));
+        hi_note = max(unique_notes);
+        %10 * Nyquist
+        s.fs = 10*2*midi_note2freq_map(hi_note);
+    end
 end
+
+s.dt = 1/s.fs;
 
 %  Set time limits and create time (per sample) array
 %  If time limits are set, sort the nmat matrix in order of note onset time
@@ -398,7 +408,7 @@ else
 end
 
 % If creating a melodic stimulus get frequencies for tone synthesis
-if melody ~= 0
+if melody
     freq = midi_note2freq_map(N(:,4)+1);
 else
     freq = 1./N(:,7);
@@ -412,7 +422,11 @@ for n = 1:final_note_ind
     stim_chan = N(n, 3);
     note_on = round(N(n,6)*s.fs) - s0;
     
-    note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), N(n,5)/127/4); %max velocity is 127, 1/4 is legacy -DH
+    if user_ramp
+        note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)), 'ramp', ramp_time, ramp_power);
+    else
+        note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)));
+    end
     xb = note.x;
     %required because makeFcnInput sometimes returns .x one sample short
     note_off = note_on+length(xb);
@@ -420,13 +434,12 @@ for n = 1:final_note_ind
     O(stim_chan, (note_on:note_off-1)+1) = O(stim_chan, (note_on:note_off-1)+1) + xb;
 end
 
-
 s.Notes = N_orig;
 
-a = max(1,abs(hilbert(O)));
-s.x = O./a;
+% a = max(1,abs(hilbert(O)));
+% s.x = O./a;
 
-
+s.x = O;
 
 
 %% Make Rhythm Function
@@ -516,7 +529,7 @@ O  = zeros( 1, length(s.t));
 for n = 1:final_note_ind
     note_on = round(N(n,6)*s.fs) - s0;
     
-    note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, {'pls'}, freq, N(n,5)/127/4); %max velocity is 127, 1/4 is legacy -DH
+    note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, {'pls'}, freq, dB2Pa(N(n,5)));
     xb = note.x;
     %required because makeFcnInput sometimes returns .x one sample short
     note_off = note_on+length(xb);
@@ -527,8 +540,11 @@ end
 %time span initial beat mihgt be cut off
 
 s.Notes = N;
-a = max(1,abs(hilbert(O)));
-s.x = O./a;
+
+% a = max(1,abs(hilbert(O)));
+% s.x = O./a;
+
+s.x = O;
 
 
 %% Revision history
