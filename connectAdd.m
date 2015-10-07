@@ -53,6 +53,7 @@ mu2      = 0;
 epsilon  = 0; 
 kappa    = 0;
 con.no11 = 0;
+con.tol  = .01;
 
 %% Parse input
 
@@ -71,6 +72,12 @@ for i = 1:length(varargin)
     if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'typ') && length(varargin) > i && ischar(varargin{i+1}) && any(strcmpi(varargin{i+1},types))
         
         con.type = varargin{i+1};
+        
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'2fr') && length(varargin) > i && isscalar(varargin{i+1})
+        
+        con.tol = varargin{i+1};
         
     end
     
@@ -120,7 +127,7 @@ switch lower(con.type)
     case '2freq' % two-frequency monomials
         R = F2./F1;
         sz = size(R);
-        [N, D] = fareyratio(R(:)', .01);
+        [N, D] = fareyratio(R(:)', con.tol);
         N = reshape(N,sz);
         D = reshape(D,sz);
         con.N = N;
