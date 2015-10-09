@@ -24,7 +24,7 @@ n2    = connectAdd(n1, n2,  C, 'weight', 1, 'type', '1freq');
 
 n2 = connectAdd(n2, n2, [], 'weight', w, 'type', '2freq', 'no11', ...
                          'learn', lambda, mu1, mu2, ceps, kappa, ...
-                         'display', 20, 'save', 1000);
+                         'display', 20,'phasedisp', 'save', 1000);
 
 M = modelMake(@zdot, @cdot, s, n1, n2);
 
