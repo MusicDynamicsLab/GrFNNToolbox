@@ -54,6 +54,7 @@ epsilon  = 0;
 kappa    = 0;
 con.no11 = 0;
 con.tol  = .01;
+con.phaseDisp = 0;
 
 %% Parse input
 
@@ -106,7 +107,13 @@ for i = 1:length(varargin)
         
     end
     
-    if ischar(varargin{i}) && ~strcmpi(varargin{i},'learn') && ~strcmpi(varargin{i}(1:3),'typ') && ~strcmpi(varargin{i}(1:3),'wei') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~any(strcmpi(varargin{i},types)) && ~strcmpi(varargin{i},'no11')
+    if ischar(varargin{i}) && strcmpi(varargin{i},'phasedisp')
+        
+        con.phaseDisp = 1;
+        
+    end
+    
+    if ischar(varargin{i}) && ~strcmpi(varargin{i},'learn') && ~strcmpi(varargin{i}(1:3),'typ') && ~strcmpi(varargin{i}(1:3),'wei') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~any(strcmpi(varargin{i},types)) && ~strcmpi(varargin{i},'no11') && ~strcmpi(varargin{i},'phasedisp')
         
         error(['Unrecognized input to connectAdd: ' varargin{i}]) 
         

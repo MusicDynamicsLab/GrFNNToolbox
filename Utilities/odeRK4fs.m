@@ -243,45 +243,49 @@ if ix == 0
     grid on
     colormap(flipud(hot)); colorbar;
     
-    if isfield(con,'pAx') && ishghandle(con.pAx)
-        axes(con.pAx)
-    elseif ~ishghandle(10000+1000*nx+100*cx+1)
-        figure(10000+1000*nx+100*cx+1);
-        set(gcf, 'Position', [500 550 500 400]);
-    else
-        figure(10000+1000*nx+100*cx+1);  
+    if con.phaseDisp
+        if isfield(con,'pAx') && ishghandle(con.pAx)
+            axes(con.pAx)
+        elseif ~ishghandle(10000+1000*nx+100*cx+1)
+            figure(10000+1000*nx+100*cx+1);
+            set(gcf, 'Position', [500 550 500 400]);
+        else
+            figure(10000+1000*nx+100*cx+1);
+        end
+        M.n{nx}.con{cx}.pH = imagesc(f1, f2, angle(con.C));
+        M.n{nx}.con{cx}.ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(1)));
+        xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',M.n{con.n1}.id));
+        ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',nx));
+        set(gca, 'xscale', 'log', 'yscale', 'log');
+        set(gca, 'CLim', [-pi pi]);
+        
+        % Commenting out old way of doing this
+        %
+        %     set(gca, 'XTick', M.n{con.n1}.tck, 'XTickLabel', M.n{con.n1}.tckl)
+        %     set(gca, 'YTick', M.n{con.n2}.tck, 'YTickLabel', M.n{con.n2}.tckl)
+        
+        if ~isempty(M.n{con.n1}.tick)
+            set(gca, 'XTick', M.n{con.n1}.tick);
+        end
+        
+        if ~isempty(M.n{con.n2}.tick)
+            set(gca, 'YTick', M.n{con.n2}.tick);
+        end
+        
+        grid on
+        colormap(circular);
+        cb = colorbar;
+        set(cb, 'YTick',      [-pi, -pi/2, 0, pi/2, pi])
+        set(cb, 'YTickLabel', {sprintf('-pi  '); '-pi/2'; ' 0  '; ' pi/2'; ' pi  '})
     end
-    M.n{nx}.con{cx}.pH = imagesc(f1, f2, angle(con.C));
-    M.n{nx}.con{cx}.ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(1)));
-    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',M.n{con.n1}.id));
-    ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',nx));
-    set(gca, 'xscale', 'log', 'yscale', 'log');
-    set(gca, 'CLim', [-pi pi]);
-    
-% Commenting out old way of doing this
-% 
-%     set(gca, 'XTick', M.n{con.n1}.tck, 'XTickLabel', M.n{con.n1}.tckl)
-%     set(gca, 'YTick', M.n{con.n2}.tck, 'YTickLabel', M.n{con.n2}.tckl)
-    
-    if ~isempty(M.n{con.n1}.tick)
-        set(gca, 'XTick', M.n{con.n1}.tick);
-    end
-    
-    if ~isempty(M.n{con.n2}.tick)
-        set(gca, 'YTick', M.n{con.n2}.tick);
-    end
-    
-    grid on
-    colormap(circular);
-    cb = colorbar;
-    set(cb, 'YTick',      [-pi, -pi/2, 0, pi/2, pi])
-    set(cb, 'YTickLabel', {sprintf('-pi  '); '-pi/2'; ' 0  '; ' pi/2'; ' pi  '})
-    
+
 else
     set(con.aH, 'CData', (abs(con.C)));
     set(con.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(ix)))
-    set(con.pH, 'CData', angle(con.C));
-    set(con.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(ix)))
+    if con.phaseDisp
+        set(con.pH, 'CData', angle(con.C));
+        set(con.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(ix)))
+    end
 end
 
 drawnow
