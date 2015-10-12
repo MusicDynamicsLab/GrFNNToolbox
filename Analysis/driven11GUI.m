@@ -12,13 +12,7 @@ function initialRun
 hf = gcf;
 handles.hf = hf;
 
-%% Delete previous data if exist
-if exist([pwd filesep 'driven11GUIdata.mat'],'file')
-  delete([pwd filesep 'driven11GUIdata.mat'])
-end
-
 %% Create title and equation
-
 axes('Parent',hf,'Units','normalized','Position',[.025 .88 .5 .1]);
 axis off
 text('String','Single Oscillator Driven by a Sinusoid',...
@@ -41,8 +35,8 @@ handles.legendButton = uicontrol('Parent',hf,'Style','pushbutton',...
 
 %% Make text boxes for parameter input
 hp1 = uipanel('Parent',hf,'Title','Parameters','FontSize',11,...
-  'FontName','Helvetica','BackgroundColor',[.8 .8 .8],...
-  'Units','normalized','Position',[.025 .62 .5 .2]);
+  'BackgroundColor',[.8 .8 .8],'Units','normalized',...
+  'Position',[.025 .62 .5 .2]);
 handles.alpha = uicontrol('Parent',hp1,'Style','edit','String','1',...
   'FontSize',11,'Units','normalized','Position',[.025 .55 .15 .25]);
 handles.beta1 = uicontrol('Parent',hp1,'Style','edit','String','-10',...
@@ -64,14 +58,14 @@ handles.f0 = uicontrol('Parent',hp1,'Style','edit','String','1',...
 handles.theta0 = uicontrol('Parent',hp1,'Style','edit','String','0',...
   'FontSize',11,'Units','normalized','Position',[.825 .05 .15 .25]);
 
-hp2 = uipanel('Title','Initial Values','FontSize',11,...
+hp2 = uipanel('Parent',hf,'Title','Initial Values','FontSize',11,...
   'BackgroundColor',[.8 .8 .8],'Position',[.025 .48 .2 .12]);
 handles.r0 = uicontrol('Parent',hp2,'Style','edit','String','.1',...
   'FontSize',11,'Units','normalized','Position',[.0625 .1 .375 .5]);
 handles.phi0 = uicontrol('Parent',hp2,'Style','edit','String','0',...
   'FontSize',11,'Units','normalized','Position',[.5625 .1 .375 .5]);
 
-hp3 = uipanel('Title','Duration','FontSize',11,...
+hp3 = uipanel('Parent',hf,'Title','Duration','FontSize',11,...
   'BackgroundColor',[.8 .8 .8],'Position',[.225 .48 .1 .12]);
 handles.duration = uicontrol('Parent',hp3,'Style','edit','String','10',...
   'FontSize',11,'Units','normalized','Position',[.125 .1 .75 .5]);
@@ -141,11 +135,8 @@ text(.5,.5,'Run simulation','FontSize',15,...
 hp5 = uipanel('Parent',hf,'Title','Phase Portrait & Vector Field',...
   'FontSize',11,'BackgroundColor',[.8 .8 .8],'Position',[.55 .45 .425 .54]);
 handles.ax2 = axes('Parent',hp5,'Units','normalized',...
-  'Position',[.1 0 .9 1],'XTick',[],'YTick',[],'box','on');
+  'Position',[.2 0 .8 1],'XTick',[],'YTick',[],'box','on');
 polar2(NaN,NaN,[0 1]);
-text(0,.05,'$$(r,\psi)$$',...
-  'Interpreter','Latex','HorizontalAlignment','right',...
-  'VerticalAlignment','bottom','Units','normalize','FontSize',14)
 
 %% Define callback functions
 set(handles.runButton,'Callback',{@integrate,handles})
@@ -177,7 +168,6 @@ z0 = str2double(get(handles.r0,'String')) ...
 Z = ode4(@(t,z)zdot(t,z,p,s),t,z0);
 
 s.x = s.F.*exp(1i*(2*pi*s.f*t+s.theta0));
-%save driven11GUIdata Z t p s fs
 M.Z = Z; M.t = t; M.p = p; M.s = s; M.fs = fs;
 guidata(handles.hf,M)
 plotAxes1([],[],handles)
@@ -188,52 +178,50 @@ function plotAxes1(~,~,handles)
 axes(handles.ax1)
 cla
 M = guidata(handles.hf);
-%if exist([pwd filesep 'driven11GUIdata.mat'],'file') % if simulation data exist
-  %load driven11GUIdata
 if ~isempty(M)
   Z = M.Z; t = M.t; p = M.p; s = M.s; fs = M.fs;
   val = get(handles.plotType,'Value');
   if val == 1 % real & imaginary parts
-    plot(t,real(Z),'b-',t,real(s.x),'m-',t,imag(Z),'b:',t,imag(s.x),'m:')
+    plot(t,real(Z),'-',t,real(s.x),'-');
+    hold on
+    if isprop(gca,'ColorOrderIndex')
+      set(gca,'ColorOrderIndex',1)
+    end
+    plot(t,imag(Z),':',t,imag(s.x),':')
+    hold off
     ylabel('')
     ymax = max(max(abs(Z)),s.F);
-    set(gca,'XLim',[min(t) max(t)],'YLim',[-1 1]*ymax*1.1)
+    set(gca,'YLim',[-1 1]*ymax*1.1)
     hl = legend('Re({\itz})','Re({\itx})','Imag({\itz})','Imag({\itx})',...
       'Location','NorthEast','Orientation','horizontal');
-    lpos = get(hl,'Position');
-    lpos(2) = .88;
-    set(hl,'Position',lpos)
   elseif val == 2 % amplitude
     plot(t,abs(Z))
-    set(gca,'XLim',[min(t) max(t)])
     ylabel('{\itr}')
   elseif val == 3 % relative phase
     hrp = plot(t,angle(Z.*conj(s.x)));
     set(hrp,'LineStyle','none','Marker','.','MarkerSize',5)
-    set(gca,'XLim',[min(t) max(t)])
     set(gca,'YLim',pi*[-1 1],'YTick',[-pi,-pi/2,0,pi/2,pi],...
       'YTickLabel',{'-pi';'-pi/2';'0';'pi/2';'pi'})
     ylabel('{\it\psi}')
   elseif val == 4 % instantaneous frequency
     instFreq = angle(Z(2:end,:).*conj(Z(1:end-1,:)))*fs/(2*pi);
-    plot(t(1:end-1),instFreq)
-    hold on
-    plot(get(gca,'XLim'),[1 1]*s.f,'m--')
+    plot(t(1:end-1),instFreq,'-',t([1 end-1]),[1 1]*s.f,'--')
     ylabel('Instantaneous frequency')
-    set(gca,'XLim',[t(2) t(end)])
     df = abs(p.fz-s.f);
     if df > 0
       set(gca,'YLim',[min(s.f,p.fz)-df/2 max(s.f,p.fz)+df/2])
     end
-    hold off
     hl = legend('{\itz}','{\itx}','Location','NorthEast',...
       'Orientation','horizontal');
+  end
+  xlabel('Time')
+  set(gca,'XLim',[min(t) max(t)])
+  grid on
+  if exist('hl','var')
     lpos = get(hl,'Position');
     lpos(2) = .88;
     set(hl,'Position',lpos)
   end
-  xlabel('Time')
-  grid on
 else
   text(.5,.5,'Run simulation first','FontSize',15,...
     'HorizontalAlignment','center','VerticalAlignment','middle',...
@@ -290,23 +278,20 @@ unitYDOT = YDOT1./absXYDOT;
 XDOT1 = unitXDOT;
 YDOT1 = unitYDOT;
 
-quiver(X1(ind),Y1(ind),XDOT1(ind),YDOT1(ind),.5);
+quiver(X1(ind),Y1(ind),XDOT1(ind),YDOT1(ind),.5,'Color','g');
 
 %% Draw trajectory
-hz1 = polar2(angle(Z.*conj(s.x)),abs(Z),[0 rmax],'b-');
-set(hz1,'LineWidth',2)
+hz1 = polar2(angle(Z.*conj(s.x)),abs(Z),[0 rmax],'-');
+set(hz1,'LineWidth',2,'Color',lines(1))
 hz2 = polar2(angle(Z(1).*conj(s.x(1))),abs(Z(1)),[0 rmax],'ko');
 set(hz2,'MarkerSize',5)
 hold off
-hl = legend([hc,hz2],'{\itr}-nullcline','{\it\psi}-nullcline',...
-  'Initial point','Location','NorthWest');
+hl = legend([hc,hz1,hz2],'{\itr}-nullcline','{\it\psi}-nullcline',...
+  '{\itre}^{i{\it\psi}}','Initial point','Location','NorthWest');
 lpos = get(hl,'Position');
 lpos(1) = .02;
-lpos(2) = .8;
+lpos(2) = .75;
 set(hl,'Position',lpos)
-text(0,.05,'$$(r,\psi)$$',...
-  'Interpreter','Latex','HorizontalAlignment','right',...
-  'VerticalAlignment','bottom','Units','normalize','FontSize',14)
 
 %% SHOW LEGEND
 function showLegend(~,~)

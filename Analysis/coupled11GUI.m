@@ -1,21 +1,19 @@
 %% CREATE FIGURE WINDOW
 function coupled11GUI
-fh = figure;
-set(fh,'Visible','off','Toolbar','figure','Color',[.8 .8 .8],...
+hf = figure;
+set(hf,'Visible','off','Toolbar','figure','Color',[.8 .8 .8],...
   'Position',[100 100 1000 600]);
 initialRun
-movegui(fh,'center')
-set(fh,'Visible','on')
+movegui(hf,'center')
+set(hf,'Visible','on')
 
 %% INITIAL RUN
 function initialRun
-%% Delete previous data if exist
-if exist([pwd filesep 'coupled11GUIdata.mat'])
-  delete([pwd filesep 'coupled11GUIdata.mat'])
-end
+hf = gcf;
+handles.hf = hf;
 
 %% Create title and equation
-axes('Units','normalized','Position',[.025 .88 .5 .1]);
+axes('Parent',hf,'Units','normalized','Position',[.025 .88 .5 .1]);
 axis off
 text('String','Two Oscillators with Linear Coupling',...
   'Position',[0 1],'Units','normalized',...
@@ -35,13 +33,14 @@ text('Interpreter','latex',...
 	'FontSize',11)
 
 %% Create Legend button
-handles.legendButton = uicontrol('Parent',gcf,'Style','pushbutton',...
+handles.legendButton = uicontrol('Parent',hf,'Style','pushbutton',...
   'String','Legend','FontSize',10,'Units','normalized',...
   'Position',[.455 .925 .07 .05]);
 
 %% Make text boxes for parameter input
-hp1 = uipanel('Title','Parameters & Duration','FontSize',11,...
-  'BackgroundColor',[.8 .8 .8],'Position',[.025 .59 .5 .2]);
+hp1 = uipanel('Parent',hf,'Title','Parameters & Duration','FontSize',11,...
+  'BackgroundColor',[.8 .8 .8],'Units','normalized',...
+  'Position',[.025 .59 .5 .2]);
 handles.alpha = uicontrol('Parent',hp1,'Style','edit','String','1',...
   'FontSize',11,'Units','normalized','Position',[.025 .55 .15 .25]);
 handles.beta1 = uicontrol('Parent',hp1,'Style','edit','String','-10',...
@@ -63,8 +62,9 @@ handles.c = uicontrol('Parent',hp1,'Style','edit','String','1',...
 handles.duration = uicontrol('Parent',hp1,'Style','edit','String','10',...
   'FontSize',11,'Units','normalized','Position',[.825 .05 .15 .25]);
 
-hp2 = uipanel('Title','Initial Values','FontSize',11,...
-  'BackgroundColor',[.8 .8 .8],'Position',[.025 .46 .4 .12]);
+hp2 = uipanel('Parent',hf,'Title','Initial Values','FontSize',11,...
+  'BackgroundColor',[.8 .8 .8],'Units','normalized',...
+  'Position',[.025 .46 .4 .12]);
 handles.r10 = uicontrol('Parent',hp2,'Style','edit','String','.6',...
   'FontSize',11,'Units','normalized','Position',[.0313 .1 .1875 .5]);
 handles.phi10 = uicontrol('Parent',hp2,'Style','edit','String','.4',...
@@ -75,95 +75,85 @@ handles.phi20 = uicontrol('Parent',hp2,'Style','edit','String','.7',...
   'FontSize',11,'Units','normalized','Position',[.7813 .1 .1875 .5]);
 
 %% Labels for text boxes
-axes('Units','normalized','Position',get(hp1,'Position'))
+axes('Parent',hp1,'Units','normalized','Position',[0 0 1 1])
 axis off
-text(.1,.7,'$$\alpha$$','Interpreter','Latex',...
+text(.1,.85,'$$\alpha$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',15)
-text(.3,.7,'$$\beta_1$$','Interpreter','Latex',...
+text(.3,.85,'$$\beta_1$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',15)
-text(.5,.7,'$$\beta_2$$','Interpreter','Latex',...
+text(.5,.85,'$$\beta_2$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',15)
-text(.7,.7,'$$\delta_1$$','Interpreter','Latex',...
+text(.7,.85,'$$\delta_1$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',15)
-text(.9,.7,'$$\delta_2$$','Interpreter','Latex',...
+text(.9,.85,'$$\delta_2$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',15)
-text(.1,.3,'$$\epsilon$$','Interpreter','Latex',...
+text(.1,.35,'$$\epsilon$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',15)
-text(.3,.3,'$$\omega_1/2\pi$$','Interpreter','Latex',...
+text(.3,.35,'$$\omega_1/2\pi$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalize','FontSize',15)
-text(.5,.3,'$$\omega_2/2\pi$$','Interpreter','Latex',...
+text(.5,.35,'$$\omega_2/2\pi$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',15)
-text(.7,.3,'$$c$$','Interpreter','Latex',...
+text(.7,.35,'$$c$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',15)
-text(.9,.3,'Duration','Interpreter','Latex',...
+text(.9,.35,'Duration','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',13)
 
-axes('Units','normalized','Position',get(hp2,'Position'))
+axes('Parent',hp2,'Units','normalized','Position',[0 0 1 1])
 axis off
-text(.125,.53,'$$r_1$$','Interpreter','Latex',...
+text(.125,.7,'$$r_1$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',15)
-text(.375,.53,'$$\phi_1/2\pi$$','Interpreter','Latex',...
+text(.375,.7,'$$\phi_1/2\pi$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',15)
-text(.625,.53,'$$r_2$$','Interpreter','Latex',...
+text(.625,.7,'$$r_2$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalize','FontSize',15)
-text(.875,.53,'$$\phi_2/2\pi$$','Interpreter','Latex',...
+text(.875,.7,'$$\phi_2/2\pi$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalize','FontSize',15)
 
 %% Create Run button
-handles.runButton = uicontrol('Style','pushbutton','String','Run',...
-  'FontSize',11,'Units','normalized','Position',[.445 .46 .08 .1]);
+handles.runButton = uicontrol('Parent',hf,'Style','pushbutton',...
+  'String','Run','FontSize',11,'Units','normalized',...
+  'Position',[.445 .46 .08 .1]);
 
 %% Create Time Plot panel
-hp4 = uipanel('Title','Choose Time Plot','FontSize',11,...
-  'BackgroundColor',[.8 .8 .8],'Position',[.025 .015 .95 .44]);
+hp4 = uipanel('Parent',hf,'Title','Choose Time Plot','FontSize',11,...
+  'BackgroundColor',[.8 .8 .8],'Units','normalized',...
+  'Position',[.025 .015 .95 .44]);
 handles.plotType = uicontrol('Parent',hp4,'Style','popup',...
   'String',['Real & imaginary parts|Amplitude|Relative phase|' ...
   'Instantaneous frequency'],...
   'FontSize',11,'Units','normalized','Position',[.015 .88 .2 .1]);
-handles.ax1 = axes('Position',[.1 .08 .85 .25],'Units','normalized',...
-  'XTick',[],'YTick',[],'box','on');
+handles.ax1 = axes('Parent',hp4,'Units','normalized',...
+  'Position',[.075 .2 .9 .6],'XTick',[],'YTick',[],'box','on');
 text(.5,.5,'Run simulation','FontSize',15,...
   'HorizontalAlignment','center','VerticalAlignment','middle',...
   'Units','normalized')
 
 %% Create Phase Portrait panel
-uipanel('Title','2D Phase Portrait','FontSize',11,...
-  'BackgroundColor',[.8 .8 .8],'Position',[.54 .45 .435 .54]);
-handles.ax2 = axes('Position',[.66 .46 .3 .5],'Units','normalized',...
-  'XTick',[],'YTick',[],'box','on');
-hz1 = polar2(NaN,NaN,[0 1],'-');
-set(hz1,'LineWidth',2,'Color','b')
-hold on
-hz2 = polar2(NaN,NaN,[0 1],'-');
-set(hz2,'LineWidth',2,'Color',[0 .5 0])
-hz10 = polar2(NaN,NaN,[0 1],'ko');
-hold off
-set(hz10,'MarkerSize',5)
-hl = legend([hz1,hz2,hz10],'{\itr}_1{\ite}^{i{\it\psi}}',...
-  '{\itr}_2{\ite}^{-i{\it\psi}}','Initial pts','Location','NorthWest');
-lpos = get(hl,'Position');
-lpos(1) = .55;
-lpos(2) = .80;
-set(hl,'Position',lpos)
+hp5 = uipanel('Parent',hf,'Title','2D Phase Portrait','FontSize',11,...
+  'BackgroundColor',[.8 .8 .8],'Units','normalized',...
+  'Position',[.54 .45 .435 .54]);
+handles.ax2 = axes('Parent',hp5,'Units','normalized',...
+  'Position',[.2 0 .8 1],'XTick',[],'YTick',[],'box','on');
+polar2(NaN,NaN,[0 1],'-');
 
 %% Create 3D phase portrait button
-handles.threeD = uicontrol('Style','pushbutton',...
+handles.threeD = uicontrol('Parent',hp5,'Style','pushbutton',...
   'String','3D Portrait','FontSize',11,'Units','normalized',...
-  'Position',[.55 .46 .1 .1]);
+  'Position',[.01 .01 .2 .2]);
 
 %% Define callback functions
 set(handles.runButton,'Callback',{@integrate,handles})
@@ -197,7 +187,8 @@ Z = ode4(@(t,z)zdot(z,p),t,[z10; z20]);
 
 Z1 = Z(:,1);
 Z2 = Z(:,2);
-save coupled11GUIdata Z1 Z2 t p fs
+M.Z1 = Z1; M.Z2 = Z2;M.t = t; M.p = p; M.fs = fs;
+guidata(handles.hf,M)
 plotAxes1([],[],handles)
 plotAxes2([],[],handles)
 
@@ -205,29 +196,31 @@ plotAxes2([],[],handles)
 function plotAxes1(~,~,handles)
 axes(handles.ax1)
 cla
-if exist([pwd filesep 'coupled11GUIdata.mat']) % if simulation data exist
-  load coupled11GUIdata
+M = guidata(handles.hf);
+if ~isempty(M)
+  Z1 = M.Z1; Z2 = M.Z2; t = M.t; p = M.p; fs = M.fs;
   val = get(handles.plotType,'Value');
   if val == 1 % real & imaginary parts
     plot(t,real(Z1),t,real(Z2))
     hold on
+    if isprop(gca,'ColorOrderIndex')
+      set(gca,'ColorOrderIndex',1)
+    end
     plot(t,imag(Z1),':',t,imag(Z2),':')
     hold off
     ylabel('')
     rmax = max(abs([Z1;Z2]));
-    set(gca,'XLim',[min(t) max(t)],'YLim',[-1 1]*rmax*1.1)
+    set(gca,'YLim',[-1 1]*rmax*1.1)
     hl = legend('Re({\itz}_1)','Re({\itz}_2)','Imag({\itz}_1)',...
       'Imag({\itz}_2)','Location','NorthEast','Orientation','horizontal');
   elseif val == 2 % amplitude
     plot(t,abs(Z1),t,abs(Z2))
     ylabel('{\itr}_i')
-    set(gca,'XLim',[min(t) max(t)])
     hl = legend('{\itr}_1','{\itr}_2',...
       'Location','NorthEast','Orientation','horizontal');
   elseif val == 3 % relative phase
     hrp = plot(t,angle(Z1.*conj(Z2)));
     set(hrp,'LineStyle','none','Marker','.','MarkerSize',5)
-    set(gca,'XLim',[min(t) max(t)])
     set(gca,'YLim',pi*[-1 1],'YTick',[-pi,-pi/2,0,pi/2,pi],...
       'YTickLabel',{'-pi';'-pi/2';'0';'pi/2';'pi'})
     ylabel('{\it\psi}')
@@ -236,9 +229,11 @@ if exist([pwd filesep 'coupled11GUIdata.mat']) % if simulation data exist
     instFreq2 = angle(Z2(2:end,:).*conj(Z2(1:end-1,:)))*fs/(2*pi);
     plot(t(1:end-1),instFreq1,t(1:end-1),instFreq2)
     hold on
-    plot(get(gca,'XLim'),[1 1]*p.fz1,'--',get(gca,'XLim'),[1 1]*p.fz2,'--')
+    if isprop(gca,'ColorOrderIndex')
+      set(gca,'ColorOrderIndex',1)
+    end
+    plot(t([1 end-1]),[1 1]*p.fz1,'--',t([1 end-1]),[1 1]*p.fz2,'--')
     ylabel('Instantaneous frequency')
-    set(gca,'XLim',[t(2) t(end)])
     df = abs(p.fz1-p.fz2);
     if df > 0
       set(gca,'YLim',[min(p.fz1,p.fz2)-df/2 max(p.fz1,p.fz2)+df/2])
@@ -249,10 +244,11 @@ if exist([pwd filesep 'coupled11GUIdata.mat']) % if simulation data exist
       'Location','NorthEast','Orientation','horizontal');
   end
   xlabel('Time')
+  set(gca,'XLim',[min(t) max(t)])
   grid on
-  if exist('hl')
+  if exist('hl','var')
     lpos = get(hl,'Position');
-    lpos(2) = .36;
+    lpos(2) = .88;
     set(hl,'Position',lpos)
   end
 else
@@ -265,18 +261,19 @@ end
 function plotAxes2(~,~,handles)
 axes(handles.ax2)
 cla
-load coupled11GUIdata
+M = guidata(handles.hf);
+Z1 = M.Z1; Z2 = M.Z2; t = M.t; p = M.p; fs = M.fs;
 if p.e
   rmax = 1/sqrt(p.e)*.99;
 else
   rmax = max(abs([Z1;Z2]))*1.2;
 end
-
+lcolor = lines(2);
 hz1 = polar2(angle(Z1.*conj(Z2)),abs(Z1),[0 rmax],'-');
-set(hz1,'LineWidth',2,'Color','b')
+set(hz1,'LineWidth',2,'Color',lcolor(1,:))
 hold on
 hz2 = polar2(angle(Z2.*conj(Z1)),abs(Z2),[0 rmax],'-');
-set(hz2,'LineWidth',2,'Color',[0 .5 0])
+set(hz2,'LineWidth',2,'Color',lcolor(2,:))
 hz10 = polar2(angle(Z1(1).*conj(Z2(1))),abs(Z1(1)),[0 rmax],'ko');
 hz20 = polar2(angle(Z2(1).*conj(Z1(1))),abs(Z2(1)),[0 rmax],'ko');
 set([hz10 hz20],'MarkerSize',5)
@@ -284,15 +281,15 @@ hold off
 hl = legend([hz1,hz2,hz10],'{\itr}_1{\ite}^{i{\it\psi}}',...
   '{\itr}_2{\ite}^{-i{\it\psi}}','Initial pts','Location','NorthWest');
 lpos = get(hl,'Position');
-lpos(1) = .55;
-lpos(2) = .80;
+lpos(1) = .01;
+lpos(2) = .75;
 set(hl,'Position',lpos)
 
 %% DRAW 3D PHASE PORTRAIT
 function plot3D(~,~,handles)
-if exist([pwd filesep 'coupled11GUIdata.mat']) % if simulation data exist
-  load coupled11GUIdata
-  
+M = guidata(handles.hf);
+if ~isempty(M)
+  Z1 = M.Z1; Z2 = M.Z2; t = M.t; p = M.p; fs = M.fs;
   % Get (X,Y,Z) meshgrid
   if p.e
     xymax = 1/sqrt(p.e)*.99*sqrt(2);
@@ -336,7 +333,7 @@ if exist([pwd filesep 'coupled11GUIdata.mat']) % if simulation data exist
 
   figure
   hq = quiver3(X(ind),Y(ind),Z(ind),XDOT(ind),YDOT(ind),ZDOT(ind),.7,...
-    'Color',[0 .7 0]);
+    'Color','g');
   hold on
 
   % Draw fixed point from analysis
@@ -361,7 +358,7 @@ if exist([pwd filesep 'coupled11GUIdata.mat']) % if simulation data exist
   x = (r1+r2)/sqrt(2).*cos(psi);
   y = (r1+r2)/sqrt(2).*sin(psi);
   z = (r1-r2)/sqrt(2);
-  plot3(x,y,z,'b-','LineWidth',2)
+  plot3(x,y,z,'-','LineWidth',2,'Color',lines(1))
   
   % Draw axes
   plot3([0 zmax],[0 0],[0 zmax],'k-','LineWidth',2) % r1 axis

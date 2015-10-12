@@ -1,21 +1,19 @@
 %% CREATE FIGURE WINDOW
 function coupled11LearnGUI
-fh = figure;
-set(fh,'Visible','off','Toolbar','figure','Color',[.8 .8 .8],...
+hf = figure;
+set(hf,'Visible','off','Toolbar','figure','Color',[.8 .8 .8],...
   'Position',[100 100 1000 600]);
 initialRun
-movegui(fh,'center')
-set(fh,'Visible','on')
+movegui(hf,'center')
+set(hf,'Visible','on')
 
 %%INITIAL RUN
 function initialRun
-%% Delete previous data if exist
-if exist([pwd filesep 'coupled11LearnGUIdata.mat'])
-  delete([pwd filesep 'coupled11LearnGUIdata.mat'])
-end
+hf = gcf;
+handles.hf = hf;
 
 %% Create title and equation
-axes('Units','normalized','Position',[.025 .88 .5 .1])
+axes('Parent',hf,'Units','normalized','Position',[.025 .88 .5 .1]);
 axis off
 text('String','Two Oscillators Connected by Plastic Coupling',...
   'Position',[0 1],'Units','normalized',...
@@ -34,13 +32,13 @@ text('Interpreter','latex',...
 	'FontSize',11)
 
 %% Create Full Equations & Legend button
-handles.legendButton = uicontrol('Parent',gcf,'Style','pushbutton',...
+handles.legendButton = uicontrol('Parent',hf,'Style','pushbutton',...
   'String','<html>Full Equations<br>and Legend','FontSize',10,...
   'Units','normalized','Position',[.44 .92 .1 .07]);
 
 %% Make text boxes for parameter input
-hp1 = uipanel('Title','Parameters/Initial Values','FontSize',11,...
-  'FontName','Helvetica','BackgroundColor',[.8 .8 .8],...
+hp1 = uipanel('Parent',hf,'Title','Parameters & Initial Values',...
+  'FontSize',11,'BackgroundColor',[.8 .8 .8],'Units','normalized',...
   'Position',[.025 .46 .5 .33]);
 nc = 6; % # of columns
 rb = 6; % ratio of box length relative to (half) space
@@ -101,10 +99,10 @@ handles.theta210 = uicontrol('Parent',hp1,'Style','edit','String','.4',...
 
 
 %% Labels for text boxes
-axes('Units','normalized','Position',get(hp1,'Position'))
+axes('Parent',hp1,'Units','normalized','Position',[0 0 1 1])
 axis off
 lfs = 14; % Label font size
-pos1 = .83;
+pos1 = hu*3.7;
 text(wu/2,pos1,'$$\alpha$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',lfs)
@@ -124,7 +122,7 @@ text(wu*11/2,pos1,'$$\epsilon$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',lfs)
 
-pos2 = .61;
+pos2 = hu*2.7;
 text(wu/2,pos2,'$$\lambda$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',lfs)
@@ -144,7 +142,7 @@ text(wu*11/2,pos2,'Duration','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',lfs-1)
 
-pos3 = .39;
+pos3 = hu*1.7;
 text(wu/2,pos3,'$$\omega_1/2\pi$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalize','FontSize',lfs)
@@ -164,7 +162,7 @@ text(wu*11/2,pos3,'$$\phi_{20}/2\pi$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',lfs)
 
-pos4 = .17;
+pos4 = hu*.7;
 text(wu/2,pos4,'$$A_{120}$$','Interpreter','Latex',...
   'HorizontalAlignment','center','VerticalAlignment','baseline',...
   'Units','normalized','FontSize',lfs)
@@ -184,23 +182,25 @@ handles.runButton = uicontrol('Parent',hp1,'Style','pushbutton',...
   'Position',[wu*4+ws hs wu*2-ws*2 hb*1.5]);
 
 %% Create Time Plot panel
-hp2 = uipanel('Title','Choose Time Plot','FontSize',11,...
-  'BackgroundColor',[.8 .8 .8],'Position',[.025 .015 .95 .44]);
+hp2 = uipanel('Parent',hf,'Title','Choose Time Plot','FontSize',11,...
+  'BackgroundColor',[.8 .8 .8],'Units','normalized',...
+  'Position',[.025 .015 .95 .44]);
 handles.plotType = uicontrol('Parent',hp2,'Style','popup',...
   'String',['Real part|Imaginary part|Amplitude|' ...
   'Relative phase 1|Relative phase 2|Instantaneous frequency'],...
   'FontSize',11,'Units','normalized','Position',[.015 .88 .2 .1]);
-handles.ax1 = axes('Position',[.1 .08 .85 .25],'Units','normalized',...
-  'XTick',[],'YTick',[],'box','on');
+handles.ax1 = axes('Parent',hp2,'Units','normalized',...
+  'Position',[.075 .2 .9 .6],'XTick',[],'YTick',[],'box','on');
 text(.5,.5,'Run simulation','FontSize',15,...
   'HorizontalAlignment','center','VerticalAlignment','middle',...
   'Units','normalized')
 
 %% Create Phase Portrait panel
-uipanel('Title','Phase Portrait & Vector Field','FontSize',11,...
-  'BackgroundColor',[.8 .8 .8],'Position',[.55 .45 .425 .54]);
-handles.ax2 = axes('Position',[.66 .46 .3 .5],'Units','normalized',...
-  'XTick',[],'YTick',[],'box','on');
+hp3 = uipanel('Parent',hf,'Title','Phase Portrait & Vector Field','FontSize',11,...
+  'BackgroundColor',[.8 .8 .8],'Units','normalized',...
+  'Position',[.55 .45 .425 .54]);
+handles.ax2 = axes('Parent',hp3,'Units','normalized',...
+  'Position',[.2 0 .8 1],'XTick',[],'YTick',[],'box','on');
 polar2(NaN,NaN,[0 1]);
 
 %% Define callback functions
@@ -245,7 +245,9 @@ Z2 = ZC(:,2);
 C12 = ZC(:,3);
 C21 = ZC(:,4);
 
-save coupled11LearnGUIdata Z1 Z2 C12 C21 t p fs
+M.Z1 = Z1; M.Z2 = Z2; M.C12 = C12; M.C21 = C21;
+M.t = t; M.p = p; M.fs = fs;
+guidata(handles.hf,M)
 plotAxes1([],[],handles)
 plotAxes2([],[],handles)
 
@@ -253,79 +255,66 @@ plotAxes2([],[],handles)
 function plotAxes1(~,~,handles)
 axes(handles.ax1)
 cla
-if exist([pwd filesep 'coupled11LearnGUIdata.mat']) % if simulation data exist
-  load coupled11LearnGUIdata
+M = guidata(handles.hf);
+if ~isempty(M)
+  Z1 = M.Z1; Z2 = M.Z2; C12 = M.C12; C21 = M.C21;
+  t = M.t; fs = M.fs;
   val = get(handles.plotType,'Value');
   if val == 1 % real parts
-    plot(t,real(Z1),t,real(Z2),t,real(C12),t,real(C21))
+    plot(t,real(Z1),t,real(Z2),t,real(C12),'--',t,real(C21),'--')
     ylabel('')
     ymax = max(max(abs([Z1 Z2 C12 C21])));
-    set(gca,'XLim',[min(t) max(t)],'YLim',[-1 1]*ymax*1.1)
+    set(gca,'YLim',[-1 1]*ymax*1.1)
     hl = legend('Re({\itz}_1)','Re({\itz}_2)','Re({\itc}_{12})',...
       'Re({\itc}_{21})','Location','NorthEast','Orientation','horizontal');
-    lpos = get(hl,'Position');
-    lpos(2) = .35;
-    set(hl,'Position',lpos)
   elseif val == 2 % imaginary parts
-    plot(t,imag(Z1),t,imag(Z2),t,imag(C12),t,imag(C21))
+    plot(t,imag(Z1),t,imag(Z2),t,imag(C12),'--',t,imag(C21),'--')
     ylabel('')
     ymax = max(max(abs([Z1 Z2 C12 C21])));
-    set(gca,'XLim',[min(t) max(t)],'YLim',[-1 1]*ymax*1.1)
+    set(gca,'YLim',[-1 1]*ymax*1.1)
     hl = legend('Im({\itz}_1)','Im({\itz}_2)','Im({\itc}_{12})',...
       'Im({\itc}_{21})','Location','NorthEast','Orientation','horizontal');
-    lpos = get(hl,'Position');
-    lpos(2) = .35;
-    set(hl,'Position',lpos)
   elseif val == 3 % amplitude
-    plot(t,abs(Z1),t,abs(Z2),t,abs(C12),t,abs(C21))
+    plot(t,abs(Z1),t,abs(Z2),t,abs(C12),'--',t,abs(C21),'--')
     set(gca,'XLim',[min(t) max(t)])
     hl = legend('{\itr}_1','{\itr}_2','{\itA}_{12}','{\itA}_{21}',...
       'Location','NorthEast','Orientation','horizontal');
-    lpos = get(hl,'Position');
-    lpos(2) = .35;
-    set(hl,'Position',lpos)
   elseif val == 4 % relative phase (psi)
     hrp = plot(t,angle(C12.*Z2.*conj(Z1)),t,angle(C21.*Z1.*conj(Z2)));
     set(hrp,'LineStyle','none','Marker','.','MarkerSize',5)
-    set(gca,'XLim',[min(t) max(t)])
     set(gca,'YLim',pi*[-1 1],'YTick',[-pi,-pi/2,0,pi/2,pi],...
       'YTickLabel',{'-pi';'-pi/2';'0';'pi/2';'pi'})
     ylabel('{\it\psi_{ij}}')
     hl = legend('{\it\psi}_{12}','{\it\psi}_{21}',...
       'Location','NorthEast','Orientation','horizontal');
-    lpos = get(hl,'Position');
-    lpos(2) = .35;
-    set(hl,'Position',lpos)
   elseif val == 5 % relative phase (phi_i - phi_j, theta_{ij})
     hrp = plot(t,angle(Z1.*conj(Z2)),t,angle(C12),...
       t,angle(Z2.*conj(Z1)),t,angle(C21));
     set(hrp,'LineStyle','none','Marker','.','MarkerSize',5)
-    set(gca,'XLim',[min(t) max(t)])
     set(gca,'YLim',pi*[-1 1],'YTick',[-pi,-pi/2,0,pi/2,pi],...
       'YTickLabel',{'-pi';'-pi/2';'0';'pi/2';'pi'})
     hl = legend('{\it\phi}_1 - {\it\phi}_2','{\it\theta}_{12}',...
       '{\it\phi}_2 - {\it\phi}_1','{\it\theta}_{21}',...
       'Location','NorthEast','Orientation','horizontal');
-    lpos = get(hl,'Position');
-    lpos(2) = .35;
-    set(hl,'Position',lpos)
   elseif val == 6 % instantaneous frequency
     instFreqZ1 = angle(Z1(2:end,:).*conj(Z1(1:end-1,:)))*fs/(2*pi);
     instFreqZ2 = angle(Z2(2:end,:).*conj(Z2(1:end-1,:)))*fs/(2*pi);
     instFreqC12 = angle(C12(2:end,:).*conj(C12(1:end-1,:)))*fs/(2*pi);
     instFreqC21 = angle(C21(2:end,:).*conj(C21(1:end-1,:)))*fs/(2*pi);
     plot(t(1:end-1),instFreqZ1,t(1:end-1),instFreqZ2,...
-      t(1:end-1),instFreqC12,t(1:end-1),instFreqC21)
+      t(1:end-1),instFreqC12,'--',t(1:end-1),instFreqC21,'--')
     ylabel('Instantaneous frequency')
-    set(gca,'XLim',[t(2) t(end)])
     hl = legend('{\itz}_1','{\itz}_2','{\itc}_{12}','{\itc}_{21}',...
       'Location','NorthEast','Orientation','horizontal');
-    lpos = get(hl,'Position');
-    lpos(2) = .35;
-    set(hl,'Position',lpos)
   end
   xlabel('Time')
+  set(gca,'XLim',[min(t) max(t)])
   grid on
+  if exist('hl','var')
+    lpos = get(hl,'Position');
+    lpos(2) = .88;
+    set(hl,'Position',lpos)
+  end
 else
   text(.5,.5,'Run simulation first','FontSize',15,...
     'HorizontalAlignment','center','VerticalAlignment','middle',...
@@ -336,7 +325,8 @@ end
 function plotAxes2(~,~,handles)
 axes(handles.ax2)
 cla
-load coupled11LearnGUIdata
+M = guidata(handles.hf);
+Z1 = M.Z1; Z2 = M.Z2; C12 = M.C12; C21 = M.C21; p = M.p;
 
 if p.e
   rmax = 1/sqrt(p.e)*.99;
@@ -348,10 +338,11 @@ polar2(NaN,NaN,[0 rmax],'-');
 hold on
 
 %% Draw trajectory
+lcolor = lines(2);
 hz1 = polar2(angle(C12.*Z2.*conj(Z1)),abs(Z1),[0 rmax],'b-');
-set(hz1,'LineWidth',2)
+set(hz1,'LineWidth',2,'Color',lcolor(1,:))
 hz2 = polar2(angle(C21.*Z1.*conj(Z2)),abs(Z2),[0 rmax],'m-');
-set(hz2,'LineWidth',2)
+set(hz2,'LineWidth',2,'Color',lcolor(2,:))
 hz3 = polar2(angle(C12(1).*Z2(1).*conj(Z1(1))),abs(Z1(1)),[0 rmax],'ko');
 set(hz3,'MarkerSize',5)
 hz4 = polar2(angle(C21(1).*Z1(1).*conj(Z2(1))),abs(Z2(1)),[0 rmax],'ko');
@@ -360,8 +351,8 @@ hold off
 hl = legend([hz1,hz2,hz3],'{\itr}_1{\ite}^{i{\it\psi}_{12}}',...
   '{\itr}_2{\ite}^{i{\it\psi}_{21}}','Initial pts','Location','NorthWest');
 lpos = get(hl,'Position');
-lpos(1) = .555;
-lpos(2) = .8;
+lpos(1) = .02;
+lpos(2) = .75;
 set(hl,'Position',lpos)
 
 %% SHOW LEGEND

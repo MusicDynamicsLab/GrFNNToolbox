@@ -391,7 +391,7 @@ end
 plot([0 max([100, max(r)*2])],[0 0],'k-') % r-axis
 plot([0 0],[-1 1]*max([100, max(rdot)*2]),'k-') % rdot-axis
 if epsilon
-  plot([1 1]/sqrt(epsilon),[-1 1]/eps,'r--') % r bound
+  plot([1 1]/sqrt(epsilon),[-1 1]/eps('single'),'r--') % r bound
 end
 set(gca,'XLim',axisLimit{1},'YLim',axisLimit{2})
 xlabel('{\itr}','FontSize',12);
