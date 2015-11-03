@@ -16,7 +16,7 @@
 % 
 %  First three inputs are required, all others are optional and can come in any order.
 %  Attribute 'type' takes one arguemnt after it, which is connection type.
-%  Options for 'type' are '1freq', '2freq', '3freq', 'All2freq', and
+%  Options for 'type' are '1freq', '2freq', '3freq', '3freqAll', 'All2freq', and
 %  'Allfreq'. 'All2freq' is the full nonlinearity with single-factor P(),
 %  'Allfreq' is the full nonlinearity with two-factor P().
 %  Attribute 'learn' takes five arguments after it, the parameters for the learning rule: lambda, mu1, mu2, epsilon, and kappa
@@ -38,7 +38,7 @@ function n = connectAdd(n1, n2, C, varargin)
 
 con.source = n1.id;
 
-types = {'1freq' '2freq' '3freq' 'All2freq' 'Allfreq'};         % Can add to this array later; default to 'Allfreq' for now
+types = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq'};         % Can add to this array later; default to 'Allfreq' for now
 con.type = 'Allfreq';
 
 w         = 1;           % Initialize these in case not specified in varargin
@@ -137,28 +137,46 @@ switch lower(con.type)
         [N, D] = fareyratio(R(:)', con.tol);
         N = reshape(N,sz);
         D = reshape(D,sz);
-        con.N = N;
-        con.D = D;
+        con.NUM = N;
+        con.DEN = D;
         F = (N.*F1 + D.*F2)./(N + D);
         
-    case '3freq' % three-frequency monomials
+    case '3freq' % three-frequency monomials ALL MONONMIALS, UP TO SPECIFIED ORDER
         if n1.id == n2.id
-            [X1i, X2i, Zi] = inputShapeInternal(n1.N);
-            [N1,  N2,  D2] = inputExponentsInternal(n1.f, X1i, X2i, Zi);
+           [X1i, X2i, Zi, N1, N2, D, CON1, CON2, mask] = threeFreqMatsAll(n1.f);
         else
-            [X1i, X2i, Zi] = inputShapeOther(n1.N, n2.N);
-            [N1,  N2,  D2] = inputExponentsOther(n1.f, n2.f, X1i, X2i, Zi);
+           [X1i, X2i, Zi, N1, N2, D, CON1, CON2, mask] = threeFreqMatsAll(n1.f, n2.f);
         end
         con.IDX1 = X1i;
         con.IDX2 = X2i;
-        con.IDZ  = Zi;
+        con.IDXZ  = Zi;
+        con.CON1 = CON1;
+        con.CON2 = CON2;
+        con.NUM1 = N1;
+        con.NUM2 = N2;
+        con.DEN = D;
+        con.mask = mask;
+        F = (abs(N1).*n1.f(X1i) + abs(N2).*n1.f(X2i) + D.*n2.f(Zi)) ...
+            ./(abs(N1) + abs(N2) + D);
+        
+    case '3freqall' % three-frequency monomials ALL FREQUENCIES, LOWEST ORDER MONOMIAL
+        if n1.id == n2.id
+            [X1i, X2i, Zi] = inputShapeInternal(n1.N);
+            [N1,  N2,  D] = inputExponentsInternal(n1.f, X1i, X2i, Zi);
+        else
+            [X1i, X2i, Zi] = inputShapeOther(n1.N, n2.N);
+            [N1,  N2,  D] = inputExponentsOther(n1.f, n2.f, X1i, X2i, Zi);
+        end
+        con.IDX1 = X1i;
+        con.IDX2 = X2i;
+        con.IDXZ  = Zi;
         con.CON1 = (N1<0);
         con.CON2 = (N2<0);
         con.NUM1 = abs(N1);
         con.NUM2 = abs(N2);
-        con.DEN2 = D2;
-        F = (abs(N1).*n1.f(X1i) + abs(N2).*n1.f(X2i) + D2.*n2.f(Zi)) ...
-            ./(abs(N1) + abs(N2) + D2);
+        con.DEN = D;
+        F = (abs(N1).*n1.f(X1i) + abs(N2).*n1.f(X2i) + D.*n2.f(Zi)) ...
+            ./(abs(N1) + abs(N2) + D);
         
     case {'all2freq','allfreq'} % Full series of resonant monomials
         F = (2*F1.*F2)./(F1+F2);
@@ -202,7 +220,7 @@ con.e = epsilon;
 %       C3: state memory (3D matrix: frequency x frequency x time)
 
 if isempty(C)
-    if strcmpi(con.type, '3freq')
+    if strcmpi(con.type(1:5), '3freq')
         A0 = zeros(size(con.NUM1));
     else
         A0 = zeros(size(con.F));
@@ -236,7 +254,9 @@ con.n2 = n2.id;
 
 mask = 1;
 if strcmpi(con.type, '2freq') && con.no11
-    mask = ~(con.N==1 & con.D==1);
+    mask = ~(con.NUM==1 & con.DEN==1);
+elseif strcmpi(con.type, '3freq')
+    mask = con.mask;
 elseif con.n1 == con.n2
     mask = ~eye(size(con.C));          % ... Won't learn self-connections
 end

@@ -149,7 +149,9 @@ if ix == 0
     
     plot(s.t, real(s.x(s.dispChan,:)), 'k')
     hold on
-    s.bH = plot([1 1]*s.t(1), get(gca,'YLim'), 'r'); % handle for progress bar
+    ylimit = get(gca,'YLim');
+    s.bH = plot([1 1]*s.t(1), ylimit, 'r'); % handle for progress bar
+    set(gca,'YLim',ylimit) % need to do this for lastest matlab
     hold off
     title(['Stimulus ', 'Channel ', num2str(s.dispChan)])
     xlabel('Time')
