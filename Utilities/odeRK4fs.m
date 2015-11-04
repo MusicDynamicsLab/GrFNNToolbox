@@ -144,7 +144,7 @@ if ix == 0
     if isfield(s,'sAx') && ishghandle(s.sAx)
         axes(s.sAx)
     else
-        figure(10000);
+        figure(10000)
     end
     
     plot(s.t, real(s.x(s.dispChan,:)), 'k')
@@ -174,7 +174,7 @@ if ix == 0
     if isfield(net,'nAx') && ishghandle(net.nAx)
         axes(net.nAx)
     else
-        figure(10000+nx);
+        figure(10000+nx)
     end
     
 % Commenting out old way of doing this
@@ -189,17 +189,17 @@ if ix == 0
             M.n{nx}.nH = plot(net.f, abs(net.z), '.-');  % nH: lineseries object handle
     end
     M.n{nx}.tH = title(sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, s.t(1)));
-    xlabel('Oscillator natural frequency (Hz)');
-    ylabel('Amplitude');
-    set(gca, 'XLim',[min(net.f) max(net.f)]);
-    set(gca, 'YLim', [0 1/sqrt(net.e)]);
+    xlabel('Oscillator natural frequency (Hz)')
+    ylabel('Amplitude')
+    set(gca, 'XLim',[min(net.f) max(net.f)])
+    set(gca, 'YLim', [0 1/sqrt(net.e)])
     if ~isempty(net.tick)
-        set(gca, 'XTick', net.tick);
+        set(gca, 'XTick', net.tick)
     end
     
     grid
 else
-    set(net.nH, 'YData', abs(net.z));
+    set(net.nH, 'YData', abs(net.z))
     set(net.tH, 'String', sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, s.t(ix)))
 end
 
@@ -211,33 +211,48 @@ end
 function M = connectionDisplay(M, s, circular, ix, nx, cx)
 % global M circular
 con = M.n{nx}.con{cx};
-f1 = M.n{con.n1}.f;
-f2 = M.n{con.n2}.f;
 if ix == 0
     if isfield(con,'aAx') && ishghandle(con.aAx)
         axes(con.aAx)
     elseif ~ishghandle(10000+1000*nx+100*cx)
-        figure(10000+1000*nx+100*cx);
-        set(gcf, 'Position', [2 550 500 400]);
+        figure(10000+1000*nx+100*cx)
+        set(gcf, 'Position', [2 550 500 400])
     else
-        figure(10000+1000*nx+100*cx);
+        figure(10000+1000*nx+100*cx)
     end
+    n1 = M.n{con.n1};
+    n2 = M.n{con.n2};
+    is3freq = strcmpi(con.type(1:5), '3freq');
+    if is3freq
+        f1 = [1 size(con.NUM1, 2)];
+    else
+        f1 = getLim(n1);
+    end
+    f2 = getLim(n2);
     M.n{nx}.con{cx}.aH = imagesc(f1, f2, abs(con.C));
     M.n{nx}.con{cx}.atH = title(sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(1)));
-    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',M.n{con.n1}.id));
-    ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',nx));
-    set(gca, 'xscale', 'log', 'yscale', 'log');
-    set(gca, 'CLim', [.001 1/sqrt(con.e)]);
+    if is3freq
+        xlabel(sprintf('Oscillator pair: Network %d',M.n{con.n1}.id))
+    else
+        xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',M.n{con.n1}.id))
+    end
+    ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',nx))
+    if strcmp(n1.fspac, 'log') && ~is3freq
+        set(gca, 'xscale', 'log')
+    end
+    if strcmp(n2.fspac, 'log')
+        set(gca, 'yscale', 'log')
+    end
+    set(gca, 'CLim', [.001 1/sqrt(con.e)])
     
 % Commenting out old way of doing this
 % 
 %     set(gca, 'XTick', M.n{con.n1}.tck, 'XTickLabel', M.n{con.n1}.tckl)
 %     set(gca, 'YTick', M.n{con.n2}.tck, 'YTickLabel', M.n{con.n2}.tckl)
 
-    if ~isempty(M.n{con.n1}.tick)
+    if ~isempty(M.n{con.n1}.tick) && ~is3freq
         set(gca, 'XTick', M.n{con.n1}.tick);
     end
-    
     if ~isempty(M.n{con.n2}.tick)
         set(gca, 'YTick', M.n{con.n2}.tick);
     end
@@ -250,28 +265,37 @@ if ix == 0
             axes(con.pAx)
         elseif ~ishghandle(10000+1000*nx+100*cx+1)
             figure(10000+1000*nx+100*cx+1);
-            set(gcf, 'Position', [500 550 500 400]);
+            set(gcf, 'Position', [500 550 500 400])
         else
-            figure(10000+1000*nx+100*cx+1);
+            figure(10000+1000*nx+100*cx+1)
         end
+        
         M.n{nx}.con{cx}.pH = imagesc(f1, f2, angle(con.C));
         M.n{nx}.con{cx}.ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(1)));
-        xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',M.n{con.n1}.id));
-        ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',nx));
-        set(gca, 'xscale', 'log', 'yscale', 'log');
-        set(gca, 'CLim', [-pi pi]);
+        if is3freq
+            xlabel(sprintf('Oscillator pair: Network %d',M.n{con.n1}.id))
+        else
+            xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',M.n{con.n1}.id))
+        end
+        ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',nx))
+        if strcmp(n1.fspac, 'log') && ~is3freq
+            set(gca, 'xscale', 'log')
+        end
+        if strcmp(n2.fspac, 'log')
+            set(gca, 'yscale', 'log')
+        end
+        set(gca, 'CLim', [-pi pi])
         
         % Commenting out old way of doing this
         %
         %     set(gca, 'XTick', M.n{con.n1}.tck, 'XTickLabel', M.n{con.n1}.tckl)
         %     set(gca, 'YTick', M.n{con.n2}.tck, 'YTickLabel', M.n{con.n2}.tckl)
         
-        if ~isempty(M.n{con.n1}.tick)
-            set(gca, 'XTick', M.n{con.n1}.tick);
+        if ~isempty(M.n{con.n1}.tick) && ~is3freq
+            set(gca, 'XTick', M.n{con.n1}.tick)
         end
-        
         if ~isempty(M.n{con.n2}.tick)
-            set(gca, 'YTick', M.n{con.n2}.tick);
+            set(gca, 'YTick', M.n{con.n2}.tick)
         end
         
         grid on
@@ -282,10 +306,10 @@ if ix == 0
     end
 
 else
-    set(con.aH, 'CData', (abs(con.C)));
+    set(con.aH, 'CData', (abs(con.C)))
     set(con.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(ix)))
     if con.phaseDisp
-        set(con.pH, 'CData', angle(con.C));
+        set(con.pH, 'CData', angle(con.C))
         set(con.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(ix)))
     end
 end
@@ -293,3 +317,21 @@ end
 drawnow
 
 end
+
+%% function: Get axis limit for connection display
+function axLim = getLim(n)
+if strcmp(n.fspac, 'log')
+    f1 = n.f(1);
+    f2 = n.f(end);
+    N = n.N;
+    axMin = ((2*N-1)*f1*(f2/f1)^(-1/(2*(N-1))) + f2*(f2/f1)^(1/(2*(N-1))))/(2*N);
+    axMax = (f1*(f2/f1)^(-1/(2*(N-1))) + (2*N-1)*f2*(f2/f1)^(1/(2*(N-1))))/(2*N);
+    % Need to do this due to problems in using imagesc with log axis
+else
+    axMin = n.f(1);
+    axMax = n.f(end);
+end
+axLim = [axMin axMax];
+
+end
+
