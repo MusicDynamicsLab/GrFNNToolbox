@@ -64,11 +64,11 @@ for i=1:length(varargin)
         id = varargin{i+1};
         displays = {};
         handles = {};
-        if length(varargin) > i + 1 && (ischar(varargin{i+2}) || isscalar(varargin{i+2})) && ~strcmpi(varargin{i+2},'net') && ~strcmpi(varargin{i+2},'con')
+        if length(varargin) > i + 1 && (ischar(varargin{i+2}) || ishghandle(varargin{i+2})) && ~strcmpi(varargin{i+2},'net') && ~strcmpi(varargin{i+2},'con')
             temp = varargin{i+2};
             count = i + 2;
             while ~isempty(temp) && ~strcmpi(temp,'net') && ~strcmpi(temp,'con')
-                if isscalar(temp)
+                if ishghandle(temp)
                     handles = [handles temp];
                     if length(varargin) > count
                         temp = varargin{count+1};
@@ -139,11 +139,11 @@ for i=1:length(varargin)
         conid = varargin{i+2};
         displays = {};
         handles = {};
-        if length(varargin) > i + 2 && (ischar(varargin{i+3}) || isscalar(varargin{i+3})) && ~strcmpi(varargin{i+3},'net') && ~strcmpi(varargin{i+3},'con')
+        if length(varargin) > i + 2 && (ischar(varargin{i+3}) || ishghandle(varargin{i+3})) && ~strcmpi(varargin{i+3},'net') && ~strcmpi(varargin{i+3},'con')
             temp = varargin{i+3};
             count = i + 3;
             while ~isempty(temp) && ~strcmpi(temp,'net') && ~strcmpi(temp,'con')
-                if isscalar(temp)
+                if ishghandle(temp)
                     handles = [handles temp];
                     if length(varargin) > count
                         temp = varargin{count+1};
@@ -264,7 +264,7 @@ function allAmps(M,id,handle)
 n = M.n{id};
 t = n.t;
 Z = abs(n.Z);
-f = n.f;
+f = getLim(n);
 % ticks = tickMake(f,8);
 if isempty(handle)
     figure;
@@ -327,8 +327,7 @@ function allFFT(M,id,handle)
 n = M.n{id};
 Z = real(n.Z)';
 NFFT = 16384;
-f = n.f;
-freqLim = max(f)*2;
+freqLim = max(n.f)*2;
 fs = M.fs/n.sStep;
 freqs = fs/2*linspace(0,1,NFFT/2+1);
 ind = floor(length(freqs)*freqLim/(fs/2));
@@ -339,6 +338,7 @@ if isempty(handle)
 else
     axes(handle);
 end
+f = getLim(n);
 imagesc(f,freqs(1:ind),Zfreq(1:ind,:));
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude (dB)');
 switch n.fspac
@@ -364,8 +364,8 @@ drawnow;
 function connectionAmpsAll(M,netTo,conid,handle)
 nTo = M.n{netTo};
 nFrom = M.n{M.n{netTo}.con{conid}.source};
-fTo = nTo.f;
-fFrom = nFrom.f;
+fTo = getLim(nTo);
+fFrom = getLim(nFrom);
 C = abs(nTo.con{conid}.C);
 % ticks = tickMake(f,8);
 if isempty(handle)
@@ -408,8 +408,8 @@ drawnow;
 function connectionPhasesAll(M,netTo,conid,handle)
 nTo = M.n{netTo};
 nFrom = M.n{M.n{netTo}.con{conid}.source};
-fTo = nTo.f;
-fFrom = nFrom.f;
+fTo = getLim(nTo);
+fFrom = getLim(nFrom);
 C = angle(nTo.con{conid}.C);
 % ticks = tickMake(f,8);
 if isempty(handle)
@@ -455,8 +455,8 @@ drawnow;
 function connectionRealAll(M,netTo,conid,handle)
 nTo = M.n{netTo};
 nFrom = M.n{M.n{netTo}.con{conid}.source};
-fTo = nTo.f;
-fFrom = nFrom.f;
+fTo = getLim(nTo);
+fFrom = getLim(nFrom);
 C = real(nTo.con{conid}.C);
 % ticks = tickMake(f,8);
 if isempty(handle)
@@ -499,8 +499,8 @@ drawnow;
 function connectionImagAll(M,netTo,conid,handle)
 nTo = M.n{netTo};
 nFrom = M.n{M.n{netTo}.con{conid}.source};
-fTo = nTo.f;
-fFrom = nFrom.f;
+fTo = getLim(nTo);
+fFrom = getLim(nFrom);
 C = imag(nTo.con{conid}.C);
 % ticks = tickMake(f,8);
 if isempty(handle)
@@ -658,3 +658,19 @@ title(sprintf('Imaginary part of connections to middle oscillator of network %d 
 xlabel('Oscillator natural frequency (Hz)');
 ylabel('Imaginary part');
 drawnow;
+
+%% function: Get axis limit for connection display
+function axLim = getLim(n)
+if strcmp(n.fspac, 'log')
+    f1 = n.f(1);
+    f2 = n.f(end);
+    N = n.N;
+    axMin = ((2*N-1)*f1*(f2/f1)^(-1/(2*(N-1))) + f2*(f2/f1)^(1/(2*(N-1))))/(2*N);
+    axMax = (f1*(f2/f1)^(-1/(2*(N-1))) + (2*N-1)*f2*(f2/f1)^(1/(2*(N-1))))/(2*N);
+    % Need to do this due to problems in using imagesc with log axis
+else
+    axMin = n.f(1);
+    axMax = n.f(end);
+end
+axLim = [axMin axMax];
+
