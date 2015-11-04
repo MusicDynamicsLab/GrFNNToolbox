@@ -1,6 +1,6 @@
-%% example2.m
+%% example2P.m
 %
-% A simple afferent chain network with no learning
+% A simple afferent chain network with plastic internal connections
 
 %% Parameters
 alpha1 = 0.01; beta11 = -1; beta12 =  -10; neps1 = 1; % Linear
