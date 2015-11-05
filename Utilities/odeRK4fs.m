@@ -317,7 +317,7 @@ if ix == 0
         end
         
         grid on
-        colormap(circular);
+        colormap(gca, circular);
         cb = colorbar;
         set(cb, 'YTick',      [-pi, -pi/2, 0, pi/2, pi])
         set(cb, 'YTickLabel', {sprintf('-pi  '); '-pi/2'; ' 0  '; ' pi/2'; ' pi  '})
