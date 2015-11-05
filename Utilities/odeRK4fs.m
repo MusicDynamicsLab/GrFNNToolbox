@@ -153,7 +153,11 @@ if ix == 0
     s.bH = plot([1 1]*s.t(1), ylimit, 'r'); % handle for progress bar
     set(gca,'YLim',ylimit) % need to do this for lastest matlab
     hold off
-    title(['Stimulus ', 'Channel ', num2str(s.dispChan)])
+    if isfield(s,'title') && ischar(s.title)
+        title(s.title)
+    else
+        title(['Stimulus ', 'Channel ', num2str(s.dispChan)])
+    end
     xlabel('Time')
     ylabel('Real part')
     grid
@@ -188,7 +192,11 @@ if ix == 0
         case 'lin'
             M.n{nx}.nH = plot(net.f, abs(net.z), '.-');  % nH: lineseries object handle
     end
-    M.n{nx}.tH = title(sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, s.t(1)));
+    if isfield(net,'title') && ischar(net.title)
+        title(net.title)
+    else
+        M.n{nx}.tH = title(sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, s.t(1)));
+    end
     xlabel('Oscillator natural frequency (Hz)')
     ylabel('Amplitude')
     set(gca, 'XLim',[min(net.f) max(net.f)])
@@ -200,7 +208,9 @@ if ix == 0
     grid
 else
     set(net.nH, 'YData', abs(net.z))
-    set(net.tH, 'String', sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, s.t(ix)))
+    if isfield(net,'tH')
+        set(net.tH, 'String', sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, s.t(ix)))
+    end
 end
 
 drawnow
@@ -230,7 +240,11 @@ if ix == 0
     end
     f2 = getLim(n2);
     M.n{nx}.con{cx}.aH = imagesc(f1, f2, abs(con.C));
-    M.n{nx}.con{cx}.atH = title(sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(1)));
+    if isfield(con,'titleA') && ischar(con.titleA)
+        title(con.titleA)
+    else
+        M.n{nx}.con{cx}.atH = title(sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(1)));
+    end
     if is3freq
         xlabel(sprintf('Oscillator pair: Network %d',M.n{con.n1}.id))
     else
@@ -271,7 +285,11 @@ if ix == 0
         end
         
         M.n{nx}.con{cx}.pH = imagesc(f1, f2, angle(con.C));
-        M.n{nx}.con{cx}.ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(1)));
+        if isfield(con,'titleP') && ischar(con.titleP)
+            title(con.titleP)
+        else
+            M.n{nx}.con{cx}.ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(1)));
+        end
         if is3freq
             xlabel(sprintf('Oscillator pair: Network %d',M.n{con.n1}.id))
         else
@@ -307,10 +325,14 @@ if ix == 0
 
 else
     set(con.aH, 'CData', (abs(con.C)))
-    set(con.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(ix)))
+    if isfield(con,'atH')
+        set(con.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(ix)))
+    end
     if con.phaseDisp
         set(con.pH, 'CData', angle(con.C))
-        set(con.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(ix)))
+        if isfield(con,'ptH')
+            set(con.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(ix)))
+        end
     end
 end
 
