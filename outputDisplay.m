@@ -67,27 +67,28 @@ for i=1:length(varargin)
         if length(varargin) > i + 1 && (ischar(varargin{i+2}) || ishghandle(varargin{i+2})) && ~strcmpi(varargin{i+2},'net') && ~strcmpi(varargin{i+2},'con')
             temp = varargin{i+2};
             count = i + 2;
+            plotNum = 1;
             while ~isempty(temp) && ~strcmpi(temp,'net') && ~strcmpi(temp,'con')
                 if ishghandle(temp)
-                    handles = [handles temp];
+                    handles{plotNum} = temp;
                     if length(varargin) > count
                         temp = varargin{count+1};
-                        count = count + 1;
                     else
                         temp = [];
                     end
                 else
-                    displays = [displays temp];
+                    displays{plotNum} = temp;
                     if length(handles) < length(displays)
-                        handles{count} = [];
+                        handles{plotNum} = [];
                     end
                     if length(varargin) > count
                         temp = varargin{count+1};
-                        count = count + 1;
+                        plotNum = plotNum + 1;
                     else
                         temp = [];
                     end
                 end
+                count = count + 1;
             end
         else
             handles={[]};
@@ -96,21 +97,8 @@ for i=1:length(varargin)
         if length(handles) == 1 && isempty(displays)
             displays = {'amp'};
         end
-%         if length(varargin) > i + 1 && ischar(varargin{i+2}) && ~strcmpi(varargin{i+2},'net') && ~strcmpi(varargin{i+2},'con')
-%             temp = varargin{i+2};
-%             count = i + 2;
-%             while ischar(temp) && ~strcmpi(temp,'net') && ~strcmpi(temp,'con')
-%                 displays = [displays temp];
-%                 if length(varargin) > count
-%                     temp = varargin{count+1};
-%                     count = count + 1;
-%                 else
-%                     temp = [];
-%                 end
-%             end
-%         else
-%             displays = {'amp'};
-%         end
+        
+        
         for j = 1:length(displays)
             if strcmpi(displays{j},'mean')
                 meanTime(M,id,handles{j});
@@ -142,27 +130,28 @@ for i=1:length(varargin)
         if length(varargin) > i + 2 && (ischar(varargin{i+3}) || ishghandle(varargin{i+3})) && ~strcmpi(varargin{i+3},'net') && ~strcmpi(varargin{i+3},'con')
             temp = varargin{i+3};
             count = i + 3;
+            plotNum = 1;
             while ~isempty(temp) && ~strcmpi(temp,'net') && ~strcmpi(temp,'con')
                 if ishghandle(temp)
-                    handles = [handles temp];
+                    handles{plotNum} = temp;
                     if length(varargin) > count
                         temp = varargin{count+1};
-                        count = count + 1;
                     else
                         temp = [];
                     end
                 else
-                    displays = [displays temp];
+                    displays{plotNum} = temp;
                     if length(handles) < length(displays)
-                        handles{count} = [];
+                        handles{plotNum} = [];
                     end
                     if length(varargin) > count
                         temp = varargin{count+1};
-                        count = count + 1;
+                        plotNum = plotNum + 1;
                     else
                         temp = [];
                     end
                 end
+                count = count + 1;
             end
         else
             handles={[]};
@@ -421,7 +410,8 @@ imagesc(fFrom,fTo,C);
 load('MyColormaps', 'IF_colormap');
 circular = IF_colormap;
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Phase');
-set(gcf,'colormap',circular)
+colormap(cbar,circular);
+% set(gcf,'colormap',circular)
 switch nFrom.fspac
     case 'log'
         if ~isempty(nFrom.tick)
