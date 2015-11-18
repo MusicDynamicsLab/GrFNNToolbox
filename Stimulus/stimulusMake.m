@@ -220,7 +220,7 @@ s.type = 'wav';
 s.analytic = 0;
 
 mver = version('-release');
-if num2str(mver(1:4)) > 2012 || strcmp(mver,'2012b')
+if str2double(mver(1:4)) > 2012 || strcmp(mver,'2012b')
     readFunc = @audioread;
 else
     readFunc = @wavread;
