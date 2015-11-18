@@ -118,13 +118,17 @@ end
 %MS1 - added 12/19/08
 s.useDirectIndex = 0; %used in stimulusRun
 s.lenx = length(s.x);
-s.inputType = '1freq';
+s.inputType = {'1freq'};
 s.dStep = 0;
 s.dispChan = 1;
 
 for i = 1:length(varargin)
     if strcmpi(varargin{i},'inputType') %&& length(varargin) > i && ischar(varargin{i+1})
-        s.inputType = varargin{i+1};
+        if iscell(varargin{i+1})
+            s.inputType = varargin{i+1};
+        else
+            s.inputType = {varargin{i+1}};
+        end
     end
     if strcmpi(varargin{i},'display') %&& length(varargin) > i && ischar(varargin{i+1})
         s.dStep = varargin{i+1};
@@ -215,15 +219,22 @@ s.type = 'wav';
 
 s.analytic = 0;
 
+mver = version('-release');
+if num2str(mver(1:4)) > 2012 || strcmp(mver,'2012b')
+    readFunc = @audioread;
+else
+    readFunc = @wavread;
+end
+
 if iscell(varargin{1})           % If multiple wavreads
     
     for numRead = 1:length(varargin{1})
         
         s.fn{numRead} = varargin{1}{numRead};
         
-        [temp,s.fs] = wavread(s.fn{numRead});
+        [temp,s.fs] = feval(readFunc, s.fn{numRead});
         
-        temp = sum(temp,2) / size(temp,2);
+        temp = mean(temp,2);
         
         s.x(:,numRead) = temp;
         
@@ -233,7 +244,7 @@ else                             % else one wavread
     
     s.fn = varargin{1};
     
-    [s.x,s.fs] = wavread(s.fn);
+    [s.x,s.fs] = feval(readFunc, s.fn);
     
 end
 

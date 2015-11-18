@@ -17,13 +17,19 @@ b2  = n.b2;
 e   = n.e;
 ext = n.ext;
 con = n.con;
+sType = stimulus.inputType;
 
 %%   External stimulus
 x = 0;
 if ext
-  x = stimulusRun(t, stimulus, ext);  % External signal, scalar
+    x = stimulusRun(t, stimulus, ext);  % External signal, scalar
 end
-switch lower(stimulus.inputType)
+if length(sType) > 1 && isscalar(ext) && ext > 1
+    inputType = sType{ext};
+else
+    inputType = sType{1};
+end
+switch lower(inputType)
     case 'allfreq'
         x = n.w .* P_new(e, x) .* A(e, z);
     case 'all2freq'
