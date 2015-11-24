@@ -38,7 +38,7 @@ function n = connectAdd(n1, n2, C, varargin)
 
 con.source = n1.id;
 
-types = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq'};         % Can add to this array later; default to 'Allfreq' for now
+types = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq' 'active'};         % Can add to this array later; default to 'Allfreq' for now
 con.type = 'Allfreq';
 
 w         = 1;           % Initialize these in case not specified in varargin
@@ -178,7 +178,7 @@ switch lower(con.type)
         F = (abs(N1).*n1.f(X1i) + abs(N2).*n1.f(X2i) + D.*n2.f(Zi)) ...
             ./(abs(N1) + abs(N2) + D);
         
-    case {'all2freq','allfreq'} % Full series of resonant monomials
+    case {'all2freq','allfreq','active'} % Full series of resonant monomials
         F = (2*F1.*F2)./(F1+F2);
 end
 

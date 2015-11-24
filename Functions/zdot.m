@@ -82,6 +82,12 @@ for cx = 1:length(con)
         else
             x =  x + con{cx}.w .* sum(con{cx}.C.*( A(e, z)*P_new(e, z1.') ), 2);
         end
+    elseif strcmpi(con{cx}.type, 'active')
+        if con{cx}.no11
+            x = x + con{cx}.w .* sum(con{cx}.C.*( (sqrt(e)*conj(z).*A(e, z))*z1.' ), 2);
+        else
+            x = x + con{cx}.w .* sum(con{cx}.C.*( A(e, z)*z1.' ), 2);
+        end
     end
 end
 

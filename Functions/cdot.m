@@ -57,6 +57,12 @@ elseif strcmpi(type, 'Allfreq')
     else
         X = kappa.*(P(e, n2.z) * P_new(e, n1.z'));
     end
+elseif strcmpi(type, 'active')
+    if no11
+        X = kappa.*((sqrt(e)*n2.z.*P(e, n2.z)) * n1.z');
+    else
+        X = kappa.*(P(e, n2.z) * n1.z');
+    end
 end
 
 X = single(X);
