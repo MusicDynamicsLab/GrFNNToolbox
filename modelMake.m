@@ -13,71 +13,70 @@
 %%
 function model = modelMake(varargin)
 
-  model.dotfunc      = varargin{1};
-  if isa(varargin{2},'function_handle')
-      model.cfun     = varargin{2};
-      s              = varargin{3};
-      ind            = 4;
-  else
-      model.cfun     = @cdot;
-      s              = varargin{2};
-      ind            = 3;
-  end
-  model.fs           = s.fs;
-  model.dt           = s.dt;
-  model.tspan        = s.ts;
-  
+model.dotfunc      = varargin{1};
+if isa(varargin{2},'function_handle')
+    model.cfun     = varargin{2};
+    s              = varargin{3};
+    ind            = 4;
+else
+    model.cfun     = @cdot;
+    s              = varargin{2};
+    ind            = 3;
+end
+model.fs           = s.fs;
+model.dt           = s.dt;
+model.tspan        = s.ts;
+
 %% Make initial conditions. The varargs are the networks.
-  model.n = varargin(ind:end);
-  Nnets = length(model.n);
-  z0 = [];
-  for v = 1:Nnets
-  
-    z0 = [z0; model.n{v}.z0];
+model.netList = []; % list of network id's
+
+for v = ind:length(varargin)
+    
+    nid = varargin{v}.id;
+    model.n{nid} = varargin{v};
+    model.netList = [model.netList nid];
     
     t = s.t;
-
-    if ~isempty(t) && model.n{v}.sStep > 0
-        Nt = ceil(length(t)/model.n{v}.sStep);
-        %model.n{v}.t = linspace(t(1), t(end), Nt);
-        model.n{v}.t = t(1:model.n{v}.sStep:length(t));
-        model.n{v}.Z = single(zeros(length(model.n{v}.z), Nt));
-        model.n{v}.Z(:,1) = model.n{v}.z0;
+    
+    if ~isempty(t) && model.n{nid}.sStep > 0
+        Nt = ceil(length(t)/model.n{nid}.sStep);
+        model.n{nid}.t = t(1:model.n{nid}.sStep:length(t));
+        model.n{nid}.Z = single(zeros(length(model.n{nid}.z), Nt));
+        model.n{nid}.Z(:,1) = model.n{nid}.z0;
     else
-        model.n{v}.t = [];
-        model.n{v}.Z = [];
+        model.n{nid}.t = [];
+        model.n{nid}.Z = [];
     end
     
-    for cx = model.n{v}.conLearn
+    for cx = model.n{nid}.conLearn
         
-        if ~isempty(t) && model.n{v}.con{cx}.sStep > 0
-            Nt = ceil(length(t)/model.n{v}.con{cx}.sStep);
-            %model.n{v}.con{cx}.t  = linspace(t(1), t(end), Nt);
-            model.n{v}.con{cx}.t = t(1:model.n{v}.con{cx}.sStep:length(t));
-            model.n{v}.con{cx}.C3 = single(zeros(size(model.n{v}.con{cx}.C,1), size(model.n{v}.con{cx}.C,2), Nt));
-            model.n{v}.con{cx}.C3(:,:,1) = model.n{v}.con{cx}.C0;
+        if ~isempty(t) && model.n{nid}.con{cx}.sStep > 0
+            Nt = ceil(length(t)/model.n{nid}.con{cx}.sStep);
+            model.n{nid}.con{cx}.t = t(1:model.n{nid}.con{cx}.sStep:length(t));
+            model.n{nid}.con{cx}.C3 = single(zeros(size(model.n{nid}.con{cx}.C,1), size(model.n{nid}.con{cx}.C,2), Nt));
+            model.n{nid}.con{cx}.C3(:,:,1) = model.n{nid}.con{cx}.C0;
         else
-            model.n{v}.con{cx}.t  = [];
-            model.n{v}.con{cx}.C3 = [];
+            model.n{nid}.con{cx}.t  = [];
+            model.n{nid}.con{cx}.C3 = [];
         end
-
+        
     end
     
-  end
-  model.z0 = z0;
+end
+model.netList = sort(model.netList);
 
-  % Roll thru networks and make sure at least one is connected to stimulus
-  stimcount = 0;
-  for j = 1:length(model.n)
-      stimcount = stimcount + model.n{j}.ext;
-  end
-  if ~ stimcount > 0
-      model.n{1}.ext = 1;
-  end
-  
+% Roll thru networks and make sure at least one is connected to stimulus
+stimcount = 0;
+for j = model.netList
+    stimcount = stimcount + model.n{j}.ext;
+end
+if ~stimcount
+    model.n{model.netList(1)}.ext = 1;
+end
+
 %% Cast everything as complex and single
 
-for nx = 1:length(model.n)
+for nx = model.netList
     model.n{nx}.z0 = castCS(model.n{nx}.z0);
     model.n{nx}.z  = castCS(model.n{nx}.z);
     model.n{nx}.Z  = castCS(model.n{nx}.Z);
@@ -99,9 +98,9 @@ for nx = 1:length(model.n)
         model.n{nx}.con{cx}.e      = castCS(model.n{nx}.con{cx}.e);
     end
 end
-  
-  
-  
+
+
+
 %% If dotfunc (override) option is empty, then use base dotfunc from network and oscillator-model
 
 if isempty(model.dotfunc)
@@ -121,5 +120,5 @@ if isempty(model.dotfunc)
     if strcmp(n.model, 'hopfx')
         model.dotfunc = @zdotw_sc;
     end
-
-end 
+    
+end

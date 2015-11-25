@@ -36,13 +36,13 @@ end
 
 step = single(1);
 h = single(s.dt);                   % For variable step size, else h = dt;
-numNet = length(M.n);
+netList = M.netList;
 
 %% Display stimulus and initial conditions if dStep > 0
 if s.dStep
     s = stimulusDisplay(s, 0);
 end
-for nx = 1:numNet
+for nx = netList
     if M.n{nx}.dStep
         M = networkDisplay(M, s, 0, nx);
     end
@@ -61,7 +61,7 @@ for ix = ispan(1) : step : ispan(2)-step
     for kx = 1:4
 
         %% ... for each network
-        for nx = 1:numNet
+        for nx = netList
             M.n{nx}.k{kx} = h*zfun(M, s, ind, nx);
 
             %% ... and for each learned connection to the network
@@ -73,7 +73,7 @@ for ix = ispan(1) : step : ispan(2)-step
         %% Update z, C and ind for the next k-step
         switch kx
             case 1
-                for nx = 1:numNet
+                for nx = netList
                     M.n{nx}.zPrev = M.n{nx}.z;
                     M.n{nx}.z = M.n{nx}.zPrev + M.n{nx}.k{1}/2;
                     for cx = M.n{nx}.conLearn
@@ -83,14 +83,14 @@ for ix = ispan(1) : step : ispan(2)-step
                 end
                 ind = ix + step/2; % time step for k2 and k3
             case 2
-                for nx = 1:numNet
+                for nx = netList
                     M.n{nx}.z = M.n{nx}.zPrev + M.n{nx}.k{2}/2;
                     for cx = M.n{nx}.conLearn
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + M.n{nx}.con{cx}.k{2}/2;
                     end
                 end
             case 3
-                for nx = 1:numNet
+                for nx = netList
                     M.n{nx}.z = M.n{nx}.zPrev + M.n{nx}.k{3};
                     for cx = M.n{nx}.conLearn
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + M.n{nx}.con{cx}.k{3};
@@ -98,7 +98,7 @@ for ix = ispan(1) : step : ispan(2)-step
                 end
                 ind = ix + step; % time step for k4
             case 4
-                for nx = 1:numNet
+                for nx = netList
                     M.n{nx}.z = M.n{nx}.zPrev + ...
                         (M.n{nx}.k{1} + 2*M.n{nx}.k{2} + 2*M.n{nx}.k{3} + M.n{nx}.k{4})/6;
                     if M.n{nx}.sStep && ~mod(ix, M.n{nx}.sStep)
