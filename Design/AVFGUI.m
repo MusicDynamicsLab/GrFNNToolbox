@@ -1,14 +1,15 @@
-function AVFGUI(alpha, beta1, beta2, epsilon, force)
+%% AVFGUI
 % AVFGUI(alpha, beta1, beta2, epsilon, force)
 %
-% GUI for drawing amplitude vector field of the canonical version of
-% Hoppensteadt model:
-% drdt = r.*(alpha + beta1*r.^2 + beta2*epsilon*r.^4./(1-epsilon*r.^2)) + force;
+% GUI for drawing amplitude vector field of a canonical oscillator
+% driven by a sinusoid at its natural frequency (i.e., Omega = 0).
 %
-% Change parameter values by moving the sliders or by entering numbers
-% in the text boxes. Min and max values for the sliders can also be changed.
-%
-% 12/23/2011 JCK added markers for zero-crossings and local extremes
+% Parameter values are optional input arguments. Change parameter values
+% by moving the sliders or by entering numbers in the text boxes.
+% Min and max values for the sliders can also be changed.
+
+%%
+function AVFGUI(alpha, beta1, beta2, epsilon, force)
 
 if nargin < 1
   alpha = -1;
@@ -34,7 +35,7 @@ movegui(998,'center')
 set(998,'Visible','on')
 
 % =========================================================================
-function initialRun(source,eventdata,alpha,beta1,beta2,epsilon,force)
+function initialRun(~,~,alpha,beta1,beta2,epsilon,force)
 clf
 axes('Units','pixels','Position',[50 130 500 500]);
 
@@ -189,8 +190,8 @@ hold off
 drawVectorField(alpha,beta1,beta2,epsilon,force,handles)
 
 % =========================================================================
-function slider_Callback(source,eventdata,handles)
-[row,col] = find(handles == source);
+function slider_Callback(source,~,handles)
+[row,~] = find(handles == source);
 set(handles(row+5,1),'String',num2str(get(source,'Value'),3))
 
 parameterValues = get(handles(1:5,1),'Value');
@@ -198,8 +199,8 @@ drawVectorField(parameterValues{1},parameterValues{2},parameterValues{3},...
   parameterValues{4},parameterValues{5},handles)
 
 % =========================================================================
-function text_Callback(source,eventdata,handles)
-[row,col] = find(handles == source);
+function text_Callback(source,~,handles)
+[row,~] = find(handles == source);
 sliderMin = get(handles(row-5,1),'Min');
 sliderMax = get(handles(row-5,1),'Max');
 textValue = str2double(get(source,'String'));
@@ -221,8 +222,8 @@ drawVectorField(parameterValues(1),parameterValues(2),parameterValues(3),...
   parameterValues(4),parameterValues(5),handles)
 
 % =========================================================================
-function min_Callback(source,eventdata,handles)
-[row,col] = find(handles == source);
+function min_Callback(source,~,handles)
+[row,~] = find(handles == source);
 newMin = str2double(get(source,'String'));
 sliderValue = get(handles(row,1),'Value');
 currentMax = get(handles(row,1),'Max');
@@ -246,8 +247,8 @@ end
 set(handles(row,1),'Min',newMin)
 
 % =========================================================================
-function max_Callback(source,eventdata,handles)
-[row,col] = find(handles == source);
+function max_Callback(source,~,handles)
+[row,~] = find(handles == source);
 newMax = str2double(get(source,'String'));
 sliderValue = get(handles(row,1),'Value');
 currentMin = get(handles(row,1),'Min');
@@ -271,7 +272,7 @@ end
 set(handles(row,1),'Max',newMax)
 
 % =========================================================================
-function initialPosition_Callback(source,eventdata,alpha,beta1,beta2,epsilon,force)
+function initialPosition_Callback(~,~,alpha,beta1,beta2,epsilon,force)
 rstarmax = max(rstar(alpha, beta1, beta2, epsilon, force));
 rext = rextreme(alpha, beta1, beta2, epsilon);
 rdotextmax = max(abs(drdt(rext, alpha, beta1, beta2, epsilon, force)));
@@ -296,7 +297,7 @@ else
 end
 
 % =========================================================================
-function holdControl_Callback(source,eventdata,handles)
+function holdControl_Callback(source,~,handles)
 if get(source,'Value')
   hold on
 else
@@ -307,13 +308,13 @@ else
 end
 
 % =========================================================================
-function replot_Callback(source,eventdata,handles)
+function replot_Callback(~,~,handles)
 parameterValues = str2double(get(handles(6:10,1),'String'));
 drawVectorField(parameterValues(1),parameterValues(2),...
   parameterValues(3),parameterValues(4),parameterValues(5),handles)
 
 % =========================================================================
-function resetLim_Callback(source,eventdata,handles)
+function resetLim_Callback(~,~,handles)
 rmax = str2double(get(handles(14,1),'String'));
 rdotmax = str2double(get(handles(14,2),'String'));
 set(gca,'XLim',[-eps rmax],'YLim',[-1 1]*rdotmax)

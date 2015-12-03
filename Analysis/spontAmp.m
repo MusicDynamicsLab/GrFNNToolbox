@@ -1,7 +1,8 @@
 %% spontAmp
-%   r = spontAmp(a, b1, b2, e)
+%  r = spontAmp(alpha, beta1, beta2, epsilon)
 %
-%  Finds spontaneous amplitude(s) of fully expanded canonical model
+%  Finds spontaneous amplitude(s) of a canonical model
+
 %%
 function r = spontAmp(a, b1, b2, e)
 
