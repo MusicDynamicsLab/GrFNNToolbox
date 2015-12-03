@@ -1,15 +1,15 @@
-%% avfExtreme
-% [r, drdt] = avfExtreme(alpha, beta1, beta2, epsilon)
+%% avfExtrema
+% [r, drdt] = avfExtrema(alpha, beta1, beta2, epsilon)
 %
-% Gets amplitude (r) and time derivative (drdt) at local extremes of
+% Gets amplitude (r) and time derivative (drdt) at local extrema of
 % the amplitude vector field of an autonomous canonical oscillator
 %
 % See also AVFGUI
 
 %%
-function [r, drdt] = avfExtreme(alpha, beta1, beta2, epsilon)
+function [r, drdt] = avfExtrema(alpha, beta1, beta2, epsilon)
 
-rext = sqrt(roots([3*epsilon^2*(beta1-beta2),... % Get local extremes
+rext = sqrt(roots([3*epsilon^2*(beta1-beta2),... % Get local extrema
   epsilon*(epsilon*alpha-6*beta1+5*beta2),...
   -2*epsilon*alpha+3*beta1, alpha]));
 
