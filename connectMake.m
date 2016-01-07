@@ -130,10 +130,12 @@ for nn = 1:length(modes)
         case 'one'
             R1 = eye(n2.N, n1.N);
         case 'gaus'
-            R1 = amps(nn)*normpdf(F, log2(modes(nn)), sigma(nn));
+%             R1 = amps(nn)*normpdf(F, log2(modes(nn)), sigma(nn));
+            R1 = amps(nn)*gaussPdf(F, log2(modes(nn)), sigma(nn));
             R1 = R1*df; % normalization
             if complexKernel
-                Q1 = (pi/2)*(2*normcdf(F, log2(modes(nn)), sigma(nn))-1);
+%                 Q1 = (pi/2)*(2*normcdf(F, log2(modes(nn)), sigma(nn))-1);
+                Q1 = (pi/2)*erf((F-log2(modes(nn)))/sigma(nn));
             end
     end
     % R and Q are updated where R1 > R

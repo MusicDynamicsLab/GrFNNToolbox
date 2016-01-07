@@ -31,19 +31,19 @@ if strcmpi(type, '1freq')
 elseif strcmpi(type, '2freq')
     Z1 = repmat(n1.z', n2.N, 1); % conjugate transpose is what we want
     Z2 = repmat(n2.z , 1, n1.N);
-    N = con.N; D = con.D;
+    N = con.NUM; D = con.DEN;
     X  = kappa.*(e.^((N+D-2)/2)).*((Z2.^D) .* (Z1.^N));
-elseif strcmpi(type, '3freq')
+elseif strcmpi(type(1:5), '3freq')
     Z1 = n1.z(con.IDX1); Z1(~con.CON1) = conj(Z1(~con.CON1));
     Z2 = n1.z(con.IDX2); Z2(~con.CON2) = conj(Z2(~con.CON2));
-    Z  = n2.z(con.IDZ);
-    N1 = con.NUM1; N2 = con.NUM2; D2 = con.DEN2;
+    Z  = n2.z(con.IDXZ);
+    N1 = con.NUM1; N2 = con.NUM2; D = con.DEN;
     
     Z1N1 = (Z1.^N1);
     Z2N2 = (Z2.^N2);
-    ZD2  = (Z .^D2);
+    ZD  = (Z .^D);
 
-    X = kappa.*(e.^((N1+N2+D2-2)/2)).*ZD2.*Z1N1.*Z2N2;
+    X = kappa.*(e.^((N1+N2+D-2)/2)).*ZD.*Z1N1.*Z2N2;
 elseif strcmpi(type, 'All2freq')
     if no11 % remove 1:1 (and subsequent n:n) monomials
         X = kappa.*(P(e, n2.z) * P(e, n1.z') - P(e^2, n2.z*n1.z'));
@@ -56,6 +56,12 @@ elseif strcmpi(type, 'Allfreq')
             - P(e^2, n2.z*n1.z') .* repmat(A(e^2, abs(n1.z').^2), n2.N, 1));
     else
         X = kappa.*(P(e, n2.z) * P_new(e, n1.z'));
+    end
+elseif strcmpi(type, 'active')
+    if no11
+        X = kappa.*((sqrt(e)*n2.z.*P(e, n2.z)) * n1.z');
+    else
+        X = kappa.*(P(e, n2.z) * n1.z');
     end
 end
 

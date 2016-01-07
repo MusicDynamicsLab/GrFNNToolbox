@@ -35,4 +35,4 @@ figure(12); clf;
 a2 = subplot('Position', [0.08  0.72  0.78 0.22]);
 a3 = subplot('Position', [0.08  0.10  0.88 0.50]);
 
-outputDisplay(M, 'net', 1, a1, 'ampx', 'net', 1, a2, 'fft', 'net', 1, a3, 'oscfft')
+outputDisplay(M, 'net', 1, a1, 'ampx', a2, 'fft', a3, 'oscfft')

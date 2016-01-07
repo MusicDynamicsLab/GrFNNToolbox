@@ -17,13 +17,19 @@ b2  = n.b2;
 e   = n.e;
 ext = n.ext;
 con = n.con;
+sType = stimulus.inputType;
 
 %%   External stimulus
 x = 0;
 if ext
-  x = stimulusRun(t, stimulus, ext);  % External signal, scalar
+    x = stimulusRun(t, stimulus, ext);  % External signal, scalar
 end
-switch lower(stimulus.inputType)
+if length(sType) > 1 && isscalar(ext) && ext > 1
+    inputType = sType{ext};
+else
+    inputType = sType{1};
+end
+switch lower(inputType)
     case 'allfreq'
         x = n.w .* P_new(e, x) .* A(e, z);
     case 'all2freq'
@@ -42,23 +48,23 @@ for cx = 1:length(con)
     elseif strcmpi(con{cx}.type, '2freq')
         N1 = M.n{con{cx}.n1}.N;
         N2 = n.N;
-        N = con{cx}.N;
-        D = con{cx}.D;
+        N = con{cx}.NUM;
+        D = con{cx}.DEN;
         Z1 = repmat(    z1.', N2, 1).^ N;
         Z2 = repmat(conj(z) , 1, N1).^(D-1);
         x = x + con{cx}.w .* ...
             sum(con{cx}.C.*(e.^((N+D-2)/2)).*Z1.*Z2,2); 
                                  % sum along dimension 2
-    elseif strcmpi(con{cx}.type, '3freq')
+    elseif strcmpi(con{cx}.type(1:5), '3freq')
         Z1 = z1(con{cx}.IDX1); Z1(con{cx}.CON1) = conj(Z1(con{cx}.CON1));
         Z2 = z1(con{cx}.IDX2); Z2(con{cx}.CON2) = conj(Z2(con{cx}.CON2));
-        Z  = conj(z(con{cx}.IDZ));
+        Z  = conj(z(con{cx}.IDXZ));
         N1 = con{cx}.NUM1; 
         N2 = con{cx}.NUM2; 
-        D2 = con{cx}.DEN2;
+        D = con{cx}.DEN;
 
-        x_int = con{cx}.C.*(e.^((N1+N2+D2-2)/2)) ...
-                         .*(Z1.^N1).*(Z2.^N2).*(Z.^(D2-1));
+        x_int = con{cx}.C.*(e.^((N1+N2+D-2)/2)) ...
+                         .*(Z1.^N1).*(Z2.^N2).*(Z.^(D-1));
         % had to conjugate to make it work right
         x = x + con{cx}.w .* sum(x_int,2);
     elseif strcmpi(con{cx}.type, 'All2freq')
@@ -75,6 +81,12 @@ for cx = 1:length(con)
                 - P(e^2, conj(z)*z1.').*((1./conj(z))*P(e^2, abs(z1.').^2)) ), 2);
         else
             x =  x + con{cx}.w .* sum(con{cx}.C.*( A(e, z)*P_new(e, z1.') ), 2);
+        end
+    elseif strcmpi(con{cx}.type, 'active')
+        if con{cx}.no11
+            x = x + con{cx}.w .* sum(con{cx}.C.*( (sqrt(e)*conj(z).*A(e, z))*z1.' ), 2);
+        else
+            x = x + con{cx}.w .* sum(con{cx}.C.*( A(e, z)*z1.' ), 2);
         end
     end
 end

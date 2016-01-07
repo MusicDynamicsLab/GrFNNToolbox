@@ -64,30 +64,31 @@ for i=1:length(varargin)
         id = varargin{i+1};
         displays = {};
         handles = {};
-        if length(varargin) > i + 1 && (ischar(varargin{i+2}) || isscalar(varargin{i+2})) && ~strcmpi(varargin{i+2},'net') && ~strcmpi(varargin{i+2},'con')
+        if length(varargin) > i + 1 && (ischar(varargin{i+2}) || ishghandle(varargin{i+2})) && ~strcmpi(varargin{i+2},'net') && ~strcmpi(varargin{i+2},'con')
             temp = varargin{i+2};
             count = i + 2;
+            plotNum = 1;
             while ~isempty(temp) && ~strcmpi(temp,'net') && ~strcmpi(temp,'con')
-                if isscalar(temp)
-                    handles = [handles temp];
+                if ishghandle(temp)
+                    handles{plotNum} = temp;
                     if length(varargin) > count
                         temp = varargin{count+1};
-                        count = count + 1;
                     else
                         temp = [];
                     end
                 else
-                    displays = [displays temp];
+                    displays{plotNum} = temp;
                     if length(handles) < length(displays)
-                        handles{count} = [];
+                        handles{plotNum} = [];
                     end
                     if length(varargin) > count
                         temp = varargin{count+1};
-                        count = count + 1;
+                        plotNum = plotNum + 1;
                     else
                         temp = [];
                     end
                 end
+                count = count + 1;
             end
         else
             handles={[]};
@@ -96,21 +97,8 @@ for i=1:length(varargin)
         if length(handles) == 1 && isempty(displays)
             displays = {'amp'};
         end
-%         if length(varargin) > i + 1 && ischar(varargin{i+2}) && ~strcmpi(varargin{i+2},'net') && ~strcmpi(varargin{i+2},'con')
-%             temp = varargin{i+2};
-%             count = i + 2;
-%             while ischar(temp) && ~strcmpi(temp,'net') && ~strcmpi(temp,'con')
-%                 displays = [displays temp];
-%                 if length(varargin) > count
-%                     temp = varargin{count+1};
-%                     count = count + 1;
-%                 else
-%                     temp = [];
-%                 end
-%             end
-%         else
-%             displays = {'amp'};
-%         end
+        
+        
         for j = 1:length(displays)
             if strcmpi(displays{j},'mean')
                 meanTime(M,id,handles{j});
@@ -139,30 +127,31 @@ for i=1:length(varargin)
         conid = varargin{i+2};
         displays = {};
         handles = {};
-        if length(varargin) > i + 2 && (ischar(varargin{i+3}) || isscalar(varargin{i+3})) && ~strcmpi(varargin{i+3},'net') && ~strcmpi(varargin{i+3},'con')
+        if length(varargin) > i + 2 && (ischar(varargin{i+3}) || ishghandle(varargin{i+3})) && ~strcmpi(varargin{i+3},'net') && ~strcmpi(varargin{i+3},'con')
             temp = varargin{i+3};
             count = i + 3;
+            plotNum = 1;
             while ~isempty(temp) && ~strcmpi(temp,'net') && ~strcmpi(temp,'con')
-                if isscalar(temp)
-                    handles = [handles temp];
+                if ishghandle(temp)
+                    handles{plotNum} = temp;
                     if length(varargin) > count
                         temp = varargin{count+1};
-                        count = count + 1;
                     else
                         temp = [];
                     end
                 else
-                    displays = [displays temp];
+                    displays{plotNum} = temp;
                     if length(handles) < length(displays)
-                        handles{count} = [];
+                        handles{plotNum} = [];
                     end
                     if length(varargin) > count
                         temp = varargin{count+1};
-                        count = count + 1;
+                        plotNum = plotNum + 1;
                     else
                         temp = [];
                     end
                 end
+                count = count + 1;
             end
         else
             handles={[]};
@@ -211,6 +200,7 @@ plot(t,Z);axis tight;grid on;zoom xon;
 title(sprintf('Mean field time-domain waveform of network %d',id));
 xlabel('Time (sec)');
 ylabel('Amplitude');
+grid on
 drawnow;
 
 %% Network averaged amplitudes plot
@@ -236,6 +226,7 @@ end
 title(sprintf('Averaged amplitudes of oscillators in network %d',id));
 xlabel('Oscillator natural frequency (Hz)');
 ylabel('Average amplitude');
+grid on
 drawnow;
 
 %% Network mean-field FFT plot
@@ -257,6 +248,7 @@ plot(freqs(1:ind),Zfreq(1:ind));axis tight;grid on;zoom xon;
 title(sprintf('Fourier transform of mean field of network %d',id));
 xlabel('Frequency (Hz)');
 ylabel('Amplitude (dB)');
+grid on
 drawnow;
 
 %% Image of oscillator amplitudes over time
@@ -264,7 +256,7 @@ function allAmps(M,id,handle)
 n = M.n{id};
 t = n.t;
 Z = abs(n.Z);
-f = n.f;
+f = getLim(n);
 % ticks = tickMake(f,8);
 if isempty(handle)
     figure;
@@ -290,6 +282,7 @@ end
 title(sprintf('Amplitudes of oscillators over time in network %d',id));
 xlabel('Time (sec)');
 ylabel('Oscillator natural frequency (Hz)');
+grid on
 drawnow;
 
 %% Network mean-field spectrogram
@@ -306,6 +299,7 @@ else
 end
 myFreqs(Z,NFFT,fs,percentages);
 title(sprintf('Spectrogram for mean field of network %d',id));
+grid on
 
 %% Network mean-field autocorrelogram
 function autocorrelogramMeanField(M,id,handle)
@@ -321,14 +315,14 @@ else
 end
 myAutocorr(Z,NFFT,fs,percentages);
 title(sprintf('Autocorrelogram for mean field of network %d',id));
+grid on
 
 %% Network FFT of all oscillators
 function allFFT(M,id,handle)
 n = M.n{id};
 Z = real(n.Z)';
 NFFT = 16384;
-f = n.f;
-freqLim = max(f)*2;
+freqLim = max(n.f)*2;
 fs = M.fs/n.sStep;
 freqs = fs/2*linspace(0,1,NFFT/2+1);
 ind = floor(length(freqs)*freqLim/(fs/2));
@@ -339,6 +333,7 @@ if isempty(handle)
 else
     axes(handle);
 end
+f = getLim(n);
 imagesc(f,freqs(1:ind),Zfreq(1:ind,:));
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude (dB)');
 switch n.fspac
@@ -358,15 +353,22 @@ end
 title(sprintf('Fourier transform of every oscillator in network %d',id));
 xlabel('Oscillator natural frequency (Hz)');
 ylabel('Frequency (Hz)');
+grid on
 drawnow;
 
 %% Image of amplitudes of connectivity matrix
 function connectionAmpsAll(M,netTo,conid,handle)
 nTo = M.n{netTo};
-nFrom = M.n{M.n{netTo}.con{conid}.source};
-fTo = nTo.f;
-fFrom = nFrom.f;
-C = abs(nTo.con{conid}.C);
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+fTo = getLim(nTo);
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    fFrom = [1 size(con.NUM1, 2)];
+else
+    fFrom = getLim(nFrom);
+end
+C = abs(con.C);
 % ticks = tickMake(f,8);
 if isempty(handle)
     figure;
@@ -377,13 +379,13 @@ imagesc(fFrom,fTo,C);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude');
 switch nFrom.fspac
     case 'log'
-        if ~isempty(nFrom.tick)
+        if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);            
-        else
+        elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 'lin'
-        if ~isempty(nFrom.tick)
+        if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xtick',nFrom.tick)
         end
 end
@@ -399,18 +401,33 @@ switch nTo.fspac
             set(gca,'ytick',nTo.tick)
         end
 end
-title(sprintf('Amplitudes of connection matrix %d to network %d',conid,netTo));
-xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+if isfield(con,'titleA') && ischar(con.titleA)
+    title(con.titleA)
+else
+    title(sprintf('Amplitudes of connection matrix %d to network %d',conid,netTo));
+end
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
 ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',netTo));
+grid on
 drawnow;
 
 %% Image of phases of connectivity matrix
 function connectionPhasesAll(M,netTo,conid,handle)
 nTo = M.n{netTo};
-nFrom = M.n{M.n{netTo}.con{conid}.source};
-fTo = nTo.f;
-fFrom = nFrom.f;
-C = angle(nTo.con{conid}.C);
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+fTo = getLim(nTo);
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    fFrom = [1 size(con.NUM1, 2)];
+else
+    fFrom = getLim(nFrom);
+end
+C = angle(con.C);
 % ticks = tickMake(f,8);
 if isempty(handle)
     figure;
@@ -421,16 +438,16 @@ imagesc(fFrom,fTo,C);
 load('MyColormaps', 'IF_colormap');
 circular = IF_colormap;
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Phase');
-set(gcf,'colormap',circular)
+colormap(gca,circular);
 switch nFrom.fspac
     case 'log'
-        if ~isempty(nFrom.tick)
+        if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);            
-        else
+        elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 'lin'
-        if ~isempty(nFrom.tick)
+        if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xtick',nFrom.tick)
         end
 end
@@ -446,18 +463,33 @@ switch nTo.fspac
             set(gca,'ytick',nTo.tick)
         end
 end
-title(sprintf('Phases of connection matrix %d to network %d',conid,netTo));
-xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+if isfield(con,'titleP') && ischar(con.titleP)
+    title(con.titleP)
+else
+    title(sprintf('Phases of connection matrix %d to network %d',conid,netTo));
+end
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
 ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',netTo));
+grid on
 drawnow;
 
 %% Image of real portion of connectivity matrix
 function connectionRealAll(M,netTo,conid,handle)
 nTo = M.n{netTo};
-nFrom = M.n{M.n{netTo}.con{conid}.source};
-fTo = nTo.f;
-fFrom = nFrom.f;
-C = real(nTo.con{conid}.C);
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+fTo = getLim(nTo);
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    fFrom = [1 size(con.NUM1, 2)];
+else
+    fFrom = getLim(nFrom);
+end
+C = real(con.C);
 % ticks = tickMake(f,8);
 if isempty(handle)
     figure;
@@ -468,13 +500,13 @@ imagesc(fFrom,fTo,C);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Real part');
 switch nFrom.fspac
     case 'log'
-        if ~isempty(nFrom.tick)
+        if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);            
-        else
+        elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 'lin'
-        if ~isempty(nFrom.tick)
+        if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xtick',nFrom.tick)
         end
 end
@@ -491,17 +523,28 @@ switch nTo.fspac
         end
 end
 title(sprintf('Real part of connection matrix %d to network %d',conid,netTo));
-xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
 ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',netTo));
+grid on
 drawnow;
 
 %% Image of imaginary portion of connectivity matrix
 function connectionImagAll(M,netTo,conid,handle)
 nTo = M.n{netTo};
-nFrom = M.n{M.n{netTo}.con{conid}.source};
-fTo = nTo.f;
-fFrom = nFrom.f;
-C = imag(nTo.con{conid}.C);
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+fTo = getLim(nTo);
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    fFrom = [1 size(con.NUM1, 2)];
+else
+    fFrom = getLim(nFrom);
+end
+C = imag(con.C);
 % ticks = tickMake(f,8);
 if isempty(handle)
     figure;
@@ -512,13 +555,13 @@ imagesc(fFrom,fTo,C);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Imaginary part');
 switch nFrom.fspac
     case 'log'
-        if ~isempty(nFrom.tick)
+        if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);            
-        else
+        elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 'lin'
-        if ~isempty(nFrom.tick)
+        if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xtick',nFrom.tick)
         end
 end
@@ -535,126 +578,179 @@ switch nTo.fspac
         end
 end
 title(sprintf('Imaginary part of connection matrix %d to network %d',conid,netTo));
-xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
 ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',netTo));
+grid on
 drawnow;
 
 %% Connection amplitudes of middle row of connectivity matrix
 function connectionAmps(M,netTo,conid,handle)
-n = M.n{netTo};
-f = n.f;
-ind = ceil(length(f)/2);
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    f = 1:size(con.NUM1, 2);
+else
+    f = nFrom.f;
+end
+ind = ceil(nTo.N/2);
 % ticks = tickMake(f,8);
-amps = abs(n.con{conid}.C(ind,:));
+amps = abs(con.C(ind,:));
 if isempty(handle)
     figure;
 else
     axes(handle);
 end
 plot(f,amps,'.-');axis tight;grid on;zoom xon;
-switch n.fspac
+switch nFrom.fspac
     case 'log'
-        if ~isempty(n.tick)
-            set(gca,'xscale','log','xtick',n.tick);
-        else
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xscale','log','xtick',nFrom.tick);
+        elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 'lin'
-        if ~isempty(n.tick)
-            set(gca,'xtick',n.tick);
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xtick',nFrom.tick);
         end
 end
 title(sprintf('Amplitudes of connections to middle oscillator of network %d in matrix %d',netTo,conid));
-xlabel('Oscillator natural frequency (Hz)');
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
 ylabel('Amplitude');
+grid on
 drawnow;
 
 %% Connection phases of middle row of connectivity matrix
 function connectionPhases(M,netTo,conid,handle)
-n = M.n{netTo};
-f = n.f;
-ind = ceil(length(f)/2);
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    f = 1:size(con.NUM1, 2);
+else
+    f = nFrom.f;
+end
+ind = ceil(nTo.N/2);
 % ticks = tickMake(f,8);
-phases = angle(n.con{conid}.C(ind,:));
+phases = angle(con.C(ind,:));
 if isempty(handle)
     figure;
 else
     axes(handle);
 end
 plot(f,phases,'.-');axis tight;grid on;zoom xon;
-switch n.fspac
+switch nFrom.fspac
     case 'log'
-        if ~isempty(n.tick)
-            set(gca,'xscale','log','xtick',n.tick);
-        else
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xscale','log','xtick',nFrom.tick);
+        elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 'lin'
-        if ~isempty(n.tick)
-            set(gca,'xtick',n.tick);
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xtick',nFrom.tick);
         end
 end
 title(sprintf('Phases of connections to middle oscillator of network %d in matrix %d',netTo,conid));
-xlabel('Oscillator natural frequency (Hz)');
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
 ylabel('Phase');
+grid on
 drawnow;
 
 %% Real values of middle row of connectivity matrix
 function connectionReal(M,netTo,conid,handle)
-n = M.n{netTo};
-f = n.f;
-ind = ceil(length(f)/2);
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    f = 1:size(con.NUM1, 2);
+else
+    f = nFrom.f;
+end
+ind = ceil(nTo.N/2);
 % ticks = tickMake(f,8);
-realPart = real(n.con{conid}.C(ind,:));
+realPart = real(con.C(ind,:));
 if isempty(handle)
     figure;
 else
     axes(handle);
 end
 plot(f,realPart,'.-');axis tight;grid on;zoom xon;
-switch n.fspac
+switch nFrom.fspac
     case 'log'
-        if ~isempty(n.tick)
-            set(gca,'xscale','log','xtick',n.tick);
-        else
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xscale','log','xtick',nFrom.tick);
+        elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 'lin'
-        if ~isempty(n.tick)
-            set(gca,'xtick',n.tick);
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xtick',nFrom.tick);
         end
 end
 title(sprintf('Real part of connections to middle oscillator of network %d in matrix %d',netTo,conid));
-xlabel('Oscillator natural frequency (Hz)');
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
 ylabel('Real part');
+grid on
 drawnow;
 
 %% Imaginary values of middle row of connectivity matrix
 function connectionImag(M,netTo,conid,handle)
-n = M.n{netTo};
-f = n.f;
-ind = ceil(length(f)/2);
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    f = 1:size(con.NUM1, 2);
+else
+    f = nFrom.f;
+end
+ind = ceil(nTo.N/2);
 % ticks = tickMake(f,8);
-imagPart = imag(n.con{conid}.C(ind,:));
+imagPart = imag(con.C(ind,:));
 if isempty(handle)
     figure;
 else
     axes(handle);
 end
 plot(f,imagPart,'.-');axis tight;grid on;zoom xon;
-switch n.fspac
+switch nFrom.fspac
     case 'log'
-        if ~isempty(n.tick)
-            set(gca,'xscale','log','xtick',n.tick);
-        else
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xscale','log','xtick',nFrom.tick);
+        elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 'lin'
-        if ~isempty(n.tick)
-            set(gca,'xtick',n.tick);
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xtick',nFrom.tick);
         end
 end
 title(sprintf('Imaginary part of connections to middle oscillator of network %d in matrix %d',netTo,conid));
-xlabel('Oscillator natural frequency (Hz)');
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
 ylabel('Imaginary part');
+grid on
 drawnow;

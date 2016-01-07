@@ -1,6 +1,6 @@
-%% example2.m
+%% example2P.m
 %
-% A simple afferent chain network with no learning
+% A simple afferent chain network with plastic internal connections
 
 %% Parameters
 alpha1 = 0.01; beta11 = -1; beta12 =  -10; neps1 = 1; % Linear
@@ -24,7 +24,7 @@ n2    = connectAdd(n1, n2,  C, 'weight', 1, 'type', '1freq');
 
 n2 = connectAdd(n2, n2, [], 'weight', w, 'type', '2freq', 'no11', ...
                          'learn', lambda, mu1, mu2, ceps, kappa, ...
-                         'display', 20, 'save', 1000);
+                         'display', 20,'phasedisp', 'save', 1000);
 
 M = modelMake(@zdot, @cdot, s, n1, n2);
 
@@ -38,5 +38,4 @@ figure(11);
 a1 = subplot(2,1,1);
 a2 = subplot(2,1,2);
 
-outputDisplay(M,'net',1,a1,'ampx')
-outputDisplay(M,'net',2,a2,'ampx')
+outputDisplay(M,'net',1,a1,'ampx','net',2,a2,'ampx')
