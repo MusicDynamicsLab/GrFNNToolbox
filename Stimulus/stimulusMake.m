@@ -98,48 +98,35 @@
 %%
 function s = stimulusMake(varargin)
 
-id = 1;
-
 if isscalar(varargin{1})
     
     id = varargin{1};
-    type = varargin{2};
-    
-        %% Call relevant 'make' function
-        
-        switch type
-            case 'fcn'
-                s = makeFcnInput(varargin{3:end});
-            case 'wav'
-                s = makeWaveInput(varargin{3:end});
-            case 'mid'
-                s = makeMidiInput(varargin{3:end});
-            case 'rfcn'
-                s = makeRfcnInput(varargin{3:end});
-            otherwise
-                error('unknown stimulus type');
-        end
+    type = varargin{2};    
+    temp = varargin(3:end);
         
 else
     
-    type = varargin{1};
-    
-    %% Call relevant 'make' function
-    
-    switch type
-        case 'fcn'
-            s = makeFcnInput(varargin{2:end});
-        case 'wav'
-            s = makeWaveInput(varargin{2:end});
-        case 'mid'
-            s = makeMidiInput(varargin{2:end});
-        case 'rfcn'
-            s = makeRfcnInput(varargin{2:end});
-        otherwise
-            error('unknown stimulus type');
-    end
+    id = 1;
+    type = varargin{1};    
+    temp = varargin(2:end);
     
 end
+
+%% Call relevant 'make' function
+
+switch type
+    case 'fcn'
+        s = makeFcnInput(temp{:});
+    case 'wav'
+        s = makeWaveInput(temp{:});
+    case 'mid'
+        s = makeMidiInput(temp{:});
+    case 'rfcn'
+        s = makeRfcnInput(temp{:});
+    otherwise
+        error('unknown stimulus type');
+end
+
 
 %Fields for all types
 %MS1 - added 12/19/08
@@ -149,6 +136,7 @@ s.inputType = {'1freq'};
 s.dStep = 0;
 s.dispChan = 1;
 s.id = id;
+s.kind = 'stim';
 
 for i = 1:length(varargin)
     if strcmpi(varargin{i},'inputType') %&& length(varargin) > i && ischar(varargin{i+1})
