@@ -11,12 +11,11 @@
 %%
 function [Nm, Np, m, CH] = moduRhythm(N, bper, mdep, mfun, mper)
 
-
 if nargin < 5; mper = 16;   end;
 if nargin < 4; mfun = 'sin'; end;
 if nargin < 3; mdep =  .2;   end;
 if nargin < 2; bper =  .5;   end;
-    
+
 b0   = N(1,1);
 b    = N(:,1);
 db   = N(:,2);
