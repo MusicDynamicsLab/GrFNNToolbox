@@ -11,7 +11,7 @@ if isfield(varargin{1}, 'f')
     fspac = n.fspac;
 else
     f = varargin{1};
-    fspac = varargin{1};
+    fspac = varargin{2};
 end
     
 if strcmp(fspac, 'log')
