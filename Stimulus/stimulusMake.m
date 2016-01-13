@@ -130,21 +130,22 @@ end
 
 %Fields for all types
 %MS1 - added 12/19/08
-s.useDirectIndex = 0; %used in stimulusRun
-s.lenx = length(s.x);
-s.inputType = {'1freq'};
+s.id = id;
+s.class = 'stim';
+s.nClass = 1; % numerical class
+s.lenx = size(s.x, 2);  % stimulus length
+s.Nch = size(s.x, 1);   % number of stimulus channels
+s.inputType = '1freq';  % this field is now obsolete but kept for backward compatibility
 s.dStep = 0;
 s.dispChan = 1;
-s.id = id;
-s.kind = 'stim';
+s.useDirectIndex = 0; % used in stimulusRun
+s.f = [];
+s.fspac = [];
+s.tick = [];
 
 for i = 1:length(varargin)
     if strcmpi(varargin{i},'inputType') %&& length(varargin) > i && ischar(varargin{i+1})
-        if iscell(varargin{i+1})
-            s.inputType = varargin{i+1};
-        else
-            s.inputType = {varargin{i+1}};
-        end
+        s.inputType = varargin{i+1};
     end
     if strcmpi(varargin{i},'display') %&& length(varargin) > i && ischar(varargin{i+1})
         s.dStep = varargin{i+1};

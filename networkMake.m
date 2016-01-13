@@ -39,15 +39,17 @@
 function n = networkMake(id, varargin)
 %% Set defaults and initialize variables
 n.id = id;
+n.class = 'net';
+n.nClass = 2; % numerical class
 
-models = {'hopf'};               % Can add to this array later
+models = {'hopf'};              % Can add to this array later
 
-n.model = [];                           % Initialize these to use isempty to error check later
+n.model = [];                   % Initialize these to use isempty to error check later
 n.fspac = [];
 
-n.dStep = 0;                              % Initialize these to zero/empty in case not specified in varargin
+n.dStep = 0;                    % Initialize these to zero/empty in case not specified in varargin
 n.sStep = 0;
-n.ext   = 0;
+n.ext   = 0;                    % Now obsolete but needed for backward compatibility
 overrideInitialConditions = 0;
 n.tick  = [];
 
@@ -101,7 +103,7 @@ for i = 1:length(varargin)
      
     if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'cha') && length(varargin) > i && ~ischar(varargin{i+1})
     
-        n.ext = varargin{i+1};
+        n.ext = varargin{i+1};  % now obsolete but needed for backward compatibility
         
     end
     

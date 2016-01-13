@@ -4,7 +4,7 @@
 % Integrates one connection
 
 %%
-function [dCdt] = cdot(M, nx, cx)
+function [dCdt] = cdot(M, tx, nx, cx)
 
 %% Initialize variables and stimulus
 % global M
@@ -17,52 +17,62 @@ lambda = con.lambda;
 mu1 = con.mu1;
 mu2 = con.mu2;
 e = con.e;
-type = con.type;
+nType = con.nType;
 no11 = con.no11;
 
-n1   = M.n{con.n1};
-n2   = M.n{con.n2};
+if con.nSourceClass == 1
+    y1 = stimulusRun(tx, M.s{con.source});
+else
+    y1 = M.n{con.source}.z;
+    n1 = M.n{con.source};
+end
+z2   = M.n{con.target}.z;
+n2   = M.n{con.target};
 
 %%   Input to connection rule
 % $X = \kappa*\vec{z}\vec{z'}^T$
 
-if strcmpi(type, '1freq')
-    X = kappa.*(n2.z * n1.z');
-elseif strcmpi(type, '2freq')
-    Z1 = repmat(n1.z', n2.N, 1); % conjugate transpose is what we want
-    Z2 = repmat(n2.z , 1, n1.N);
-    N = con.NUM; D = con.DEN;
-    X  = kappa.*(e.^((N+D-2)/2)).*((Z2.^D) .* (Z1.^N));
-elseif strcmpi(type(1:5), '3freq')
-    Z1 = n1.z(con.IDX1); Z1(~con.CON1) = conj(Z1(~con.CON1));
-    Z2 = n1.z(con.IDX2); Z2(~con.CON2) = conj(Z2(~con.CON2));
-    Z  = n2.z(con.IDXZ);
-    N1 = con.NUM1; N2 = con.NUM2; D = con.DEN;
-    
-    Z1N1 = (Z1.^N1);
-    Z2N2 = (Z2.^N2);
-    ZD  = (Z .^D);
-
-    X = kappa.*(e.^((N1+N2+D-2)/2)).*ZD.*Z1N1.*Z2N2;
-elseif strcmpi(type, 'All2freq')
-    if no11 % remove 1:1 (and subsequent n:n) monomials
-        X = kappa.*(P(e, n2.z) * P(e, n1.z') - P(e^2, n2.z*n1.z'));
-    else
-        X = kappa.*(P(e, n2.z) * P(e, n1.z'));
-    end
-elseif strcmpi(type, 'Allfreq')
-    if no11
-        X = kappa.*(P(e, n2.z) * P_new(e, n1.z') ...
-            - P(e^2, n2.z*n1.z') .* repmat(A(e^2, abs(n1.z').^2), n2.N, 1));
-    else
-        X = kappa.*(P(e, n2.z) * P_new(e, n1.z'));
-    end
-elseif strcmpi(type, 'active')
-    if no11
-        X = kappa.*((sqrt(e)*n2.z.*P(e, n2.z)) * n1.z');
-    else
-        X = kappa.*(P(e, n2.z) * n1.z');
-    end
+switch nType
+    case 1  % 1freq
+        X = kappa.*(z2 * y1');
+        
+    case 2  % 2freq
+        Z1 = repmat(y1', n2.N, 1); % conjugate transpose is what we want
+        Z2 = repmat(z2 , 1, n1.N);
+        N = con.NUM; D = con.DEN;
+        X  = kappa.*(e.^((N+D-2)/2)).*((Z2.^D) .* (Z1.^N));
+        
+    case {3, 4} % 3freq or 3freqall
+        Z1 = y1(con.IDX1); Z1(~con.CON1) = conj(Z1(~con.CON1));
+        Z2 = y1(con.IDX2); Z2(~con.CON2) = conj(Z2(~con.CON2));
+        Z  = z2(con.IDXZ);
+        N1 = con.NUM1; N2 = con.NUM2; D = con.DEN;
+        Z1N1 = (Z1.^N1);
+        Z2N2 = (Z2.^N2);
+        ZD  = (Z .^D);
+        X = kappa.*(e.^((N1+N2+D-2)/2)).*ZD.*Z1N1.*Z2N2;
+        
+    case 5  % all2freq
+        if no11 % remove 1:1 (and subsequent n:n) monomials
+            X = kappa.*(P(e, z2) * P(e, y1') - P(e^2, z2*y1'));
+        else
+            X = kappa.*(P(e, z2) * P(e, y1'));
+        end
+        
+    case 6  % allfreq
+        if no11
+            X = kappa.*(P(e, z2) * P_new(e, y1') ...
+                - P(e^2, z2*y1') .* repmat(A(e^2, abs(y1').^2), n2.N, 1));
+        else
+            X = kappa.*(P(e, z2) * P_new(e, y1'));
+        end
+        
+    case 7  % active
+        if no11
+            X = kappa.*((sqrt(e)*z2.*P(e, z2)) * y1');
+        else
+            X = kappa.*(P(e, z2) * y1');
+        end
 end
 
 X = single(X);
@@ -106,4 +116,26 @@ function y = Sc(epsilon, z2, z1)
 y = ( sqrt(epsilon)*z2*z1' ./ (1 - sqrt(epsilon)*z2*z1') );
 % should this be sqrt(epsilon) in the demoninator?
 % Ask Ji Chul to verify
+end
+
+%% Interpolate stimulus value for given t
+function y = stimulusRun(tx, s)
+
+%tx is an index into stimulus data
+%check out of bounds. Clamp if needed.
+
+% if tx >= s.lenx %much faster than (length(s.x))
+%     y = s.x(ext,s.lenx);
+% end
+
+%First check if index is integer or not
+rm = tx - floor(tx); %NOTE don't name this 'rem'! That's a func and will slow things!
+if rm == 0
+    %integer, so valid index
+    y = s.x(:,tx);
+else
+    %We're between indices, so linear interpolation
+    y = s.x(:,tx-rm) * (1-rm) + s.x(:,tx+1-rm) * rm;
+    %(t-rm) & (t+1-rm) are much faster than floor(t) & ceil(t)
+end
 end
