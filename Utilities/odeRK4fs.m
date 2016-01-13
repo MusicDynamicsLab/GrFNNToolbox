@@ -192,6 +192,7 @@ if ix == 0
     end
     if isfield(net,'title') && ischar(net.title)
         title(net.title)
+        tH = [];
     else
         tH = title(sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, t));
     end
@@ -206,7 +207,7 @@ if ix == 0
     grid
 else
     set(net.nH, 'YData', abs(net.z))
-    if isfield(net,'tH')
+    if ~isempty(net.tH)
         set(net.tH, 'String', sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, t))
     end
 end
@@ -283,6 +284,7 @@ if ix == 0
     
     if isfield(con,'titleA')
         title(con.titleA)
+        atH = [];
     else
         atH = title(sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t));
     end
@@ -344,6 +346,7 @@ if ix == 0
         
         if isfield(con,'titleP') && ischar(con.titleP)
             title(con.titleP)
+            ptH = [];
         else
             ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t));
         end
@@ -360,7 +363,7 @@ else    % nonzero ix
     else
         set(con.aH, 'CData', (abs(con.C)))
     end
-    if isfield(con,'atH')
+    if ~isempty(con.atH)
         set(con.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
     end
     if con.phaseDisp
@@ -369,7 +372,7 @@ else    % nonzero ix
         else
             set(con.pH, 'CData', angle(con.C))
         end
-        if isfield(con,'ptH')
+        if ~isempty(con.ptH)
             set(con.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
         end
     end
