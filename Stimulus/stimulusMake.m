@@ -134,7 +134,7 @@ s.id = id;
 s.class = 'stim';
 s.nClass = 1; % numerical class
 s.lenx = size(s.x, 2);  % stimulus length
-s.Nch = size(s.x, 1);   % number of stimulus channels
+s.N = size(s.x, 1);   % number of stimulus channels
 s.inputType = '1freq';  % this field is now obsolete but kept for backward compatibility
 s.dStep = 0;
 s.dispChan = 1;
@@ -182,7 +182,6 @@ s.sp = 1;                   % ramp strength exponent, ie, larger than 1, sudden 
 
 s = stimulusParser(s, varargin{:});
 
-s.N  = 1;
 s.t  = min(min(s.ts)):s.dt:max(max(s.ts));
 s.x  = zeros(size(s.t));
 
@@ -374,7 +373,6 @@ for i=2:nargin
     end
 end
 
-s.N  = 1; %?
 
 %  Melodic or Pulse stimulus set time parameters
 %  If pulse stim, set all note durations to equal value.  If melodic stim,
@@ -491,7 +489,6 @@ if numel(varargin{1}) == 2 %it's a time span
 end
 
 s.dt = 1/s.fs;
-s.N  = 1;
 
 temp_mod = 0;
 for i=5:length(varargin)

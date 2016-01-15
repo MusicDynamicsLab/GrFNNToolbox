@@ -34,7 +34,8 @@ for v = ind:length(varargin)
     temp = varargin{v};
     if strcmp(temp.class, 'stim')
         sid = temp.id;
-        temp.Nch = size(temp.x, 1);
+        temp.N = size(temp.x, 1);
+        temp.z = temp.x(:,1);   % initialize current state z
         model.s{sid} = temp;
         stimList = [stimList sid];
         
@@ -100,10 +101,10 @@ for j = model.netList
     net = model.n{j};
     if net.ext   % connect first stimulus if ext is nonzero (backward compatible)
         stim1 = model.s{model.stimList(1)};
-        if stim1.Nch == 1 % single channel input
+        if stim1.N == 1 % single channel input
             C = ones(net.N, 1);
         else    % multichannel input
-            C = zeros(net.N, stim1.Nch);
+            C = zeros(net.N, stim1.N);
             C(sub2ind(size(C), 1:net.N, net.ext)) = 1;
         end
         model.n{j} = connectAdd(stim1, net, C, 'weight', 1, 'type', stim1.inputType);
@@ -128,10 +129,10 @@ end
 if ~stimcount   % if no network is connected to stimulus
     stim1 = model.s{model.stimList(1)};
     net1 = model.n{model.netList(1)};
-    if stim1.Nch == 1 % single channel input
+    if stim1.N == 1 % single channel input
         C = ones(net1.N, 1);
     else    % multichannel input
-        C = eye(net1.N, stim1.Nch);
+        C = eye(net1.N, stim1.N);
     end
     model.n{model.netList(1)} = connectAdd(stim1, net1, C, 'weight', 1, 'type', '1freq');
     disp({'At least one network must be connected to a stimulus.',['modelMake connected Network ' num2str(model.netList(1)) ' to Stimulus ' num2str(model.stimList(1)) '.']})

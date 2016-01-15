@@ -1,20 +1,17 @@
 %% odeRK4fs
-%   M = odeRK4fs(M,s)
+%   M = odeRK4fs(M)
 %
 %  Fixed-step 4th-order Runge-Kutta ODE numerical integration.
 %  Steps by *direct indexing* of stimulus vector.
 %
 %  Params
-%   Model, stimulus
+%   Model
 %
 %  Output
 %   M - Model
 
 %%
 function M = odeRK4fs(M, varargin)
-
-% clear global M
-% global M circular
 
 load('MyColormaps', 'IF_colormap');
 circular = IF_colormap;
@@ -29,7 +26,7 @@ if( ~isa(zfun,'function_handle') )
 end
 
 step = single(1);
-h = single(M.dt);                   % For variable step size, else h = dt;
+h = single(M.dt);                   % step size
 stimList = M.stimList;
 netList = M.netList;
 
@@ -58,14 +55,21 @@ for ix = ispan(1) : step : ispan(2)-step
     
     %% Get Runge-Kutta k-values
     for kx = 1:4
+        
+        %% First update stimulus values
+        if kx == 2 || kx == 4
+            for sx = stimList
+                M.s{sx}.z = stimulusRun(M.s{sx}, ind);
+            end
+        end
 
-        %% ... for each network
+        %% Get k-values for each network
         for nx = netList
-            M.n{nx}.k{kx} = h*zfun(M, ind, nx);
+            M.n{nx}.k{kx} = h*zfun(M, nx);
 
             %% ... and for each learned connection to the network
             for cx = M.n{nx}.conLearn
-                M.n{nx}.con{cx}.k{kx} = h*cfun(M, ind, nx, cx);
+                M.n{nx}.con{cx}.k{kx} = h*cfun(M, nx, cx);
             end
         end
         
@@ -126,7 +130,6 @@ for ix = ispan(1) : step : ispan(2)-step
         end
     end
 end
-end
 
 %% function: computes one 4th-order Runge-Kutta step
 %   See http://www.physics.utah.edu/~detar/phys6720/handouts/ode/ode/node6.html
@@ -137,6 +140,21 @@ end
 %  k4 = h*f(t(i+1), yi+k3)
 %
 %  y(i+1) = yi + 1/6*(k1 + 2*k2 + 2*k3 + k4)
+
+%% Interpolate stimulus value for given t
+function y = stimulusRun(s, tx)
+
+% tx is an index into stimulus data
+% First check if index is integer or not
+rm = tx - floor(tx); % NOTE don't name this 'rem'! That's a func and will slow things!
+if rm == 0
+    % integer, so valid index
+    y = s.x(:,tx);
+else
+    % We're between indices, so linear interpolation
+    y = s.x(:,tx-rm) * (1-rm) + s.x(:,tx+1-rm) * rm;
+    % (t-rm) & (t+1-rm) are much faster than floor(t) & ceil(t)
+end
 
 %% function: Displays stimulus and progress bar
 function bH = stimulusDisplay(stim, ix, t)
@@ -170,8 +188,6 @@ else
 end
 
 drawnow
-
-end
 
 %% function: Displays instantaneous network state
 function [nH, tH] = networkDisplay(net, ix, t)
@@ -214,8 +230,6 @@ end
 
 drawnow
 
-end
-
 %% function: Displays instantaneous connection state
 function [aH, atH, pH, ptH] = connectionDisplay(con, ix, t, cmap)
 % global M circular
@@ -233,7 +247,7 @@ if ix == 0
     end
     is3freq = con.nType == 3 || con.nType == 4;   % if 3freq or 3freqall
     
-    if size(con.C, 2) == 1 % if connection is a column vector
+    if con.sourceN == 1 % if connection is a column vector
         aH = plot(con.targetAxis, abs(con.C), '.-');
         xlabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))
         ylabel('Connection amplitude')
@@ -250,7 +264,7 @@ if ix == 0
         
     else    % if connection is a matrix
         if is3freq || con.nSourceClass == 1 % 3freq or stimulus source
-            f1 = [1 size(con.C, 2)];
+            f1 = [1 con.sourceN];
         else
             f1 = getLim(con.sourceAxis, con.sourceAxisScale);
         end
@@ -274,8 +288,12 @@ if ix == 0
             set(gca, 'YTick', con.targetAxisTick);
         end
         if is3freq
-            xlabel(sprintf('Oscillator pair: Network %d', con.source))
-        elseif con.nSourceClass == 1 && size(con.C, 2) > 1  % channelized stimulus
+            if con.nSourceClass == 1 % stimulus source
+                xlabel(sprintf('Stimulus pair: Stimulus %d', con.source))
+            else
+                xlabel(sprintf('Oscillator pair: Network %d', con.source))
+            end
+        elseif con.nSourceClass == 1 && con.sourceN > 1  % channelized stimulus
             xlabel(sprintf('Channel: Stimulus %d', con.source))
         else
             xlabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.source))
@@ -300,7 +318,7 @@ if ix == 0
             figure(10000+1000*nx+100*cx+1)
         end
         
-        if size(con.C, 2) == 1
+        if con.sourceN == 1
             pH = plot(con.targetAxis, angle(con.C), '.');
             xlabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))
             ylabel('Connection phase')
@@ -335,9 +353,14 @@ if ix == 0
             if ~isempty(con.targetAxisTick)
                 set(gca, 'YTick', con.targetAxisTick);
             end
+            
             if is3freq
-                xlabel(sprintf('Oscillator pair: Network %d', con.source))
-            elseif con.nSourceClass == 1 && size(con.C, 2) > 1  % channelized stimulus
+                if con.nSourceClass == 1 % stimulus source
+                    xlabel(sprintf('Stimulus pair: Stimulus %d', con.source))
+                else
+                    xlabel(sprintf('Oscillator pair: Network %d', con.source))
+                end
+            elseif con.nSourceClass == 1 && con.sourceN > 1  % channelized stimulus
                 xlabel(sprintf('Channel: Stimulus %d', con.source))
             else
                 xlabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.source))
@@ -358,7 +381,7 @@ if ix == 0
     end
 
 else    % nonzero ix
-    if size(con.C, 2) == 1
+    if con.sourceN == 1
         set(con.aH, 'YData', (abs(con.C)))
     else
         set(con.aH, 'CData', (abs(con.C)))
@@ -367,7 +390,7 @@ else    % nonzero ix
         set(con.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
     end
     if con.phaseDisp
-        if size(con.C, 2) == 1
+        if con.sourceN == 1
             set(con.pH, 'YData', angle(con.C))
         else
             set(con.pH, 'CData', angle(con.C))
@@ -379,5 +402,3 @@ else    % nonzero ix
 end
 
 drawnow
-
-end
