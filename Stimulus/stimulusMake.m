@@ -206,7 +206,7 @@ for a = 1:size(s.ts,1)                % For each section of the signal
         if isfield(s, 'filtmask') && ~isempty(s.filtmask{a,1}) && ~isempty(s.filtmask{a,2})
             noise = filter(s.filtmask{a,1},s.filtmask{a,2},noise);
         end
-        noise = noise * (1/rms(noise)) * 10^(-s.mask(a)/20) * rms(temp);    %interpret noise input as SNR in dB with reference to stim
+        noise = noise * (1/rootMeanSquare(noise)) * 10^(-s.mask(a)/20) * rootMeanSquare(temp);    %interpret noise input as SNR in dB with reference to stim
         
         noise = stimulusRamp(noise, s.sc(a), s.sp(a), s.fs);
         temp = temp + noise;
@@ -221,7 +221,7 @@ if isfield(s, 'maskall')
     if isfield(s, 'filtmaskall') && ~isempty(s.filtmaskall{1}) && ~isempty(s.filtmaskall{2})
         noise = filter(s.filtmaskall{1},s.filtmaskall{2},noise);
     end
-    noise = noise * (1/rms(noise)) * 10^(-s.maskall/20) * rms(s.x);
+    noise = noise * (1/rootMeanSquare(noise)) * 10^(-s.maskall/20) * rootMeanSquare(s.x);
     
     noise = stimulusRamp(noise, s.sc(1), s.sp(1), s.fs);
     s.x = s.x + noise;
@@ -281,7 +281,7 @@ if isfield(s, 'mask')
     if isfield(s, 'filtmask') && ~isempty(s.filtmask{1}) && ~isempty(s.filtmask{2})
         noise = filter(s.filtmask{1},s.filtmask{2},noise);
     end
-    noise = noise * (1/rms(noise)) * 10^(-s.mask/20) * rms(s.x);    %interpret noise input as SNR in dB with reference to stim
+    noise = noise * (1/rootMeanSquare(noise)) * 10^(-s.mask/20) * rootMeanSquare(s.x);    %interpret noise input as SNR in dB with reference to stim
     
     if isfield(s, 'sc')
         noise = stimulusRamp(noise, s.sc, s.sp, s.fs);
