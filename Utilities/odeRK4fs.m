@@ -1,54 +1,50 @@
 %% odeRK4fs
-%   M = odeRK4fs(M,s)
+%   M = odeRK4fs(M)
 %
 %  Fixed-step 4th-order Runge-Kutta ODE numerical integration.
 %  Steps by *direct indexing* of stimulus vector.
 %
 %  Params
-%   Model, stimulus
+%   Model
 %
 %  Output
 %   M - Model
 
 %%
-function M = odeRK4fs(M,s)
+function M = odeRK4fs(M, varargin)
 
-% clear global M
-% global M circular
 load('MyColormaps', 'IF_colormap');
 circular = IF_colormap;
 
 zfun = M.dotfunc;
 cfun = M.cfun;
-% s = M.s;
-ispan = [1 length(s.x)];
+ispan = [1 length(M.t)];
 
 %% Error checking
 if( ~isa(zfun,'function_handle') )
     error('odeRK4fs: odefun param must be a function handle');
 end
-if(ispan(1) < 1)
-    error('odeRK4fs: index start < 1: %f',ispan(1));
-end
-if(ispan(2) <= ispan(1) || ispan(2) > length(s.x))
-    error('odeRK4fs: index stop out of range: %f',ispan(2));
-end
 
 step = single(1);
-h = single(s.dt);                   % For variable step size, else h = dt;
+h = single(M.dt);                   % step size
+stimList = M.stimList;
 netList = M.netList;
 
 %% Display stimulus and initial conditions if dStep > 0
-if s.dStep
-    s = stimulusDisplay(s, 0);
+for sx = stimList
+    if M.s{sx}.dStep
+        M.s{sx}.bH = stimulusDisplay(M.s{sx}, 0, M.t(1));
+    end
 end
+
 for nx = netList
     if M.n{nx}.dStep
-        M = networkDisplay(M, s, 0, nx);
+        [M.n{nx}.nH, M.n{nx}.tH] = networkDisplay(M.n{nx}, 0, M.t(1));
     end
     for cx = M.n{nx}.conLearn
         if M.n{nx}.con{cx}.dStep
-            M = connectionDisplay(M, s, circular, 0, nx, cx);
+            [M.n{nx}.con{cx}.aH, M.n{nx}.con{cx}.atH, M.n{nx}.con{cx}.pH, M.n{nx}.con{cx}.ptH] ...
+                = connectionDisplay(M.n{nx}.con{cx}, 0, M.t(1), circular);
         end
     end
 end
@@ -59,10 +55,17 @@ for ix = ispan(1) : step : ispan(2)-step
     
     %% Get Runge-Kutta k-values
     for kx = 1:4
+        
+        %% First update stimulus values
+        if kx == 2 || kx == 4
+            for sx = stimList
+                M.s{sx}.z = stimulusRun(M.s{sx}, ind);
+            end
+        end
 
-        %% ... for each network
+        %% Get k-values for each network
         for nx = netList
-            M.n{nx}.k{kx} = h*zfun(M, s, ind, nx);
+            M.n{nx}.k{kx} = h*zfun(M, nx);
 
             %% ... and for each learned connection to the network
             for cx = M.n{nx}.conLearn
@@ -105,7 +108,7 @@ for ix = ispan(1) : step : ispan(2)-step
                         M.n{nx}.Z(:,ix/M.n{nx}.sStep+1) = M.n{nx}.z;
                     end
                     if M.n{nx}.dStep && ~mod(ix, M.n{nx}.dStep)
-                        M = networkDisplay(M, s, ix, nx);
+                        networkDisplay(M.n{nx}, ix, M.t(ix));
                     end
                     for cx = M.n{nx}.conLearn
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + ...
@@ -114,16 +117,18 @@ for ix = ispan(1) : step : ispan(2)-step
                             M.n{nx}.con{cx}.C3(:,:,ix/M.n{nx}.con{cx}.sStep+1) = M.n{nx}.con{cx}.C;
                         end
                         if M.n{nx}.con{cx}.dStep && ~mod(ix, M.n{nx}.con{cx}.dStep)
-                            M = connectionDisplay(M, s, circular, ix, nx, cx);
+                            connectionDisplay(M.n{nx}.con{cx}, ix, M.t(ix), circular);
                         end
                     end
                 end
-                if s.dStep && ~mod(ix, s.dStep)
-                    s = stimulusDisplay(s, ix);
+                
+                for sx = stimList
+                    if M.s{sx}.dStep && ~mod(ix, M.s{sx}.dStep)
+                        stimulusDisplay(M.s{sx}, ix, M.t(ix));
+                    end
                 end
         end
     end
-end
 end
 
 %% function: computes one 4th-order Runge-Kutta step
@@ -136,66 +141,76 @@ end
 %
 %  y(i+1) = yi + 1/6*(k1 + 2*k2 + 2*k3 + k4)
 
+%% Interpolate stimulus value for given t
+function y = stimulusRun(s, tx)
+
+% tx is an index into stimulus data
+% First check if index is integer or not
+rm = tx - floor(tx); % NOTE don't name this 'rem'! That's a func and will slow things!
+if rm == 0
+    % integer, so valid index
+    y = s.x(:,tx);
+else
+    % We're between indices, so linear interpolation
+    y = s.x(:,tx-rm) * (1-rm) + s.x(:,tx+1-rm) * rm;
+    % (t-rm) & (t+1-rm) are much faster than floor(t) & ceil(t)
+end
+
 %% function: Displays stimulus and progress bar
-function s = stimulusDisplay(s, ix)
+function bH = stimulusDisplay(stim, ix, t)
 % global M 
-% s = M.s;
 if ix == 0
-    if isfield(s,'sAx') && ishghandle(s.sAx)
-        axes(s.sAx)
+    sx = stim.id;
+    if isfield(stim,'sAx') && ishghandle(stim.sAx)
+        axes(stim.sAx)
     else
-        figure(10000)
+        figure(10000+sx)
     end
     
-    plot(s.t, real(s.x(s.dispChan,:)), 'k')
+    plot(stim.t, real(stim.x(stim.dispChan,:)), 'k')
     hold on
     ylimit = get(gca,'YLim');
-    s.bH = plot([1 1]*s.t(1), ylimit, 'r'); % handle for progress bar
+    bH = plot([1 1]*t, ylimit, 'r'); % handle for progress bar
     set(gca,'YLim',ylimit) % need to do this for lastest matlab
+    set(gca,'XLim',[min(stim.t) max(stim.t)])
     hold off
-    if isfield(s,'title') && ischar(s.title)
-        title(s.title)
+    if isfield(stim,'title') && ischar(stim.title)
+        title(stim.title)
     else
-        title(['Stimulus ', 'Channel ', num2str(s.dispChan)])
+        title(['Stimulus ' num2str(sx) ', Channel ', num2str(stim.dispChan)])
     end
     xlabel('Time')
     ylabel('Real part')
     grid
     
 else
-    set(s.bH, 'XData', [1 1]*s.t(ix))
+    set(stim.bH, 'XData', [1 1]*t)
 end
 
 drawnow
 
-end
-
 %% function: Displays instantaneous network state
-function M = networkDisplay(M, s, ix, nx)
-% global M 
-net = M.n{nx};
+function [nH, tH] = networkDisplay(net, ix, t)
+% global M
+nx = net.id;
 if ix == 0
     if isfield(net,'nAx') && ishghandle(net.nAx)
         axes(net.nAx)
     else
-        figure(10000+nx)
+        figure(10000+1000*nx)
     end
     
-% Commenting out old way of doing this
-% 
-%     M.n{nx}.nH = plot(1:net.N, abs(net.z), '.-'); % nH: lineseries object handle
-%     set(gca, 'YLim', [0 .8/sqrt(net.e)]);
-%     set(gca, 'XTick', net.tck, 'XTickLabel', net.tckl);
     switch net.fspac
         case 'log'
-            M.n{nx}.nH = semilogx(net.f, abs(net.z), '.-');  % nH: lineseries object handle
+            nH = semilogx(net.f, abs(net.z), '.-');  % nH: lineseries object handle
         case 'lin'
-            M.n{nx}.nH = plot(net.f, abs(net.z), '.-');  % nH: lineseries object handle
+            nH = plot(net.f, abs(net.z), '.-');  % nH: lineseries object handle
     end
     if isfield(net,'title') && ischar(net.title)
         title(net.title)
+        tH = [];
     else
-        M.n{nx}.tH = title(sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, s.t(1)));
+        tH = title(sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, t));
     end
     xlabel('Oscillator natural frequency (Hz)')
     ylabel('Amplitude')
@@ -208,19 +223,19 @@ if ix == 0
     grid
 else
     set(net.nH, 'YData', abs(net.z))
-    if isfield(net,'tH')
-        set(net.tH, 'String', sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, s.t(ix)))
+    if ~isempty(net.tH)
+        set(net.tH, 'String', sprintf('Amplitudes of oscillators in network %d (t = %.1fs)', nx, t))
     end
 end
 
 drawnow
 
-end
-
 %% function: Displays instantaneous connection state
-function M = connectionDisplay(M, s, circular, ix, nx, cx)
+function [aH, atH, pH, ptH] = connectionDisplay(con, ix, t, cmap)
 % global M circular
-con = M.n{nx}.con{cx};
+nx = con.target;
+cx = con.id;
+
 if ix == 0
     if isfield(con,'aAx') && ishghandle(con.aAx)
         axes(con.aAx)
@@ -230,49 +245,68 @@ if ix == 0
     else
         figure(10000+1000*nx+100*cx)
     end
-    n1 = M.n{con.n1};
-    n2 = M.n{con.n2};
-    is3freq = strcmpi(con.type(1:5), '3freq');
-    if is3freq
-        f1 = [1 size(con.NUM1, 2)];
-    else
-        f1 = getLim(n1);
+    is3freq = con.nType == 3 || con.nType == 4;   % if 3freq or 3freqall
+    
+    if con.sourceN == 1 % if connection is a column vector
+        aH = plot(con.targetAxis, abs(con.C), '.-');
+        xlabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))
+        ylabel('Connection amplitude')
+        set(gca, 'XLim',[min(con.targetAxis) max(con.targetAxis)])
+        if abs(con.e)
+            set(gca, 'YLim', [0 1/sqrt(con.e)])
+        end
+        if strcmp(con.targetAxisScale, 'log')
+            set(gca, 'XScale', 'log')
+        end
+        if ~isempty(con.targetAxisTick)
+            set(gca, 'XTick', con.targetAxisTick);
+        end
+        
+    else    % if connection is a matrix
+        if is3freq || con.nSourceClass == 1 % 3freq or stimulus source
+            f1 = [1 con.sourceN];
+        else
+            f1 = getLim(con.sourceAxis, con.sourceAxisScale);
+        end
+        f2 = getLim(con.targetAxis, con.targetAxisScale);
+        aH = imagesc(f1, f2, abs(con.C));
+        colormap(flipud(hot)); colorbar;
+        ylabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))
+        if abs(con.e)
+            set(gca, 'CLim', [.001 1/sqrt(con.e)])
+        end
+        if strcmp(con.sourceAxisScale, 'log') && ~is3freq
+            set(gca, 'XScale', 'log')
+        end
+        if strcmp(con.targetAxisScale, 'log')
+            set(gca, 'YScale', 'log')
+        end
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca, 'XTick', con.sourceAxisTick);
+        end
+        if ~isempty(con.targetAxisTick)
+            set(gca, 'YTick', con.targetAxisTick);
+        end
+        if is3freq
+            if con.nSourceClass == 1 % stimulus source
+                xlabel(sprintf('Stimulus pair: Stimulus %d', con.source))
+            else
+                xlabel(sprintf('Oscillator pair: Network %d', con.source))
+            end
+        elseif con.nSourceClass == 1 && con.sourceN > 1  % channelized stimulus
+            xlabel(sprintf('Channel: Stimulus %d', con.source))
+        else
+            xlabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.source))
+        end
     end
-    f2 = getLim(n2);
-    M.n{nx}.con{cx}.aH = imagesc(f1, f2, abs(con.C));
-    if isfield(con,'titleA') && ischar(con.titleA)
+    
+    if isfield(con,'titleA')
         title(con.titleA)
+        atH = [];
     else
-        M.n{nx}.con{cx}.atH = title(sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(1)));
+        atH = title(sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t));
     end
-    if is3freq
-        xlabel(sprintf('Oscillator pair: Network %d',M.n{con.n1}.id))
-    else
-        xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',M.n{con.n1}.id))
-    end
-    ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',nx))
-    if strcmp(n1.fspac, 'log') && ~is3freq
-        set(gca, 'xscale', 'log')
-    end
-    if strcmp(n2.fspac, 'log')
-        set(gca, 'yscale', 'log')
-    end
-    set(gca, 'CLim', [.001 1/sqrt(con.e)])
-    
-% Commenting out old way of doing this
-% 
-%     set(gca, 'XTick', M.n{con.n1}.tck, 'XTickLabel', M.n{con.n1}.tckl)
-%     set(gca, 'YTick', M.n{con.n2}.tck, 'YTickLabel', M.n{con.n2}.tckl)
-
-    if ~isempty(M.n{con.n1}.tick) && ~is3freq
-        set(gca, 'XTick', M.n{con.n1}.tick);
-    end
-    if ~isempty(M.n{con.n2}.tick)
-        set(gca, 'YTick', M.n{con.n2}.tick);
-    end
-    
     grid on
-    colormap(flipud(hot)); colorbar;
     
     if con.phaseDisp
         if isfield(con,'pAx') && ishghandle(con.pAx)
@@ -284,58 +318,87 @@ if ix == 0
             figure(10000+1000*nx+100*cx+1)
         end
         
-        M.n{nx}.con{cx}.pH = imagesc(f1, f2, angle(con.C));
+        if con.sourceN == 1
+            pH = plot(con.targetAxis, angle(con.C), '.');
+            xlabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))
+            ylabel('Connection phase')
+            set(gca, 'XLim',[min(con.targetAxis) max(con.targetAxis)])
+            set(gca, 'YLim', [-pi pi])
+            set(gca, 'YTick', [-pi, -pi/2, 0, pi/2, pi])
+            set(gca, 'YTickLabel', {'-pi  ', '-pi/2', ' 0  ', ' pi/2', ' pi  '})
+            if strcmp(con.targetAxisScale, 'log')
+                set(gca, 'XScale', 'log')
+            end
+            if ~isempty(con.targetAxisTick)
+                set(gca, 'XTick', con.targetAxisTick);
+            end
+
+        else
+            pH = imagesc(f1, f2, angle(con.C));
+            colormap(gca, cmap);
+            cb = colorbar;
+            ylabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))
+            set(cb, 'YTick',      [-pi, -pi/2, 0, pi/2, pi])
+            set(cb, 'YTickLabel', {'-pi  ', '-pi/2', ' 0  ', ' pi/2', ' pi  '})
+            set(gca, 'CLim', [-pi pi])
+            if strcmp(con.sourceAxisScale, 'log') && ~is3freq
+                set(gca, 'XScale', 'log')
+            end
+            if strcmp(con.targetAxisScale, 'log')
+                set(gca, 'YScale', 'log')
+            end
+            if ~isempty(con.sourceAxisTick) && ~is3freq
+                set(gca, 'XTick', con.sourceAxisTick);
+            end
+            if ~isempty(con.targetAxisTick)
+                set(gca, 'YTick', con.targetAxisTick);
+            end
+            
+            if is3freq
+                if con.nSourceClass == 1 % stimulus source
+                    xlabel(sprintf('Stimulus pair: Stimulus %d', con.source))
+                else
+                    xlabel(sprintf('Oscillator pair: Network %d', con.source))
+                end
+            elseif con.nSourceClass == 1 && con.sourceN > 1  % channelized stimulus
+                xlabel(sprintf('Channel: Stimulus %d', con.source))
+            else
+                xlabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.source))
+            end
+        end
+        
         if isfield(con,'titleP') && ischar(con.titleP)
             title(con.titleP)
+            ptH = [];
         else
-            M.n{nx}.con{cx}.ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(1)));
+            ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t));
         end
-        if is3freq
-            xlabel(sprintf('Oscillator pair: Network %d',M.n{con.n1}.id))
-        else
-            xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',M.n{con.n1}.id))
-        end
-        ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',nx))
-        if strcmp(n1.fspac, 'log') && ~is3freq
-            set(gca, 'xscale', 'log')
-        end
-        if strcmp(n2.fspac, 'log')
-            set(gca, 'yscale', 'log')
-        end
-        set(gca, 'CLim', [-pi pi])
-        
-        % Commenting out old way of doing this
-        %
-        %     set(gca, 'XTick', M.n{con.n1}.tck, 'XTickLabel', M.n{con.n1}.tckl)
-        %     set(gca, 'YTick', M.n{con.n2}.tck, 'YTickLabel', M.n{con.n2}.tckl)
-        
-        if ~isempty(M.n{con.n1}.tick) && ~is3freq
-            set(gca, 'XTick', M.n{con.n1}.tick)
-        end
-        if ~isempty(M.n{con.n2}.tick)
-            set(gca, 'YTick', M.n{con.n2}.tick)
-        end
-        
         grid on
-        colormap(gca, circular);
-        cb = colorbar;
-        set(cb, 'YTick',      [-pi, -pi/2, 0, pi/2, pi])
-        set(cb, 'YTickLabel', {sprintf('-pi  '); '-pi/2'; ' 0  '; ' pi/2'; ' pi  '})
+        
+    else    % if no phase display
+        pH = [];
+        ptH = [];
     end
 
-else
-    set(con.aH, 'CData', (abs(con.C)))
-    if isfield(con,'atH')
-        set(con.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(ix)))
+else    % nonzero ix
+    if con.sourceN == 1
+        set(con.aH, 'YData', (abs(con.C)))
+    else
+        set(con.aH, 'CData', (abs(con.C)))
+    end
+    if ~isempty(con.atH)
+        set(con.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
     end
     if con.phaseDisp
-        set(con.pH, 'CData', angle(con.C))
-        if isfield(con,'ptH')
-            set(con.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)',cx,nx,s.t(ix)))
+        if con.sourceN == 1
+            set(con.pH, 'YData', angle(con.C))
+        else
+            set(con.pH, 'CData', angle(con.C))
+        end
+        if ~isempty(con.ptH)
+            set(con.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
         end
     end
 end
 
 drawnow
-
-end

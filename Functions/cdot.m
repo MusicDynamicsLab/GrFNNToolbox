@@ -1,14 +1,12 @@
 %% cdot
-% [dCdt] = cdot(nx, cx)
+% [dCdt] = cdot(M, nx, cx)
 %
-% Integrates one connection
+% Integrates a single connection M.n{nx}.con{cx}
 
 %%
 function [dCdt] = cdot(M, nx, cx)
 
 %% Initialize variables and stimulus
-% global M
-%dbg = 0;
 
 con  = M.n{nx}.con{cx};
 C = con.C;
@@ -17,52 +15,62 @@ lambda = con.lambda;
 mu1 = con.mu1;
 mu2 = con.mu2;
 e = con.e;
-type = con.type;
+nType = con.nType;
 no11 = con.no11;
 
-n1   = M.n{con.n1};
-n2   = M.n{con.n2};
+if con.nSourceClass == 1
+    y = M.s{con.source}.z;
+else
+    y = M.n{con.source}.z;
+end
+z   = M.n{con.target}.z;
 
 %%   Input to connection rule
 % $X = \kappa*\vec{z}\vec{z'}^T$
 
-if strcmpi(type, '1freq')
-    X = kappa.*(n2.z * n1.z');
-elseif strcmpi(type, '2freq')
-    Z1 = repmat(n1.z', n2.N, 1); % conjugate transpose is what we want
-    Z2 = repmat(n2.z , 1, n1.N);
-    N = con.NUM; D = con.DEN;
-    X  = kappa.*(e.^((N+D-2)/2)).*((Z2.^D) .* (Z1.^N));
-elseif strcmpi(type(1:5), '3freq')
-    Z1 = n1.z(con.IDX1); Z1(~con.CON1) = conj(Z1(~con.CON1));
-    Z2 = n1.z(con.IDX2); Z2(~con.CON2) = conj(Z2(~con.CON2));
-    Z  = n2.z(con.IDXZ);
-    N1 = con.NUM1; N2 = con.NUM2; D = con.DEN;
+switch nType    % cases ordered by frequency of use
     
-    Z1N1 = (Z1.^N1);
-    Z2N2 = (Z2.^N2);
-    ZD  = (Z .^D);
-
-    X = kappa.*(e.^((N1+N2+D-2)/2)).*ZD.*Z1N1.*Z2N2;
-elseif strcmpi(type, 'All2freq')
-    if no11 % remove 1:1 (and subsequent n:n) monomials
-        X = kappa.*(P(e, n2.z) * P(e, n1.z') - P(e^2, n2.z*n1.z'));
-    else
-        X = kappa.*(P(e, n2.z) * P(e, n1.z'));
-    end
-elseif strcmpi(type, 'Allfreq')
-    if no11
-        X = kappa.*(P(e, n2.z) * P_new(e, n1.z') ...
-            - P(e^2, n2.z*n1.z') .* repmat(A(e^2, abs(n1.z').^2), n2.N, 1));
-    else
-        X = kappa.*(P(e, n2.z) * P_new(e, n1.z'));
-    end
-elseif strcmpi(type, 'active')
-    if no11
-        X = kappa.*((sqrt(e)*n2.z.*P(e, n2.z)) * n1.z');
-    else
-        X = kappa.*(P(e, n2.z) * n1.z');
-    end
+    case 1  % 1freq
+        X = kappa.*(z * y');
+        
+    case 6  % all2freq
+        if no11 % remove 1:1 (and subsequent n:n) monomials
+            X = kappa.*(P(e, z) * P(e, y') - P(e^2, z*y'));
+        else
+            X = kappa.*(P(e, z) * P(e, y'));
+        end
+        
+    case 7  % allfreq
+        if no11
+            X = kappa.*(P(e, z) * P_new(e, y') ...
+                - P(e^2, z*y') .* repmat(A(e^2, abs(y').^2), M.n{nx}.N, 1));
+        else
+            X = kappa.*(P(e, z) * P_new(e, y'));
+        end
+        
+    case 2  % 2freq
+        Y = repmat(y', con.targetN, 1); % conjugate transpose is what we want
+        Z = repmat(z , 1, con.sourceN);
+        NUM = con.NUM; DEN = con.DEN;
+        X  = kappa.*(e.^((NUM+DEN-2)/2)).*((Z.^DEN) .* (Y.^NUM));
+        
+    case 5  % active
+        if no11
+            X = kappa.*((sqrt(e)*z.*P(e, z)) * y');
+        else
+            X = kappa.*(P(e, z) * y');
+        end
+        
+    otherwise % 3freq or 3freqall
+        Y1 = y(con.IDX1); Y1(~con.CON1) = conj(Y1(~con.CON1));
+        Y2 = y(con.IDX2); Y2(~con.CON2) = conj(Y2(~con.CON2));
+        Z  = z(con.IDXZ);
+        NUM1 = con.NUM1; NUM2 = con.NUM2; DEN = con.DEN;
+        Y1NUM1 = (Y1.^NUM1);
+        Y2NUM2 = (Y2.^NUM2);
+        ZDEN  = (Z .^DEN);
+        X = kappa.*(e.^((NUM1+NUM2+DEN-2)/2)).*ZDEN.*Y1NUM1.*Y2NUM2;
+        
 end
 
 X = single(X);
@@ -73,37 +81,28 @@ X = single(X);
 %% oops ...not scaling by frequency
 % Why not con.e?
 dCdt = C.*(lambda + mu1.*abs(C).^2 + e*mu2.*(abs(C).^4)./(1-e*abs(C).^2)) + X;
-end
 
 %% Nonlinear Function Definitions
 function y = P(epsilon, x)
 y = ( x ./ (1 - sqrt(epsilon)*x) );
-end
 
 function y = P_new(epsilon, x)
 y = ( x ./ (1 - sqrt(epsilon)*x) ) .* ( 1 ./ (1 - sqrt(epsilon)*conj(x) ));
 %y = y - Pc(epsilon, x);
-end
 
 function y = A(epsilon, z)
 y = ( 1 ./ (1 - sqrt(epsilon)*conj(z) ));
-end
 
 function y = Pc(epsilon, x)
 y = ( sqrt(epsilon)*x.*conj(x) ./ (1 - epsilon*x.*conj(x)) );
-end
 
 function y = Ac(epsilon, x, z)
 y = ( sqrt(epsilon)*x.*conj(z) ./ (1 - epsilon*x.*conj(z)) );
 
-end
-
 function y = H(epsilon, r)
 y = (epsilon * r.^4 ./ (1- epsilon * r.^2) );
-end
 
 function y = Sc(epsilon, z2, z1)
 y = ( sqrt(epsilon)*z2*z1' ./ (1 - sqrt(epsilon)*z2*z1') );
-% should this be sqrt(epsilon) in the demoninator?
+% should this be sqrt(epsilon) in the denominator?
 % Ask Ji Chul to verify
-end

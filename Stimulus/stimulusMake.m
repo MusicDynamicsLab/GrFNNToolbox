@@ -96,39 +96,56 @@
 %
 
 %%
-function s = stimulusMake(type, varargin)
+function s = stimulusMake(varargin)
 
+if isscalar(varargin{1})
+    
+    id = varargin{1};
+    type = varargin{2};    
+    temp = varargin(3:end);
+        
+else
+    
+    id = 1;
+    type = varargin{1};    
+    temp = varargin(2:end);
+    
+end
 
 %% Call relevant 'make' function
 
 switch type
     case 'fcn'
-        s = makeFcnInput(varargin{:});
+        s = makeFcnInput(temp{:});
     case 'wav'
-        s = makeWaveInput(varargin{:});
+        s = makeWaveInput(temp{:});
     case 'mid'
-        s = makeMidiInput(varargin{:});
+        s = makeMidiInput(temp{:});
     case 'rfcn'
-        s = makeRfcnInput(varargin{:});
+        s = makeRfcnInput(temp{:});
     otherwise
         error('unknown stimulus type');
 end
 
+
 %Fields for all types
 %MS1 - added 12/19/08
-s.useDirectIndex = 0; %used in stimulusRun
-s.lenx = length(s.x);
-s.inputType = {'1freq'};
+s.id = id;
+s.class = 'stim';
+s.nClass = 1; % numerical class
+s.lenx = size(s.x, 2);  % stimulus length
+s.N = size(s.x, 1);   % number of stimulus channels
+s.inputType = '1freq';  % this field is now obsolete but kept for backward compatibility
 s.dStep = 0;
 s.dispChan = 1;
+s.useDirectIndex = 0; % used in stimulusRun
+s.f = [];
+s.fspac = [];
+s.tick = [];
 
 for i = 1:length(varargin)
     if strcmpi(varargin{i},'inputType') %&& length(varargin) > i && ischar(varargin{i+1})
-        if iscell(varargin{i+1})
-            s.inputType = varargin{i+1};
-        else
-            s.inputType = {varargin{i+1}};
-        end
+        s.inputType = varargin{i+1};
     end
     if strcmpi(varargin{i},'display') %&& length(varargin) > i && ischar(varargin{i+1})
         s.dStep = varargin{i+1};
@@ -165,7 +182,6 @@ s.sp = 1;                   % ramp strength exponent, ie, larger than 1, sudden 
 
 s = stimulusParser(s, varargin{:});
 
-s.N  = 1;
 s.t  = min(min(s.ts)):s.dt:max(max(s.ts));
 s.x  = zeros(size(s.t));
 
@@ -190,7 +206,7 @@ for a = 1:size(s.ts,1)                % For each section of the signal
         if isfield(s, 'filtmask') && ~isempty(s.filtmask{a,1}) && ~isempty(s.filtmask{a,2})
             noise = filter(s.filtmask{a,1},s.filtmask{a,2},noise);
         end
-        noise = noise * (1/rms(noise)) * 10^(-s.mask(a)/20) * rms(temp);    %interpret noise input as SNR in dB with reference to stim
+        noise = noise * (1/rootMeanSquare(noise)) * 10^(-s.mask(a)/20) * rootMeanSquare(temp);    %interpret noise input as SNR in dB with reference to stim
         
         noise = stimulusRamp(noise, s.sc(a), s.sp(a), s.fs);
         temp = temp + noise;
@@ -205,7 +221,7 @@ if isfield(s, 'maskall')
     if isfield(s, 'filtmaskall') && ~isempty(s.filtmaskall{1}) && ~isempty(s.filtmaskall{2})
         noise = filter(s.filtmaskall{1},s.filtmaskall{2},noise);
     end
-    noise = noise * (1/rms(noise)) * 10^(-s.maskall/20) * rms(s.x);
+    noise = noise * (1/rootMeanSquare(noise)) * 10^(-s.maskall/20) * rootMeanSquare(s.x);
     
     noise = stimulusRamp(noise, s.sc(1), s.sp(1), s.fs);
     s.x = s.x + noise;
@@ -265,7 +281,7 @@ if isfield(s, 'mask')
     if isfield(s, 'filtmask') && ~isempty(s.filtmask{1}) && ~isempty(s.filtmask{2})
         noise = filter(s.filtmask{1},s.filtmask{2},noise);
     end
-    noise = noise * (1/rms(noise)) * 10^(-s.mask/20) * rms(s.x);    %interpret noise input as SNR in dB with reference to stim
+    noise = noise * (1/rootMeanSquare(noise)) * 10^(-s.mask/20) * rootMeanSquare(s.x);    %interpret noise input as SNR in dB with reference to stim
     
     if isfield(s, 'sc')
         noise = stimulusRamp(noise, s.sc, s.sp, s.fs);
@@ -357,7 +373,6 @@ for i=2:nargin
     end
 end
 
-s.N  = 1; %?
 
 %  Melodic or Pulse stimulus set time parameters
 %  If pulse stim, set all note durations to equal value.  If melodic stim,
@@ -474,7 +489,6 @@ if numel(varargin{1}) == 2 %it's a time span
 end
 
 s.dt = 1/s.fs;
-s.N  = 1;
 
 temp_mod = 0;
 for i=5:length(varargin)

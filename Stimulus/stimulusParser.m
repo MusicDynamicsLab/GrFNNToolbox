@@ -395,8 +395,8 @@ if strcmpi(s.type,'fcn')
     
 elseif strcmpi(s.type,'wav')
     
-    s0 = 1;
-    sf = length(s.x);
+    s0 = 0;
+    sf = length(s.x)-1;
     s.ts = [s0 sf]/s.fs;
     
     for i = 1:length(varargin)

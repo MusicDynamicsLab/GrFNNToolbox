@@ -16,62 +16,126 @@ function model = modelMake(varargin)
 model.dotfunc      = varargin{1};
 if isa(varargin{2},'function_handle')
     model.cfun     = varargin{2};
-    s              = varargin{3};
-    ind            = 4;
+    ind            = 3;
 else
     model.cfun     = @cdot;
-    s              = varargin{2};
-    ind            = 3;
+    ind            = 2;
 end
-model.fs           = s.fs;
-model.dt           = s.dt;
-model.tspan        = s.ts;
 
-%% Make initial conditions. The varargs are the networks.
-model.netList = []; % list of network id's
+%% Get stimuli first to get time info
+stimList = []; % list of stimulus id's
+netList = []; % list of network id's
+fs = [];
+dt = [];
+ts = [];
+t = [];
 
 for v = ind:length(varargin)
-    
-    nid = varargin{v}.id;
-    model.n{nid} = varargin{v};
-    model.netList = [model.netList nid];
-    
-    t = s.t;
-    
-    if ~isempty(t) && model.n{nid}.sStep > 0
-        Nt = ceil(length(t)/model.n{nid}.sStep);
-        model.n{nid}.t = t(1:model.n{nid}.sStep:length(t));
-        model.n{nid}.Z = single(zeros(length(model.n{nid}.z), Nt));
-        model.n{nid}.Z(:,1) = model.n{nid}.z0;
-    else
-        model.n{nid}.t = [];
-        model.n{nid}.Z = [];
-    end
-    
-    for cx = model.n{nid}.conLearn
+    temp = varargin{v};
+    if strcmp(temp.class, 'stim')
+        sid = temp.id;
+        temp.N = size(temp.x, 1);
+        temp.z = temp.x(:,1);   % initialize current state z
+        model.s{sid} = temp;
+        stimList = [stimList sid];
         
-        if ~isempty(t) && model.n{nid}.con{cx}.sStep > 0
-            Nt = ceil(length(t)/model.n{nid}.con{cx}.sStep);
-            model.n{nid}.con{cx}.t = t(1:model.n{nid}.con{cx}.sStep:length(t));
-            model.n{nid}.con{cx}.C3 = single(zeros(size(model.n{nid}.con{cx}.C,1), size(model.n{nid}.con{cx}.C,2), Nt));
-            model.n{nid}.con{cx}.C3(:,:,1) = model.n{nid}.con{cx}.C0;
+        if isempty(fs)
+            fs = temp.fs;
+            dt = temp.dt;
+            ts = temp.ts;
+            t = temp.t;
         else
-            model.n{nid}.con{cx}.t  = [];
-            model.n{nid}.con{cx}.C3 = [];
+            if ~isequal(fs, temp.fs) || ~isequal(ts, temp.ts)
+                error('Time vectors for stimuli must be identical')
+            end
+        end
+    end
+end
+
+model.fs           = fs;
+model.dt           = dt;
+model.tspan        = ts;
+model.t            = t;
+
+%% Get networks and set initial conditions
+
+for v = ind:length(varargin)
+    temp = varargin{v};
+    if strcmp(temp.class, 'net')
+        nid = temp.id;
+        model.n{nid} = temp;
+        netList = [netList nid];
+        
+        if temp.sStep > 0
+            Nt = ceil(length(t)/temp.sStep);
+            model.n{nid}.t = t(1:temp.sStep:length(t));
+            model.n{nid}.Z = single(zeros(length(temp.z), Nt));
+            model.n{nid}.Z(:,1) = temp.z0;
+        else
+            model.n{nid}.t = [];
+            model.n{nid}.Z = [];
         end
         
+        for cx = temp.conLearn
+            con = temp.con{cx};
+            if con.sStep > 0
+                Nt = ceil(length(t)/con.sStep);
+                model.n{nid}.con{cx}.t = t(1:con.sStep:length(t));
+                model.n{nid}.con{cx}.C3 = single(zeros(size(con.C,1), size(con.C,2), Nt));
+                model.n{nid}.con{cx}.C3(:,:,1) = con.C0;
+            else
+                model.n{nid}.con{cx}.t  = [];
+                model.n{nid}.con{cx}.C3 = [];
+            end
+            
+        end
     end
-    
 end
-model.netList = sort(model.netList);
 
-% Roll thru networks and make sure at least one is connected to stimulus
+model.stimList = sort(stimList);
+model.netList = sort(netList);
+
+%% Check if all connections are valid and at least one network gets stimulus
 stimcount = 0;
 for j = model.netList
-    stimcount = stimcount + model.n{j}.ext;
+    net = model.n{j};
+    if net.ext   % connect first stimulus if ext is nonzero (backward compatible)
+        stim1 = model.s{model.stimList(1)};
+        if stim1.N == 1 % single channel input
+            C = ones(net.N, 1);
+        else    % multichannel input
+            C = zeros(net.N, stim1.N);
+            C(sub2ind(size(C), 1:net.N, net.ext)) = 1;
+        end
+        model.n{j} = connectAdd(stim1, net, C, 'weight', 1, 'type', stim1.inputType);
+    end
+    
+    for k = 1:length(model.n{j}.con)
+        con = model.n{j}.con{k};
+        if strcmp(con.sourceClass, 'stim')
+            if ~ismember(con.source, model.stimList)
+                error(['Input to Network ' num2str(j) ' is missing (Stimulus ' num2str(k) ')'])
+            end
+            stimcount = stimcount + 1;
+        end
+        if strcmp(con.sourceClass, 'net')
+            if ~ismember(con.source, model.netList)
+                error(['Input to Network ' num2str(j) ' is missing (Network ' num2str(k) ')'])
+            end
+        end
+    end
 end
-if ~stimcount
-    model.n{model.netList(1)}.ext = 1;
+
+if ~stimcount   % if no network is connected to stimulus
+    stim1 = model.s{model.stimList(1)};
+    net1 = model.n{model.netList(1)};
+    if stim1.N == 1 % single channel input
+        C = ones(net1.N, 1);
+    else    % multichannel input
+        C = eye(net1.N, stim1.N);
+    end
+    model.n{model.netList(1)} = connectAdd(stim1, net1, C, 'weight', 1, 'type', '1freq');
+    disp({'At least one network must be connected to a stimulus.',['modelMake connected Network ' num2str(model.netList(1)) ' to Stimulus ' num2str(model.stimList(1)) '.']})
 end
 
 %% Cast everything as complex and single
@@ -98,7 +162,6 @@ for nx = model.netList
         model.n{nx}.con{cx}.e      = castCS(model.n{nx}.con{cx}.e);
     end
 end
-
 
 
 %% If dotfunc (override) option is empty, then use base dotfunc from network and oscillator-model
