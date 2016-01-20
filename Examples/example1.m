@@ -23,14 +23,14 @@ n = networkMake(1, 'hopf', alpha, beta1,  beta2, delta1, delta2, neps, ...
                    'log', .5, 2, 200, 'channel', 1, 'save', 1, ...
                    'display', 0, 'Tick', [.5 2/3 3/4 1 4/3 3/2 2]);
 
-
+               
 if usegpu
     
     M = modelMake(@zdot_gpu, @cdot_gpu, s, n);
     
     %% Run the network
     tic
-    Mtemp = odeRK4fs_gpu(M,s);
+    Mtemp = odeRK4fs_gpu(M);
     toc
     
     M.n{1}.Z=Mtemp.n{1}.Z;

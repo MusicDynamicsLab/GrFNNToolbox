@@ -34,7 +34,7 @@ if usegpu
     
     %% Run the network
     tic
-    Mtemp = odeRK4fs_gpu(M,s);
+    Mtemp = odeRK4fs_gpu(M);
     toc
     
     

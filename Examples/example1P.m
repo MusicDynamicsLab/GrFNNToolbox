@@ -40,7 +40,7 @@ end
 if usegpu
     
     tic
-    modelTemp = odeRK4fs_gpu(model,s);
+    modelTemp = odeRK4fs_gpu(model);
     toc
     
     model.n{1}.Z=modelTemp.n{1}.Z;
