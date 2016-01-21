@@ -27,11 +27,11 @@ n = connectAdd(n, n, [], 'weight', w, 'type', 'all2freq', ...
 
 if usegpu
     
-    model = modelMake(@zdot_gpu, @cdot_gpu, s, n);
+    M = modelMake(@zdot_gpu, @cdot_gpu, s, n);
     
 else
     
-    model = modelMake(@zdot, @cdot, s, n);
+    M = modelMake(@zdot, @cdot, s, n);
     
 end
 
@@ -40,16 +40,29 @@ end
 if usegpu
     
     tic
-    modelTemp = odeRK4fs_gpu(model);
+    modelTemp = odeRK4fs_gpu(M);
     toc
     
-    model.n{1}.Z=modelTemp.n{1}.Z;
-    model.n{1}.con{1}.C3=modelTemp.n{1}.con{1}.C3;
+    M.n{1}.Z=modelTemp.n{1}.Z;
+    M.n{1}.con{1}.C3=modelTemp.n{1}.con{1}.C3;
     
 else
     
     tic
-    model = odeRK4fs(model,s);
+    M = odeRK4fs(M,s);
     toc
     
 end
+
+%% Display the output
+if usegpu
+    figure(13); clf; a1 = gca;
+    figure(14); clf;
+else
+    figure(11); clf; a1 = gca;
+    figure(12); clf;
+end
+a2 = subplot('Position', [0.08  0.72  0.78 0.22]);
+a3 = subplot('Position', [0.08  0.10  0.88 0.50]);
+
+outputDisplay(M, 'net', 1, a1, 'ampx', a2, 'fft', a3, 'oscfft')
