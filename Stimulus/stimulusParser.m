@@ -487,17 +487,9 @@ elseif strcmpi(s.type,'wav')
             s.fs = fs;                                     % Resample at specified sample rate
         end
         if isstr(varargin{i}) && strcmpi(varargin{i},'gam')
-            mincf     = varargin{i+1};
-            maxcf     = varargin{i+2};
-            numChans  = varargin{i+3};
-            cfs       = MakeErbCFs(mincf,maxcf,numChans);
-            temp      = zeros(size(s.x,1),size(s.x,2) * numChans);
-            for j = 1:size(s.x,2)                          % Split up each channel of stim into specified number of cochlear channels
-                [~,env] = gammatoneFast(s.x(:,j),cfs,s.fs);
-                index = (numChans * (j - 1) + 1):numChans * j;
-                temp(:,index) = env;                       % Take only the Hilbert envelope of each channel
-            end
-            s.x = temp;
+            s.gam.minCF    = varargin{i+1};
+            s.gam.maxCF    = varargin{i+2};
+            s.gam.numChans = varargin{i+3};
         end
         if isstr(varargin{i}) && strcmpi(varargin{i},'ramp')
             s.sc = varargin{i+1};
