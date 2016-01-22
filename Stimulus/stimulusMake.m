@@ -293,10 +293,10 @@ end
 
 if isfield(s, 'gam')
     cfs       = MakeErbCFs(s.gam.minCF,s.gam.maxCF,s.gam.numChans);
-    temp      = zeros(size(s.x,2),size(s.x,1) * numChans);
+    temp      = zeros(size(s.x,2),size(s.x,1) * s.gam.numChans);
     for j = 1:size(s.x,1)                          % Split up each channel of stim into specified number of cochlear channels
         [~,env]       = gammatoneFast(s.x(j,:),cfs,s.fs);
-        index         = (numChans * (j - 1) + 1):numChans * j;
+        index         = (s.gam.numChans * (j - 1) + 1):s.gam.numChans * j;
         temp(index,:) = env;                       % Take only the Hilbert envelope of each channel
     end
     s.x = temp;
