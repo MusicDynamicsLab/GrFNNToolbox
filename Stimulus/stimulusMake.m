@@ -267,40 +267,76 @@ end
 s = stimulusParser(s, varargin{:});      % Parse attributes and values
 
 s.dt = 1/s.fs;
+
+for i = 1:length(varargin)
+    
+    if strcmpi(varargin{i},'mask')
+        noise = rand(size(s.x))*2-1;
+        if isfield(s, 'filtmask')
+            noise = filter(s.filtmask{1},s.filtmask{2},noise);
+        end
+        noise = noise .* repmat(1./rootMeanSquare(noise),size(noise,1),1) * 10^(-s.mask/20) .* repmat(rootMeanSquare(s.x),size(s.x,1),1);    %interpret noise input as SNR in dB with reference to stim
+        
+        if isfield(s, 'sc')
+            noise = stimulusRamp(noise, s.sc, s.sp, s.fs);
+        end
+        
+        s.x = s.x + noise;
+    end
+    
+    if strcmpi(varargin{i},'filtstim')
+        s.x = filter(s.filtstim{1},s.filtstim{2},s.x);
+    end    
+    
+    if strcmpi(varargin{i},'gam')
+        cfs       = MakeErbCFs(s.gam.minCF,s.gam.maxCF,s.gam.numChans);
+        temp      = zeros(size(s.x,1),size(s.x,2) * s.gam.numChans);
+        for j = 1:size(s.x,2)                          % Split up each channel of stim into specified number of cochlear channels
+            [~,env]       = gammatoneFast(s.x(:,j),cfs,s.fs);
+            index         = (s.gam.numChans * (j - 1) + 1):s.gam.numChans * j;
+            temp(:,index) = env;                       % Take only the Hilbert envelope of each channel
+        end
+        s.x = temp;
+    end
+    
+    if strcmpi(varargin{i},'ts')
+        s.ts = s.newTS;
+        clear('s.newTS');
+        s0 = round(s.ts(  1)*s.fs+1); %MGS - 6/28/09 Added round(...) to allow non-integer time spans
+        sf = round(s.ts(end)*s.fs);   %MGS - 6/28/09 Added round(...) to allow non-integer time spans
+        s.x  = s.x(s0:sf,:);                           % Take only specified time span
+    end
+    
+    if strcmpi(varargin{i},'fs')
+        new = s.newFS;
+        old = s.fs;
+        if new >= old
+            s.x = resample(s.x, new, old);
+        else
+%             numPowsTen = floor(log10(old/new));
+%             for j = 1:numPowsTen
+%                 temp = NaN(size(s.x,1)/10,size(s.x,2));
+%                 for chan = 1:size(s.x,2)
+% %                     temp(:,chan) = decimate(s.x(:,chan),10);
+%                 end
+%                 s.x = temp;
+                
+%                 s.x = resample(s.x, 1, 10);
+%                 old = old/10;
+%             end
+            s.x = resample(s.x, new, old);
+        end
+        s.fs = new;                                     % Resample at specified sample rate
+        clear('s.newFS');
+    end
+    
+    if strcmpi(varargin{i},'ramp')
+        s.x  = stimulusRamp(s.x,s.sc,s.sp,s.fs);
+    end
+    
+end
 s.t  = linspace(s.ts(1),s.ts(2),size(s.x,1));
-
 s.x  = s.x';                     % Transpose because toolbox expects row vector(s)
-
-
-if isfield(s, 'filtstim') && ~isempty(s.filtstim{1}) && ~isempty(s.filtstim{2})
-    s.x = filter(s.filtstim{1},s.filtstim{2},s.x);
-end
-
-if isfield(s, 'mask')
-    noise = rand(size(s.x))*2-1;
-    if isfield(s, 'filtmask') && ~isempty(s.filtmask{1}) && ~isempty(s.filtmask{2})
-        noise = filter(s.filtmask{1},s.filtmask{2},noise);
-    end
-    noise = noise * (1/rootMeanSquare(noise)) * 10^(-s.mask/20) * rootMeanSquare(s.x);    %interpret noise input as SNR in dB with reference to stim
-    
-    if isfield(s, 'sc')
-        noise = stimulusRamp(noise, s.sc, s.sp, s.fs);
-    end
-    
-    s.x = s.x + noise;
-end
-
-
-if isfield(s, 'gam')
-    cfs       = MakeErbCFs(s.gam.minCF,s.gam.maxCF,s.gam.numChans);
-    temp      = zeros(size(s.x,1) * s.gam.numChans,size(s.x,2));
-    for j = 1:size(s.x,1)                          % Split up each channel of stim into specified number of cochlear channels
-        [~,env]       = gammatoneFast(s.x(j,:),cfs,s.fs);
-        index         = (s.gam.numChans * (j - 1) + 1):s.gam.numChans * j;
-        temp(index,:) = env;                       % Take only the Hilbert envelope of each channel
-    end
-    s.x = temp;
-end
 
 %% Make type 'midi'
 
