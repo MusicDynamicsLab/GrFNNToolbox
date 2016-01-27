@@ -55,7 +55,7 @@ for cx = 1:length(n.con)
             Y = repmat(    y.', con.targetN, 1).^ NUM;
             Z = repmat(conj(z) , 1, con.sourceN).^(DEN-1);
             x = x + con.w .* ...
-                sum(con.C.*(e.^((NUM+DEN-2)/2)).*Y.*Z,2);
+                sum(con.C.*con.epsn.*Y.*Z,2);
             
         case 5  % active
             if con.no11
@@ -71,8 +71,7 @@ for cx = 1:length(n.con)
             NUM1 = con.NUM1;
             NUM2 = con.NUM2;
             DEN = con.DEN;
-            x_int = con.C.*(e.^((NUM1+NUM2+DEN-2)/2)) ...
-                .*(Y1.^NUM1).*(Y2.^NUM2).*(Z.^(DEN-1));
+            x_int = con.C.*con.epsn.*(Y1.^NUM1).*(Y2.^NUM2).*(Z.^(DEN-1));
             % had to conjugate to make it work right
             x = x + con.w .* sum(x_int,2);
             

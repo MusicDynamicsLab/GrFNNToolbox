@@ -139,7 +139,7 @@ for nn = 1:length(modes)
             end
     end
     % R and Q are updated where R1 > R
-    ind = find(R1 > R);
+    ind = find(abs(R1) > abs(R));
     R(ind) = R1(ind);
     if complexKernel && strcmpi(type, 'gaus')
         Q(ind) = Q1(ind);
