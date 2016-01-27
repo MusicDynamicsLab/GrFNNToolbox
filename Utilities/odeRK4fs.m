@@ -65,15 +65,7 @@ for ix = ispan(1) : step : ispan(2)-step
 
         %% Get k-values for each network
         for nx = netList
-            if M.n{nx}.normInput    % if using normalized input
-                [dzdt, maxInput] = zdotNormInput(M, nx);
-                M.n{nx}.k{kx} = h*dzdt;
-                if kx == 1 || kx == 3
-                    M.n{nx}.maxInputPrev = maxInput; % update previous max input amplitude
-                end
-            else
-                M.n{nx}.k{kx} = h*zfun(M, nx);
-            end
+            M.n{nx}.k{kx} = h*zfun(M, nx);
 
             %% ... and for each learned connection to the network
             for cx = M.n{nx}.conLearn

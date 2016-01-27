@@ -52,7 +52,6 @@ n.sStep = 0;
 n.ext   = 0;                    % Now obsolete but needed for backward compatibility
 overrideInitialConditions = 0;
 n.tick  = [];
-n.normInput = 0;                % Normalized total input amplitude (0 if not normalizing)
 
 %% Parse input
 for i = 1:length(varargin)
@@ -133,15 +132,7 @@ for i = 1:length(varargin)
         
     end
     
-    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'nor') && length(varargin) > i && ~ischar(varargin{i+1})
-        
-        n.normInput = varargin{i+1};    % normalized total input amplitude
-        n.maxInputDecay = .01;          % default decay time rate for smoothing max input amplitude (1: no smoothing, 0: decay with no input)
-        n.maxInputPrev = eps('single'); % initialize previous smoothed max input amplitude
-        
-    end
-    
-    if ischar(varargin{i}) && ~any(strcmpi(varargin{i},models)) && ~any(strcmpi(varargin{i},{'lin' 'log'})) && ~strcmpi(varargin{i}(1:3),'cha') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~strcmpi(varargin{i}(1:3),'zna') && ~strcmpi(varargin{i}(1:3),'tic') && ~strcmpi(varargin{i}(1:3),'nor')
+    if ischar(varargin{i}) && ~any(strcmpi(varargin{i},models)) && ~any(strcmpi(varargin{i},{'lin' 'log'})) && ~strcmpi(varargin{i}(1:3),'cha') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~strcmpi(varargin{i}(1:3),'zna') && ~strcmpi(varargin{i}(1:3),'tic')
         
         error(['Unrecognized input to networkMake: ' varargin{i}]);
         
