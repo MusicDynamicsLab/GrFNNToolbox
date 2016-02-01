@@ -52,7 +52,7 @@ switch nType    % cases ordered by frequency of use
         Y = repmat(y', con.targetN, 1); % conjugate transpose is what we want
         Z = repmat(z , 1, con.sourceN);
         NUM = con.NUM; DEN = con.DEN;
-        X  = kappa.*(e.^((NUM+DEN-2)/2)).*((Z.^DEN) .* (Y.^NUM));
+        X  = kappa.*con.epsc.*((Z.^DEN) .* (Y.^NUM));
         
     case 5  % active
         if no11
@@ -69,7 +69,7 @@ switch nType    % cases ordered by frequency of use
         Y1NUM1 = (Y1.^NUM1);
         Y2NUM2 = (Y2.^NUM2);
         ZDEN  = (Z .^DEN);
-        X = kappa.*(e.^((NUM1+NUM2+DEN-2)/2)).*ZDEN.*Y1NUM1.*Y2NUM2;
+        X = kappa.*con.epsc.*ZDEN.*Y1NUM1.*Y2NUM2;
         
 end
 
