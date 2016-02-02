@@ -1,5 +1,5 @@
 %% function: Displays stimulus and progress bar
-function [] = stimulusDisplay(stim, ix, t)
+function bH = stimulusDisplay(stim, ix, t)
 % global M
 persistent stimulusDispMap;
 
@@ -20,6 +20,7 @@ if ix == 0
     hold on
     ylimit = get(gca,'YLim');
     stimulusData.bH = plot([1 1]*t, ylimit, 'r'); % handle for progress bar
+    bH = stimulusData.bH;
     set(gca,'YLim',ylimit) % need to do this for latest matlab
     set(gca,'XLim',[min(stim.t) max(stim.t)])
     hold off
