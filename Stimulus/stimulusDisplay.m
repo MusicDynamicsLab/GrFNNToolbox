@@ -1,6 +1,6 @@
 %% function: Displays stimulus and progress bar
 function bH = stimulusDisplay(stim, ix, t)
-% global M
+
 persistent stimulusDispMap;
 
 if ix == 0  
