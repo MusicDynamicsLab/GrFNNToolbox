@@ -75,14 +75,16 @@ for i = 1:length(varargin)
     
     if ischar(varargin{i}) && any(strcmpi(varargin{i}(1:3),{'lin' 'log'})) && length(varargin) > i + 2 && isscalar(varargin{i+1}) && isscalar(varargin{i+2}) && isscalar(varargin{i+3})
         
-        n.fspac = lower(varargin{i}(1:3));
+        fspac_str = lower(varargin{i}(1:3));
+        n.fspac = freqSpacingStrToInt(fspac_str); % fspac is now an integer 
+        
         lf   = varargin{i+1};            % min freq
         hf   = varargin{i+2};            % max freq
         N    = varargin{i+3};            % number of frequency steps
         n.N  = N;
         switch n.fspac
             
-            case 'lin'
+            case 1 % linear spacing
                 n.f  = linspace(lf,hf,N)';
                 if N > 1
                     n.df = abs(n.f(2)-n.f(1)); % to scale for frequency density
@@ -90,7 +92,7 @@ for i = 1:length(varargin)
                     n.df = 1;
                 end
                 
-            case 'log'
+            case 2 % log spacing
                 n.f  = logspace(log10(lf),log10(hf),N)';
                 if N > 1
                     n.df = abs(log2(n.f(2)/n.f(1)));          % to scale for frequency density
@@ -150,22 +152,16 @@ if isempty(n.model)
 end
 
 
-if isempty(n.fspac)
-    
-    error('Must specify a linear or logarithmic frequency gradient in networkMake')
-    
-end
-
 %% Define oscillator parameters
 switch n.fspac
     
-    case 'lin'
+    case 1 % linear spacing
         n.a  = single(alpha + 1i*2*pi.*n.f);
         n.b1 = single(beta1 + 1i*delta1);
         n.b2 = single(beta2 + 1i*delta2);
         n.w  = 1;
         
-    case 'log'
+    case 2 % log spacing
         n.a  = single(alpha + 1i*2*pi  ).*n.f;  % Redefinition of a, b1 & b2
         n.b1 = single(beta1 + 1i*delta1).*n.f;
         n.b2 = single(beta2 + 1i*delta2).*n.f;
@@ -209,6 +205,17 @@ if overrideInitialConditions
 end
 
 n.z = n.z0;
+
+%% Function: Converts frequency spacing string to an integer
+function freqSpacingInt = freqSpacingStrToInt(fs_string)
+
+if strcmpi(fs_string, 'lin')
+    freqSpacingInt = 1;
+elseif strcmpi(fs_string, 'log')
+    freqSpacingInt = 2;
+else
+    error('Invalid frequency spacing identifier');
+end
 
 %% Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin
 % Define ticks and tick labels to be used for plotting
