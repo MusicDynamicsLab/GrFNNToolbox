@@ -215,9 +215,9 @@ else
     axes(handle);
 end
 switch n.fspac
-    case 'log'
+    case 2 % log spacing
         semilogx(f,amps,'.-');axis tight;grid on;zoom xon;
-    case 'lin'
+    case 1 % lin spacing
         plot(f,amps,'.-');axis tight;grid on;zoom xon;
 end
 if ~isempty(n.tick)
@@ -266,13 +266,13 @@ end
 imagesc(t,f,Z);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude');
 switch n.fspac
-    case 'log'
+    case 2 % log spacing
         if ~isempty(n.tick)
             set(gca,'ydir','normal','yscale','log','ytick',n.tick);
         else
             set(gca,'ydir','normal','yscale','log');
         end
-    case 'lin'
+    case 1 % lin spacing
         if ~isempty(n.tick)
             set(gca,'ydir','normal','ytick',n.tick);
         else
@@ -337,13 +337,13 @@ f = getLim(n);
 imagesc(f,freqs(1:ind),Zfreq(1:ind,:));
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude (dB)');
 switch n.fspac
-    case 'log'
+    case 2 % log spacing
         if ~isempty(n.tick)
             set(gca,'ydir','normal','xscale','log','xtick',n.tick);
         else
             set(gca,'ydir','normal','xscale','log');
         end
-    case 'lin'
+    case 1 % lin spacing
         if ~isempty(n.tick)
             set(gca,'ydir','normal','xtick',n.tick);
         else
@@ -378,25 +378,25 @@ end
 imagesc(fFrom,fTo,C);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude');
 switch nFrom.fspac
-    case 'log'
+    case 2 % log spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);            
         elseif ~is3freq
             set(gca,'xscale','log');
         end
-    case 'lin'
+    case 1 % lin spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xtick',nFrom.tick)
         end
 end
 switch nTo.fspac
-    case 'log'
+    case 2 % log spacing
         if ~isempty(nTo.tick)
             set(gca,'yscale','log','ytick',nTo.tick);            
         else
             set(gca,'yscale','log');
         end
-    case 'lin'
+    case 1 % lin spacing
         if ~isempty(nTo.tick)
             set(gca,'ytick',nTo.tick)
         end
@@ -440,25 +440,25 @@ circular = IF_colormap;
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Phase');
 colormap(gca,circular);
 switch nFrom.fspac
-    case 'log'
+    case 2 % log spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);            
         elseif ~is3freq
             set(gca,'xscale','log');
         end
-    case 'lin'
+    case 1 % lin spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xtick',nFrom.tick)
         end
 end
 switch nTo.fspac
-    case 'log'
+    case 2 % log spacing
         if ~isempty(nTo.tick)
             set(gca,'yscale','log','ytick',nTo.tick);            
         else
             set(gca,'yscale','log');
         end
-    case 'lin'
+    case 1 % lin spacing
         if ~isempty(nTo.tick)
             set(gca,'ytick',nTo.tick)
         end
@@ -499,25 +499,25 @@ end
 imagesc(fFrom,fTo,C);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Real part');
 switch nFrom.fspac
-    case 'log'
+    case 2
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);            
         elseif ~is3freq
             set(gca,'xscale','log');
         end
-    case 'lin'
+    case 1
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xtick',nFrom.tick)
         end
 end
 switch nTo.fspac
-    case 'log'
+    case 2 % log spacing
         if ~isempty(nTo.tick)
             set(gca,'yscale','log','ytick',nTo.tick);            
         else
             set(gca,'yscale','log');
         end
-    case 'lin'
+    case 1 % lin spacing
         if ~isempty(nTo.tick)
             set(gca,'ytick',nTo.tick)
         end
@@ -554,25 +554,25 @@ end
 imagesc(fFrom,fTo,C);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Imaginary part');
 switch nFrom.fspac
-    case 'log'
+    case 2
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);            
         elseif ~is3freq
             set(gca,'xscale','log');
         end
-    case 'lin'
+    case 1
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xtick',nFrom.tick)
         end
 end
 switch nTo.fspac
-    case 'log'
+    case 2
         if ~isempty(nTo.tick)
             set(gca,'yscale','log','ytick',nTo.tick);            
         else
             set(gca,'yscale','log');
         end
-    case 'lin'
+    case 1
         if ~isempty(nTo.tick)
             set(gca,'ytick',nTo.tick)
         end
@@ -608,13 +608,13 @@ else
 end
 plot(f,amps,'.-');axis tight;grid on;zoom xon;
 switch nFrom.fspac
-    case 'log'
+    case 2
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);
         elseif ~is3freq
             set(gca,'xscale','log');
         end
-    case 'lin'
+    case 1
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xtick',nFrom.tick);
         end
@@ -650,13 +650,13 @@ else
 end
 plot(f,phases,'.-');axis tight;grid on;zoom xon;
 switch nFrom.fspac
-    case 'log'
+    case 2 % log spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);
         elseif ~is3freq
             set(gca,'xscale','log');
         end
-    case 'lin'
+    case 1 % lin spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xtick',nFrom.tick);
         end
@@ -692,13 +692,13 @@ else
 end
 plot(f,realPart,'.-');axis tight;grid on;zoom xon;
 switch nFrom.fspac
-    case 'log'
+    case 2 % log spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);
         elseif ~is3freq
             set(gca,'xscale','log');
         end
-    case 'lin'
+    case 1 % lin spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xtick',nFrom.tick);
         end
@@ -734,13 +734,13 @@ else
 end
 plot(f,imagPart,'.-');axis tight;grid on;zoom xon;
 switch nFrom.fspac
-    case 'log'
+    case 2 % log spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);
         elseif ~is3freq
             set(gca,'xscale','log');
         end
-    case 'lin'
+    case 1 % lin spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xtick',nFrom.tick);
         end

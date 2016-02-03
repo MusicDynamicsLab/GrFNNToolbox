@@ -11,9 +11,9 @@ function index = freqToIndex(n, freq)
 [NF, FREQ] = meshgrid(n.f, freq);
 
 switch n.fspac
-    case 'lin'
+    case 1 % lin spacing
         [~, index] = min(abs(NF - FREQ), [], 2);
-    case 'log'
+    case 2 % log spacing
         [~, index] = min(abs(log2(NF ./ FREQ)), [], 2);
     otherwise
         error('Unknown network type')

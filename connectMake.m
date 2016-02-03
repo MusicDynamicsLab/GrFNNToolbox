@@ -43,9 +43,9 @@ end
 
 amp  = 1;                   % Set defaults
 switch n2.fspac
-    case 'log'
+    case 2 % log spacing
         range = 1.02; % freq ratio
-    case 'lin'
+    case 1 % lin spacing
         range = .02; % freq difference
 end
 complexKernel = 0;
@@ -104,12 +104,12 @@ end
 %% Generate connectivity kernel(s)
 
 switch n2.fspac
-    case 'log'
+    case 2
         F = log2(relFreq(n1.f, n2.f)); % F: log2 of freq ratios
         sigma = abs(log2(range))*ranges;
         per = floor(n1.N/(log2(n1.f(end))-log2(n1.f(1))));
         df = 1/per;
-    case 'lin'
+    case 1
         F = diffFreq(n1.f, n2.f); % F: freq differences
         sigma = range*ranges;
         df = n1.df;

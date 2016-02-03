@@ -14,7 +14,7 @@ else
     fspac = varargin{2};
 end
     
-if strcmp(fspac, 'log')
+if fspac==2 % log spacing
     f1 = f(1);
     f2 = f(end);
     N = length(f);

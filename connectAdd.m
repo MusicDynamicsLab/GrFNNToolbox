@@ -218,7 +218,7 @@ end
 
 %% Scaling factors
 
-if strcmpi(n2.fspac,'log')
+if n2.fspac==2 % log spacing
     con.F = F;
     con.w = w.*n2.f;
 else
@@ -236,7 +236,7 @@ end
 
 con.learn = learn;
 
-if strcmpi(n2.fspac,'log')
+if n2.fspac==2 % log spacing
     con.lambda = lambda.*F;
     con.mu1 = mu1.*F;
     con.mu2 = mu2.*F;
