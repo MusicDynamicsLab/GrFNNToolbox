@@ -24,15 +24,17 @@
 %  'save'                               Next input is scalar which is the time step interval in 
 %                                       between save steps as the network integrates. Default is
 %                                       zero.
-%  'znaught'                            Next input is a vector (or scalar if network is only a single
-%                                       oscillator) of initial conditions for the oscillators 
+%  'znaught'                            Next input is a vector of initial conditions for the oscillators 
 %                                       overriding the defaults, which are the spontaneous amplitudes
 %                                       of the oscillators with a small amount of randomness, and 
-%                                       random phase.
+%                                       random phase. Can be a scalar if that value should be used 
+%                                       for all oscillators.
+%  'tick'                               Next input is a vector of axis ticks to be used for this network
+%                                       for plotting, if 'display' is nonzero.
 % 
 %  Example calls:
 % 
-%   n  = networkMake(3, 'hopf', .1, -10, -1, 0, 0, 1, 'log', 100, 1300, 400, 'display', 20,'save', 1, 'znaught', z0{3});
+%   n  = networkMake(3, 'hopf', .1, -10, -1, 0, 0, 1, 'log', 100, 1300, 400, 'display', 20, 'save', 1, 'znaught', z0{3});
 %   n  = networkMake(1, 'hopf', 0, -100, -1, 0, 0, .0025, 'log', 20, 20000, 800, 'save', 1, 'channel', 1);
 
 %%

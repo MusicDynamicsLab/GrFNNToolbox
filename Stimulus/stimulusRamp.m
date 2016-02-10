@@ -1,4 +1,4 @@
-%% STIMULUSRAMP
+%% stimulusRamp
 %  Ramps signal up from zero and down back to zero, acc. to linear or nonlinear scale
 %  If y is a matrix, stimulusRamp works along columns.
 %  So,

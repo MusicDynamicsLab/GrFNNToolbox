@@ -109,7 +109,7 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 perc=edit8_Callback(hObject, eventdata, handles);
 % s=stimulusMake('fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp);
 s=makeEverything(hObject,eventdata,handles);
-allMyFreqs(s.x,8192,s.fs,perc);
+specAndAutocorr(s.x,8192,s.fs,perc);
 
 
 

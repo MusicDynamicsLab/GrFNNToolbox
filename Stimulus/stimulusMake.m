@@ -1,5 +1,4 @@
 %% stimulusMake
-%  STIMULUSMAKE
 %  Make a stimulus structure, which will include a time vector,
 %  signal vector, and other values for NLTFT toolbox use.
 %
@@ -14,8 +13,23 @@
 %  s = stimulusMake('fcn', ts, fs, carrier, fc, ac)
 %
 %   Examples:
+%
+%   Type 'fcn'
 %   s = stimulusMake('fcn', ts, fs, carrier, fc, ac)
-%   s = stimulusMake('wav', filename, ts {optional}, fs {optional})
+%   s = stimulusMake('fcn', ts, fs, carrier, fc, ac, startPhases, 'ramp', 1, 2, 'mask', 0, 'filtmask', {b a})
+%
+%   Type 'wav'
+%   Note: To be safe, filename should always include the file extension,
+%   e.g. 'stimulus.wav'. In Matlabs prior to 2012b, @wavread is used, the
+%   file extension does not need to be present, but only .wav files can be
+%   read. In 2012b and subsequent versions, @audioread is used, and other
+%   audio formats such as .mp3 and .ogg can be read, but the file extension
+%   must ALWAYS be specified.
+%   s = stimulusMake('wav', filename)
+%   s = stimulusMake('wav', filename, 'ts', newTimeSpan, 'fs', newSamplingFrequency)
+%   s = stimulusMake('wav', filename, 'ramp', 1, 1, 'mask', 10, 'filtstim', {b a})
+%
+%   Type 'mid'
 %   s = stimulusMake('mid', filename, ts {optional}, fs {optional})
 %   s = stimulusMake('mid', nmat, ts{optional}, fs {optional}) %where 'nmat'is a valid Midi Toolbox-style midi matrix.
 %   s = stimulusMake('rfcn', ts {optional}, fs {optional}, numer, denom, mType, mCode, 'tempo_mod' {optional}, {optional canonMake params})
@@ -23,7 +37,10 @@
 %
 %
 %  12/13/11 KDL
-%  Added serveral options to type 'fcn' for waveforms, modulators, and input syntax.
+%  Added serveral options for waveforms, modulators, and input syntax.
+%
+%  The following options apply only to type 'fcn' stimuli:
+%
 %  Syntax: First five inputs are same as always (after 'fcn' of course):
 %  Timespans matrix, samp freq, waveforms, freqs, amps.
 %
@@ -62,25 +79,28 @@
 %  if carrier component is desired. If only sidebands are desired, this should
 %  be zero. Waveforms can be 'cos' 'sin' 'saw' or 'squ'
 %
-%  ramp: Pass 'ramp'and next TWO varargs are same as the ramp as described above: length
-%  of ramp, up and down, in ms, and power law number. This second vararg should
-%  be one for linear ramp, two for quadratic, .5 for sqrt function, etc. As
-%  before, defaults are 100 and 1 if nothing is spec'd.
-%
-%  mask: Pass 'mask' and next ONE varag is a scalar, vector or matrix (with repmat'ing
-%  same as above) of SNR's, in dB, of white mask noise over stimulus time
-%  courses. This can be filtered as described below. So, e.g.,
-%  ...'mask',[0 ; 100],...will compare your two stim time courses so that
-%  the first is masked one to one with noise, and the second is effectively not
-%  masked, since 100 dB of signal over noise is not much. Negative numbers of
-%  course give more noise than signal.
-%
 %  iter: Pass 'iter' and next TWO varargs are length in ms of delay, and number of
 %  iterations of the delay-and-add process. This is mostly for noise, but should
 %  work for other functions. This can currently only do what Yost et al. (1996)
 %  call "IRNS", "add-same", which adds sequentially, as opposed to "IRNO",
 %  "add-original", which adds the original waveform to the subsequent ones every
 %  time. There is not a huge difference between these.
+%
+%
+%  The following options apply to BOTH type 'fcn' and 'wav'
+%
+%  ramp: Pass 'ramp' and next TWO varargs are same as the ramp as described above: length
+%  of ramp, up and down, in ms, and power law number. This second vararg should
+%  be one for linear ramp, two for quadratic, .5 for sqrt function, etc. As
+%  before, defaults are 100 and 1 if nothing is spec'd.
+%
+%  mask: Pass 'mask' and next ONE vararg is a scalar, vector or matrix (with repmat'ing
+%  same as above) of SNR's, in dB, of white mask noise over stimulus time
+%  courses. This can be filtered as described below. So, e.g.,
+%  ...'mask',[0 ; 100],...will compare your two stim time courses so that
+%  the first is masked one to one with noise, and the second is effectively not
+%  masked, since 100 dB of signal over noise is not much. Negative numbers of
+%  course give more noise than signal.
 %
 %  filtstim: Pass 'filtstim' and next ONE vararg is an m-by-2 array where m is number of
 %  time courses in stim. Each 2-element row in the array are filter coefficient
@@ -91,10 +111,31 @@
 %  filtmask: Same exact situation as filtstim except we filter the mask noise here instead
 %  of the stim.
 %
-%  Note: if including time span and sample rates, they must always be 1st and 2nd args
-%  respectively, sample rate cannot be the first argument
 %
-
+%  The following options apply only to type 'wav' stimuli
+%
+%  fs: Pass 'fs' and the next ONE vararg is a new sampling rate. Audio will
+%  be resampled and the simulation will be run at the new sampling rate.
+%
+%  ts: Pass 'ts' and the next ONE vararg is a new time span. This will be a
+%  two-element row vector of second markers, similar to that used for type 
+%  'fcn'. One would specify this is one desires only a portion of the audio
+%  file to be the stimulus. So if stimulus.wav is 3 seconds long but one 
+%  wants only the middle third of it, one would use 
+%  s = stimulusMake('wav', 'stimulus.wav', 'ts', [1 2], ...) 
+%
+%  mono: Pass 'mono' to convert stereo audio read to single-channel mono. 
+%  Does nothing if file was already mono. No additional inputs.
+%
+%  stereo: Pass 'stereo' to convert mono audio read to 2-channel stereo. 
+%  Copies original channel to second channel. No additional inputs.
+%
+%  gam: Pass 'gam' to channelize a stimulus into multiple gammatone
+%  filter envelopes. Next THREE varargs are minimum frequency, maximum
+%  frequency, and number of channels. So for a simple cochlear filter
+%  bank, one might use ..., 'gam', 20, 20e3, 40, ...
+%
+%
 %%
 function s = stimulusMake(varargin)
 

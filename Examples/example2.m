@@ -1,6 +1,8 @@
 %% example2.m
 %
 % A simple afferent chain network with no learning
+%
+% https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki/6.-Example-2
 
 %% Explore different parameter sets
 alpha1 = 0.01; beta11 = -1; beta12 =  -10; neps1 = 1; % Linear
@@ -9,7 +11,6 @@ alpha2 =   -1; beta21 =  4; beta22 =  -3; neps2 = 1; % Critical
 %% Make the model
 s = stimulusMake('fcn', [0 1], 4000, {'exp'}, [100], .025, 0, 'ramp', 0.01, 1, ...
     'display', 10);
-stimulusShow(s, 1); drawnow;
 
 n1 = networkMake(1, 'hopf', alpha1, beta11,  beta12,  0, 0, neps1, ...
                     'log', 50, 200, 200, 'channel', 1, 'save', 1, ...

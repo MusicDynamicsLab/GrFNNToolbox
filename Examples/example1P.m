@@ -1,6 +1,8 @@
 %% example1P.m
 %
 % A one layer network with plastic internal connections (and no input)
+%
+% https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki/5.-Example-1-Plastic
 
 %% Network parameters
 alpha = 1; beta1 = -1; beta2 = -1000; neps = 1; % Limit Cycle 

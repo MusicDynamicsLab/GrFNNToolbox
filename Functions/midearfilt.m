@@ -1,3 +1,10 @@
+%% midearfilt
+%  z = midearfilt(s,varargin)
+%
+%  Creates a transfer function for the middle ear and filters the data in
+%  vector s with it to output filtered data z. Optional second argument is 
+%  sampling frequency, else sampling frequency is assumed to be 100,000 Hz.
+
 function z = midearfilt(s,varargin)
 
 % Sampling Frequency (this code should work/stable for Fs > 70e3)

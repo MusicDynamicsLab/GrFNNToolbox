@@ -3,6 +3,8 @@
 % A one layer network driven with a sinusoidal input. Several parameter
 % sets are provided for experimentation with different types of intrinsic
 % oscillator dynamics.
+%
+% https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki/4.-Example-1
 
 %% Choose a parameter set
 
@@ -15,7 +17,6 @@
 %% Make the model
 s = stimulusMake('fcn', [0 50], 40, {'exp'}, [1], .25, 0, ...
     'ramp', 0.02, 1, 'display', 10);
-% stimulusShow(s, 1); drawnow;
 
 n = networkMake(1, 'hopf', alpha, beta1,  beta2, delta1, delta2, neps, ...
                    'log', .5, 2, 200, 'channel', 1, 'save', 1, ...
