@@ -1,19 +1,39 @@
 %% rStarCoupledkm
-%   [r1Star, r2Star, psiStar, stability, stabType] = rStarCoupledkm(alpha, beta1, beta2, epsilon, coupling strength, Omega, k, m, All)
+%  [r1Star, r2Star, psiStar, stability, stabType] = rStarCoupledkm(alpha, beta1, beta2, epsilon, coupling strength, Omega, k, m, All)
 %
-%  Finds r1*, r2*, psi*, stability (1 or 0), and stability type (0-4)
-%  numerically for two canonical oscillators coupled via nonlinear monomial
-%  for k:m mode-locking. rStarCoupledkmSym provides ONLY SYMMETRIC solutions
-%  (i.e., r1* = r2*). Omega = m*omega_1 - k*omega_2 is the deviation
-%  of the two natural frequencies from the exact integer relationship (k:m).
-%  Set the optional input argument 'All' to 1 (or any nonzero value)
-%  to get both stable and unstable fixed points. (Default for All is 0,
-%  that is, rStarCoupledkm outputs only stable fixed points.)
+%  Finds steady-state amplitudes (r1*, r2*) and relative phase (psi*) along
+%  with their stability and stability type for two canonical oscillators
+%  connected via fixed coupling for k:m mode-locking. Mode-locking at k:m
+%  means that the first oscillator makes k cycles while the second
+%  oscillator makes m cycles. Currently, rStarCoupledkm obtains only
+%  symmetric solutions (i.e. r1Star = r2Star).
 %
-%  stability: 1 = stable, 0 = unstable
+%  Input arguments:
+%  alpha, beta1, beta2, epsilon
+%                       Oscillator parameters
+%  coupling strength    Coupling amplitude
+%  Omega                Natural frequency deviation (i.e. m times the first 
+%                       oscillator's natural frequency minus k times the 
+%                       second oscilltor's frequency) in radian
 %
-%  stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
-%  1 = unstable spiral, 0 = saddle point
+%  Optional input:
+%  All                  Set it to 1 (or any nonzero value) to get both 
+%                       stable and unstable fixed points. (Default is 0,
+%                       i.e., only stable fixed points are output.)
+%
+%  Output:
+%  r1Star               Steady-state amplitude(s) of the first oscillator
+%  r2Star               Steady-state amplitude(s) of the second oscillator
+%  psiStar              Steady-state relative phase(s) (i.e. m times first
+%                       oscillator phase minus k times second oscillator
+%                       phase)
+%  stability            Stability of steady state(s)
+%                       (1 = stable, 0 = unstable)
+%  stabType             Stability type of steady state(s)
+%                       (4 = stable node, 3 = stable spiral,
+%                       2 = unstable node, 1 = unstable spiral,
+%                       0 = saddle point)
+%
 
 %% Equation
 % $$\frac{dz_1}{dt} = z_1\left(\alpha + \textrm{i}\omega_1 +
@@ -29,12 +49,11 @@
 % where $z_i = r_ie^{\textrm{i}\phi_i}, \psi = m\phi_1 - k\phi_2,$
 % and $\Omega = m\omega_1 - k\omega_2$
 
+%%
 function [r1Star, r2Star, psiStar, stability, stabType] = ...
   rStarCoupledkm(a, b1, b2, e, c, W, k, m, All)
 
 warningOn = 0; % Turn on the warning on nonreal psi*
-
-
 
 %% Check input arguments
 if nargin < 9
@@ -73,7 +92,7 @@ psi = signPsi*acos(-(a*r1+b1*r1.^3+e*b2*r1.^5./(1-e*r1.^2))./ ...
 if warningOn
   maximag = max(abs(imag(psi)));
   if  maximag > eps('single')*100
-    disp(['Warning (rStarCoupledkmSym): significant nonzero imaginary '...
+    disp(['Warning (rStarCoupledkm): significant nonzero imaginary '...
       'part in psi (' num2str(maximag) ') for W = ' num2str(W)])
   end
 end

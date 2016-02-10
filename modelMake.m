@@ -1,25 +1,36 @@
 %% modelMake
-%  Input dotfunc handle first, then optionally cdot function handle.
-%  Then stimulus structure, then each network structure.
+%  M = modelMake(varargin)
+%
+%  Creates a model, M, out of stimulus and networks in varargin. Network
+%  indices in the created model follow network id's assigned in networkMake
+%  calls. Function handles for network and connection dot functions can be
+%  specified as first two input arguments (zdot.m and cdot.m are default,
+%  and you have to specify network dot function to specify connection
+%  dot function).
 %
 %  Example calls:
 %
-%   m = modelMake(@zdot, s, n);
-%   m = modelMake(@zdot, @cdot, s, n1, n2, n3);
+%   M = modelMake(s, n1, n2);
+%   M = modelMake(@zdot, s, n);
+%   M = modelMake(@zdot, @cdot, s, n1, n2, n3);
 %
-%  collect output network with:
-%  n = m.n{1};
 
 %%
 function model = modelMake(varargin)
 
-model.dotfunc      = varargin{1};
-if isa(varargin{2},'function_handle')
-    model.cfun     = varargin{2};
-    ind            = 3;
+if isa(varargin{1},'function_handle')
+    model.zfun = varargin{1};
+    if isa(varargin{2},'function_handle')
+        model.cfun = varargin{2};
+        ind = 3;
+    else
+        model.cfun = @cdot;
+        ind = 2;
+    end
 else
-    model.cfun     = @cdot;
-    ind            = 2;
+    model.zfun = @zdot;
+    model.cfun = @cdot;
+    ind = 1;
 end
 
 %% Get stimuli first to get time info
@@ -166,22 +177,22 @@ end
 
 %% If dotfunc (override) option is empty, then use base dotfunc from network and oscillator-model
 
-if isempty(model.dotfunc)
+if isempty(model.zfun)
     n = varargin{1}; % for now, restrict to only one osc-model
     if strcmp(n.model, 'vdp')
-        model.dotfunc = @zdotv;
+        model.zfun = @zdotv;
     end
     if strcmp(n.model, 'wc')
-        model.dotfunc = @zdotw_sc;
+        model.zfun = @zdotw_sc;
     end
     if strcmp(n.model, 'wce')
-        model.dotfunc = @zdotw_sc;
+        model.zfun = @zdotw_sc;
     end
     if strcmp(n.model, 'hopft')
-        model.dotfunc = @zdotw_sc;
+        model.zfun = @zdotw_sc;
     end
     if strcmp(n.model, 'hopfx')
-        model.dotfunc = @zdotw_sc;
+        model.zfun = @zdotw_sc;
     end
     
 end

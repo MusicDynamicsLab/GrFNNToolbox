@@ -1,10 +1,13 @@
-function afferentChainGUI
-% GUI for plotting r* and psi* of afferent chains (one-to-one connections)
-% consisting of fully expanded canonical models of Hopf bifurcation.
+%% afferentChainGUI
+%  GUI for plotting steady-state amplitude (r*) and phase (psi*) of
+%  oscillators in an afferent chain of gradient frequency layers with
+%  one-to-one afferent connections. Change parameter values by moving the 
+%  sliders or by entering numbers in the text boxes. Min and max values 
+%  for the sliders can also be changed.
 %
-% Change parameter values by moving the sliders or by entering numbers
-% in the text boxes. Min and max values for the sliders can also be
-% changed.
+
+%%
+function afferentChainGUI
 
 hf = figure;
 set(hf,'Name','Afferent Chain GUI','Visible','off','Toolbar','figure',...
@@ -474,7 +477,7 @@ for nl = 1:nlayer
   for nw = 1:length(W)
     if ~isnan(rin(nw))
       [rstarnw,psistarnw] = ...
-        rstarfull(a(nl),b1(nl),b2(nl),e(nl),rin(nw),W(nw));
+        rStarDriven11(a(nl),b1(nl),b2(nl),e(nl),rin(nw),W(nw));
       nrstar = length(rstarnw); % # of r*s for W(nw)
       rstar{nl}(nw,1:nrstar) = rstarnw';
       psistar{nl}(nw,1:nrstar) = ...

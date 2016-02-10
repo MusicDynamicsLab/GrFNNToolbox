@@ -1,13 +1,25 @@
 %% relTimeDriven11
 %   [relTime, r0, rStar] = relTimeDriven11(alpha, beta1, beta2, epsilon, F)
 %
-%  Calculates an appoximation of the relaxation time (relTime)
-%  for a canonical oscillator driven by a sinusoid at its natural frequency
-%  (Omega = 0), starting from its spontaneous amplitude (r0) until it
-%  reaches within 1 of the driven steady-state amplitude (rStar). When
-%  there are multiple spontaneous amplitudes, vectors are given as output.
-%  Only dr/dt equation is used, assuming psi = 0 throughout the trajectory.
+%  Calculates an appoximation of the relaxation time for a canonical 
+%  oscillator driven by a sinuoid at its natural frequency.
+%  Here relaxation time is defined as time taken from oscillator's
+%  spontaneous amplitude until it reaches within 1% of the steady-state 
+%  driven amplitude. When there are multiple spontaneous amplitudes,
+%  vectors are given as output. Only dr/dt equation is used, assuming 
+%  relative phase (psi) is 0 throughout the trajectory.
+%
+%  Input arguments:
+%  alpha, beta1, beta2, epsilon     Oscillator parameters
+%  F                                Sinusoidal stimulus amplitude
+%
+%  Output:
+%  relTime              Relaxation time(s)
+%  r0                   Spontaneous amplitude(s) (initial condition)
+%  rStar                Stable steady-state driven amplitude(s)
+%
 
+%%
 function [relTime, r0, rStar] = relTimeDriven11(a, b1, b2, e, F)
 
 r0 = spontAmp(a, b1, b2, e); % spontaneous amplitude
@@ -25,5 +37,6 @@ for n = 1:length(r0)
   relTime(n) = dr*sum(dtdr(a, b1, b2, e, F, R(1:100))); % Euler integration
 end
 
+% ========================================================
 function dtdr = dtdr(a, b1, b2, e, F, r)
 dtdr = 1./(a*r + b1*r.^3 + e*b2*r.^5./(1-e*r.^2) + F);

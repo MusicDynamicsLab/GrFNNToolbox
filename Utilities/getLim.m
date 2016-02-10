@@ -1,8 +1,15 @@
-%% function: Get axis limit for connection display
-% Use it as either
-% axLim = getLim(network) or
-% axLim = getLim(n.f, n.fspac)
+%% getLim
+%  axLim = getLim(varargin)
+%
+%  Gets axis limit to be used for imagesc of connection. Needed to solve
+%  problems in using imagesc with log axis.
+%
+%  Use it as either
+%   axLim = getLim(network) or
+%   axLim = getLim(network.f, network.fspac)
+%
 
+%%
 function axLim = getLim(varargin)
 
 if isfield(varargin{1}, 'f')

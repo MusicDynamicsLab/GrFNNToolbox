@@ -1,16 +1,35 @@
 %% rStarCoupled11
-%   [r1Star, r2Star, psiStar, stability, stabType] = rStarCoupled11(alpha, beta1, beta2, epsilon, coupling strength, Omega, All)
+%  [r1Star, r2Star, psiStar, stability, stabType] = rStarCoupled11(alpha, beta1, beta2, epsilon, coupling strength, Omega, All)
 %
-%  Finds r1*, r2*, psi*, stability (1 or 0), and stability type (0-4)
-%  numerically for two canonical oscillators with fixed coupling. Omega
-%  refers to the difference between the oscillators' natural frequencies
-%  in radian. Set the optional input argument 'All' to 1 (or any nonzero
-%  value to get both stable and unstable fixed points. (Default for All
-%  is 0, that is, rStarCoupled11 outputs only stable fixed points.)
+%  Finds steady-state amplitudes (r1*, r2*) and relative phase (psi*) along
+%  with their stability and stability type for two canonical oscillators
+%  connected by fixed 1:1 coupling.
 %
-%  stability: 1 = stable, 0 = unstable
-%  stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
-%  1 = unstable spiral, 0 = saddle point
+%  Input arguments:
+%  alpha, beta1, beta2, epsilon
+%                       Oscillator parameters
+%  coupling strength    Coupling amplitude
+%  Omega                Natural frequency difference (i.e. the first 
+%                       oscillator's natural frequency minus the second
+%                       oscilltor's frequency) in radian
+%
+%  Optional input:
+%  All                  Set it to 1 (or any nonzero value) to get both 
+%                       stable and unstable fixed points. (Default is 0,
+%                       i.e., only stable fixed points are output.)
+%
+%  Output:
+%  r1Star               Steady-state amplitude(s) of the first oscillator
+%  r2Star               Steady-state amplitude(s) of the second oscillator
+%  psiStar              Steady-state relative phase(s) (i.e. first
+%                       oscillator phase minus second oscillator phase)
+%  stability            Stability of steady state(s)
+%                       (1 = stable, 0 = unstable)
+%  stabType             Stability type of steady state(s)
+%                       (4 = stable node, 3 = stable spiral,
+%                       2 = unstable node, 1 = unstable spiral,
+%                       0 = saddle point)
+%
 
 %% Equation
 % $$\frac{dz_1}{dt} = z_1\left(\alpha + \textrm{i}\omega_1 +
@@ -24,6 +43,7 @@
 % where $z_i = r_ie^{\textrm{i}\phi_i}, \psi = \phi_1 - \phi_2,$
 % and $\Omega = \omega_1 - \omega_2$
 
+%%
 function [r1Star, r2Star, psiStar, stability, stabType] = ...
   rStarCoupled11(a, b1, b2, e, c, W, All)
 

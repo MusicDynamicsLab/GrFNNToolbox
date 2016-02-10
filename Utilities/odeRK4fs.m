@@ -1,14 +1,9 @@
 %% odeRK4fs
 %   M = odeRK4fs(M)
 %
-%  Fixed-step 4th-order Runge-Kutta ODE numerical integration.
+%  Integrates a model, M, using fixed-step 4th-order Runge-Kutta method.
 %  Steps by *direct indexing* of stimulus vector.
 %
-%  Params
-%   Model
-%
-%  Output
-%   M - Model
 
 %%
 function M = odeRK4fs(M, varargin)
@@ -16,7 +11,7 @@ function M = odeRK4fs(M, varargin)
 load('MyColormaps', 'IF_colormap');
 circular = IF_colormap;
 
-zfun = M.dotfunc;
+zfun = M.zfun;
 cfun = M.cfun;
 ispan = [1 length(M.t)];
 

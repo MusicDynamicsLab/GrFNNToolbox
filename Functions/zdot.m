@@ -1,13 +1,19 @@
 %% zdot
-% [dzdt] = zdot(M, nx, varargin)
+%  dzdt = zdot(M, nx)
 %
-% Integrates a single network M.n{nx}
+%  Calculates time derivative for a single network M.n{nx}
+%
+%  Input arguments:
+%  M        Model
+%  nx       Network id
+%
+%  Output:
+%  dzdt     Time derivative of oscillator states (column vector)
+%
 
 %%
-function [dzdt] = zdot(M, nx, varargin)
+function [dzdt] = zdot(M, nx)
 %% Initialize variables and stimulus
-
-% global M
 
 n   = M.n{nx};
 z   = n.z;
@@ -79,7 +85,7 @@ for cx = 1:length(n.con)
 end
 
 %% The differential equation
-% $\dot{\vec{z}} = \vec{z} (a + b_1 \vec{z}^2) +x$
+% $\dot{z} = z \left( \alpha + \beta_1 |z|^2 + \frac{\epsilon \beta_2 |z|^4}{1-\epsilon |z|^2} \right) + x$
 dzdt = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-e*abs(z).^2)) + x;
 
 %%  Nonlinear Function Definitions

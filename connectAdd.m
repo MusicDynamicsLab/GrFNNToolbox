@@ -1,36 +1,44 @@
 %% connectAdd
-%  function n = connectAdd(n1, n2, C, varargin)
+%  n = connectAdd(n1, n2, C, varargin)
 %
-%  Updates and returns netTo, with new connectivity from netFrom, with
-%  connectivity matrix specified by pattern.
+%  Updates and returns target network n2, with new connectivity from source
+%  network n1, with connectivity matrix specified by pattern C.
 %
-%  n2 is destination, i.e. 'to'
+%  Required input argumenets:
+%  n1               Source network (network getting the connection input).
+%  n2               Target network.
+%  C                Connection pattern, either a scalar or a matrix of N2 by N1
+%                   where N1 is the number of oscillators for n1 and N2 for
+%                   n2. When learning is on, this is used as initial
+%                   conditions (if C is an empty matrix, small random
+%                   initial conditions are assigned).
 %
-%  Connection struct:
-%    conn.source    : where info is coming from
-%    conn.type      : afferent, efferent, or internal
-%    conn.learn     : whether or not to learn this matrix
-%    conn.C   : connectivity matrix
-%    conn.lambda, mu1, mu2, kappa, e1 e2: learning rule parameters, can be scalar or matrix
-%                          except e1 & e2, which must be scalar
+%  Optional input arguments:
+%  'type'           Followed by a charater string specifying connection type.
+%                   Options are '1freq', '2freq', '3freq', '3freqAll', 'active',
+%                   'All2freq', and 'Allfreq' ('Allfreq' is default).
+%  'learn'          Followed by five parameters for the learning rule:
+%                   lambda, mu1, mu2, epsilon, and kappa
+%  'weight'         Followed by a weight (scalar or column vector) to be multiplied
+%                   to the connectivity matrix, after summed across sources.
+%  'no11'           Subtracts out all 1-to-1 and subsequent n-to-n monomials from
+%                   resonant monomials.
+%  'tol'            Followed by tolerance value for fareyratio function (only for
+%                   '2freq' connection type).
+%  'display'        Followed by the time step interval at which to display the 
+%                   connectivity matrix during integration. Default is zero.
+%  'phaseDisp'      Sets connection phases to be displayed during integration.
+%                   Phases are not displayed by default.
+%  'save'           Followed by the time step interval at which to save the 
+%                   connectivity matrix. Default is zero.
 %
-%  First three inputs are required, all others are optional and can come in any order.
-%  Attribute 'type' takes one arguemnt after it, which is connection type.
-%  Options for 'type' are '1freq', '2freq', '3freq', '3freqAll', 'All2freq', and
-%  'Allfreq'. 'All2freq' is the full nonlinearity with single-factor P(),
-%  'Allfreq' is the full nonlinearity with two-factor P().
-%  Attribute 'learn' takes five arguments after it, the parameters for the learning rule: lambda, mu1, mu2, epsilon, and kappa
-%  Attribute 'weight' takes one argument after it, a weight multiplied to the connectivity matrix
-%  Attribute 'display' takes one argument after it, the time step interval at which to display the connectivity matrix during integration. Default is zero
-%  Attribute 'save' takes one argument after it, the time step interval at which to save the connectivity matrix in the global model variable. Default is zero
-%  Single input 'no11' subtracts out all 1-to-1 and subsequent n-to-n
-%  monomials from the cdot equation.
+%  Output:
+%  n                Target network with the connection added
 %
 %  Example calls:
 %
-%   n2 = connectAdd(n1, n2, con, 'learn', 0, -100000000, -1, .5, .1, 'display', 20, 'type', '1freq');
-%   n2 = connectAdd(n1, n2, bm2oc, 'learn', 0, 0, 0, 0, 0);
-%
+%   n2 = connectAdd(n1, n2, [], 'learn', 0, -100000000, -1, .5, .1, 'display', 20, 'phaseDisp', 'type', '1freq');
+%   n2 = connectAdd(n1, n2, ones(n2.N, n1.N), 'weight', .01);
 %
 
 %%
@@ -219,10 +227,9 @@ end
 %% Scaling factors
 
 if strcmpi(n2.fspac,'log')
-    con.F = F;
     con.w = w.*n2.f;
 else
-    con.F = ones(size(F));
+    F = ones(size(F));
     con.w = w;
 end
 
@@ -259,7 +266,7 @@ if isempty(C)
     if ~con.learn
         error('Connection values must be specified as C (3rd input argument) if not learning')
     end
-    A0 = zeros(size(con.F));
+    A0 = zeros(size(F));
     A = spontAmp(real(con.lambda(1,1)), real(con.mu1(1,1)), real(con.mu2(1,1)), con.e);
     A0 = A0+min(A);
     A0 = A0.*(1 +.01*randn(size(A0)));
