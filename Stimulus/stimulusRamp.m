@@ -7,6 +7,7 @@
 %  Examples:
 %  S = stimulusRamp(x, 0.05, 1, 44100);
 %  Ramps the start up and the end down of signal x over the course of 50 ms each, linearly.
+%
 %  S = stimulusRamp(x, 0.05, 4, 44100);
 %  Does the same thing except ramps are more sudden (by factor of 4) than linear. A number between
 %  0 and 1 here makes ramps less sudden. No negative values.

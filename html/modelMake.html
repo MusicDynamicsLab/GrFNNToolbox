@@ -1,0 +1,444 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>modelMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="modelMake.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>modelMake</h1><!--introduction--><pre>M = modelMake(varargin)</pre><pre>Creates a model, M, out of stimulus and networks in varargin. Network
+indices in the created model follow network id's assigned in networkMake
+calls. Function handles for network and connection dot functions can be
+specified as first two input arguments (zdot.m and cdot.m are default,
+and you have to specify network dot function to specify connection
+dot function).</pre><pre>Example calls:</pre><pre class="language-matlab">M = modelMake(s, n1, n2);
+M = modelMake(@zdot, s, n);
+M = modelMake(@zdot, @cdot, s, n1, n2, n3);
+</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Get stimuli first to get time info</a></li><li><a href="#4">Get networks and set initial conditions</a></li><li><a href="#5">Check if all connections are valid and at least one network gets stimulus</a></li><li><a href="#6">Cast everything as complex and single</a></li><li><a href="#7">If dotfunc (override) option is empty, then use base dotfunc from network and oscillator-model</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> model = modelMake(varargin)
+</pre><pre class="codeinput"><span class="keyword">if</span> isa(varargin{1},<span class="string">'function_handle'</span>)
+    model.zfun = varargin{1};
+    <span class="keyword">if</span> isa(varargin{2},<span class="string">'function_handle'</span>)
+        model.cfun = varargin{2};
+        ind = 3;
+    <span class="keyword">else</span>
+        model.cfun = @cdot;
+        ind = 2;
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    model.zfun = @zdot;
+    model.cfun = @cdot;
+    ind = 1;
+<span class="keyword">end</span>
+</pre><h2>Get stimuli first to get time info<a name="3"></a></h2><pre class="codeinput">stimList = []; <span class="comment">% list of stimulus id's</span>
+netList = []; <span class="comment">% list of network id's</span>
+fs = [];
+dt = [];
+ts = [];
+t = [];
+
+<span class="keyword">for</span> v = ind:length(varargin)
+    temp = varargin{v};
+    <span class="keyword">if</span> strcmp(temp.class, <span class="string">'stim'</span>)
+        sid = temp.id;
+        temp.N = size(temp.x, 1);
+        temp.z = temp.x(:,1);   <span class="comment">% initialize current state z</span>
+        model.s{sid} = temp;
+        stimList = [stimList sid];
+
+        <span class="keyword">if</span> isempty(fs)
+            fs = temp.fs;
+            dt = temp.dt;
+            ts = temp.ts;
+            t = temp.t;
+        <span class="keyword">else</span>
+            <span class="keyword">if</span> ~isequal(fs, temp.fs) || ~isequal(ts, temp.ts)
+                error(<span class="string">'Time vectors for stimuli must be identical'</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+model.fs           = fs;
+model.dt           = dt;
+model.tspan        = ts;
+model.t            = t;
+</pre><h2>Get networks and set initial conditions<a name="4"></a></h2><pre class="codeinput"><span class="keyword">for</span> v = ind:length(varargin)
+    temp = varargin{v};
+    <span class="keyword">if</span> strcmp(temp.class, <span class="string">'net'</span>)
+        nid = temp.id;
+        model.n{nid} = temp;
+        netList = [netList nid];
+
+        <span class="keyword">if</span> temp.sStep &gt; 0
+            Nt = ceil(length(t)/temp.sStep);
+            model.n{nid}.t = t(1:temp.sStep:length(t));
+            model.n{nid}.Z = single(zeros(length(temp.z), Nt));
+            model.n{nid}.Z(:,1) = temp.z0;
+        <span class="keyword">else</span>
+            model.n{nid}.t = [];
+            model.n{nid}.Z = [];
+        <span class="keyword">end</span>
+
+        <span class="keyword">for</span> cx = temp.conLearn
+            con = temp.con{cx};
+            <span class="keyword">if</span> con.sStep &gt; 0
+                Nt = ceil(length(t)/con.sStep);
+                model.n{nid}.con{cx}.t = t(1:con.sStep:length(t));
+                model.n{nid}.con{cx}.C3 = single(zeros(size(con.C,1), size(con.C,2), Nt));
+                model.n{nid}.con{cx}.C3(:,:,1) = con.C0;
+            <span class="keyword">else</span>
+                model.n{nid}.con{cx}.t  = [];
+                model.n{nid}.con{cx}.C3 = [];
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+model.stimList = sort(stimList);
+model.netList = sort(netList);
+</pre><h2>Check if all connections are valid and at least one network gets stimulus<a name="5"></a></h2><pre class="codeinput">stimcount = 0;
+<span class="keyword">for</span> j = model.netList
+    net = model.n{j};
+    <span class="keyword">if</span> net.ext   <span class="comment">% connect first stimulus if ext is nonzero (backward compatible)</span>
+        stim1 = model.s{model.stimList(1)};
+        <span class="keyword">if</span> stim1.N == 1 <span class="comment">% single channel input</span>
+            C = ones(net.N, 1);
+        <span class="keyword">else</span>    <span class="comment">% multichannel input</span>
+            C = zeros(net.N, stim1.N);
+            C(sub2ind(size(C), 1:net.N, net.ext)) = 1;
+        <span class="keyword">end</span>
+        model.n{j} = connectAdd(stim1, net, C, <span class="string">'weight'</span>, 1, <span class="string">'type'</span>, stim1.inputType);
+    <span class="keyword">end</span>
+
+    <span class="keyword">for</span> k = 1:length(model.n{j}.con)
+        con = model.n{j}.con{k};
+        <span class="keyword">if</span> strcmp(con.sourceClass, <span class="string">'stim'</span>)
+            <span class="keyword">if</span> ~ismember(con.source, model.stimList)
+                error([<span class="string">'Input to Network '</span> num2str(j) <span class="string">' is missing (Stimulus '</span> num2str(k) <span class="string">')'</span>])
+            <span class="keyword">end</span>
+            stimcount = stimcount + 1;
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> strcmp(con.sourceClass, <span class="string">'net'</span>)
+            <span class="keyword">if</span> ~ismember(con.source, model.netList)
+                error([<span class="string">'Input to Network '</span> num2str(j) <span class="string">' is missing (Network '</span> num2str(k) <span class="string">')'</span>])
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> ~stimcount   <span class="comment">% if no network is connected to stimulus</span>
+    stim1 = model.s{model.stimList(1)};
+    net1 = model.n{model.netList(1)};
+    <span class="keyword">if</span> stim1.N == 1 <span class="comment">% single channel input</span>
+        C = ones(net1.N, 1);
+    <span class="keyword">else</span>    <span class="comment">% multichannel input</span>
+        C = eye(net1.N, stim1.N);
+    <span class="keyword">end</span>
+    model.n{model.netList(1)} = connectAdd(stim1, net1, C, <span class="string">'weight'</span>, 1, <span class="string">'type'</span>, <span class="string">'1freq'</span>);
+    disp({<span class="string">'At least one network must be connected to a stimulus.'</span>,[<span class="string">'modelMake connected Network '</span> num2str(model.netList(1)) <span class="string">' to Stimulus '</span> num2str(model.stimList(1)) <span class="string">'.'</span>]})
+<span class="keyword">end</span>
+</pre><h2>Cast everything as complex and single<a name="6"></a></h2><pre class="codeinput"><span class="keyword">for</span> nx = model.netList
+    model.n{nx}.z0 = castCS(model.n{nx}.z0);
+    model.n{nx}.z  = castCS(model.n{nx}.z);
+    model.n{nx}.Z  = castCS(model.n{nx}.Z);
+    model.n{nx}.a  = castCS(model.n{nx}.a);
+    model.n{nx}.b1 = castCS(model.n{nx}.b1);
+    model.n{nx}.b2 = castCS(model.n{nx}.b2);
+    model.n{nx}.e  = castCS(model.n{nx}.e);
+    <span class="keyword">for</span> cx = 1:length(model.n{nx}.con)
+        <span class="keyword">if</span> any(model.n{nx}.conLearn) &amp;&amp; any(model.n{nx}.conLearn == cx)
+            model.n{nx}.con{cx}.C0 = castCS(model.n{nx}.con{cx}.C0);
+            model.n{nx}.con{cx}.C  = castCS(model.n{nx}.con{cx}.C);
+            model.n{nx}.con{cx}.C3 = castCS(model.n{nx}.con{cx}.C3);
+        <span class="keyword">end</span>
+        model.n{nx}.con{cx}.w      = castCS(model.n{nx}.con{cx}.w);
+        model.n{nx}.con{cx}.lambda = castCS(model.n{nx}.con{cx}.lambda);
+        model.n{nx}.con{cx}.mu1    = castCS(model.n{nx}.con{cx}.mu1);
+        model.n{nx}.con{cx}.mu2    = castCS(model.n{nx}.con{cx}.mu2);
+        model.n{nx}.con{cx}.kappa  = castCS(model.n{nx}.con{cx}.kappa);
+        model.n{nx}.con{cx}.e      = castCS(model.n{nx}.con{cx}.e);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>If dotfunc (override) option is empty, then use base dotfunc from network and oscillator-model<a name="7"></a></h2><pre class="codeinput"><span class="keyword">if</span> isempty(model.zfun)
+    n = varargin{1}; <span class="comment">% for now, restrict to only one osc-model</span>
+    <span class="keyword">if</span> strcmp(n.model, <span class="string">'vdp'</span>)
+        model.zfun = @zdotv;
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> strcmp(n.model, <span class="string">'wc'</span>)
+        model.zfun = @zdotw_sc;
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> strcmp(n.model, <span class="string">'wce'</span>)
+        model.zfun = @zdotw_sc;
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> strcmp(n.model, <span class="string">'hopft'</span>)
+        model.zfun = @zdotw_sc;
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> strcmp(n.model, <span class="string">'hopfx'</span>)
+        model.zfun = @zdotw_sc;
+    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% modelMake
+%  M = modelMake(varargin)
+%
+%  Creates a model, M, out of stimulus and networks in varargin. Network
+%  indices in the created model follow network id's assigned in networkMake
+%  calls. Function handles for network and connection dot functions can be
+%  specified as first two input arguments (zdot.m and cdot.m are default,
+%  and you have to specify network dot function to specify connection
+%  dot function).
+%
+%  Example calls:
+%
+%   M = modelMake(s, n1, n2);
+%   M = modelMake(@zdot, s, n);
+%   M = modelMake(@zdot, @cdot, s, n1, n2, n3);
+%
+
+%%
+function model = modelMake(varargin)
+
+if isa(varargin{1},'function_handle')
+    model.zfun = varargin{1};
+    if isa(varargin{2},'function_handle')
+        model.cfun = varargin{2};
+        ind = 3;
+    else
+        model.cfun = @cdot;
+        ind = 2;
+    end
+else
+    model.zfun = @zdot;
+    model.cfun = @cdot;
+    ind = 1;
+end
+
+%% Get stimuli first to get time info
+stimList = []; % list of stimulus id's
+netList = []; % list of network id's
+fs = [];
+dt = [];
+ts = [];
+t = [];
+
+for v = ind:length(varargin)
+    temp = varargin{v};
+    if strcmp(temp.class, 'stim')
+        sid = temp.id;
+        temp.N = size(temp.x, 1);
+        temp.z = temp.x(:,1);   % initialize current state z
+        model.s{sid} = temp;
+        stimList = [stimList sid];
+        
+        if isempty(fs)
+            fs = temp.fs;
+            dt = temp.dt;
+            ts = temp.ts;
+            t = temp.t;
+        else
+            if ~isequal(fs, temp.fs) || ~isequal(ts, temp.ts)
+                error('Time vectors for stimuli must be identical')
+            end
+        end
+    end
+end
+
+model.fs           = fs;
+model.dt           = dt;
+model.tspan        = ts;
+model.t            = t;
+
+%% Get networks and set initial conditions
+
+for v = ind:length(varargin)
+    temp = varargin{v};
+    if strcmp(temp.class, 'net')
+        nid = temp.id;
+        model.n{nid} = temp;
+        netList = [netList nid];
+        
+        if temp.sStep > 0
+            Nt = ceil(length(t)/temp.sStep);
+            model.n{nid}.t = t(1:temp.sStep:length(t));
+            model.n{nid}.Z = single(zeros(length(temp.z), Nt));
+            model.n{nid}.Z(:,1) = temp.z0;
+        else
+            model.n{nid}.t = [];
+            model.n{nid}.Z = [];
+        end
+        
+        for cx = temp.conLearn
+            con = temp.con{cx};
+            if con.sStep > 0
+                Nt = ceil(length(t)/con.sStep);
+                model.n{nid}.con{cx}.t = t(1:con.sStep:length(t));
+                model.n{nid}.con{cx}.C3 = single(zeros(size(con.C,1), size(con.C,2), Nt));
+                model.n{nid}.con{cx}.C3(:,:,1) = con.C0;
+            else
+                model.n{nid}.con{cx}.t  = [];
+                model.n{nid}.con{cx}.C3 = [];
+            end
+            
+        end
+    end
+end
+
+model.stimList = sort(stimList);
+model.netList = sort(netList);
+
+%% Check if all connections are valid and at least one network gets stimulus
+stimcount = 0;
+for j = model.netList
+    net = model.n{j};
+    if net.ext   % connect first stimulus if ext is nonzero (backward compatible)
+        stim1 = model.s{model.stimList(1)};
+        if stim1.N == 1 % single channel input
+            C = ones(net.N, 1);
+        else    % multichannel input
+            C = zeros(net.N, stim1.N);
+            C(sub2ind(size(C), 1:net.N, net.ext)) = 1;
+        end
+        model.n{j} = connectAdd(stim1, net, C, 'weight', 1, 'type', stim1.inputType);
+    end
+    
+    for k = 1:length(model.n{j}.con)
+        con = model.n{j}.con{k};
+        if strcmp(con.sourceClass, 'stim')
+            if ~ismember(con.source, model.stimList)
+                error(['Input to Network ' num2str(j) ' is missing (Stimulus ' num2str(k) ')'])
+            end
+            stimcount = stimcount + 1;
+        end
+        if strcmp(con.sourceClass, 'net')
+            if ~ismember(con.source, model.netList)
+                error(['Input to Network ' num2str(j) ' is missing (Network ' num2str(k) ')'])
+            end
+        end
+    end
+end
+
+if ~stimcount   % if no network is connected to stimulus
+    stim1 = model.s{model.stimList(1)};
+    net1 = model.n{model.netList(1)};
+    if stim1.N == 1 % single channel input
+        C = ones(net1.N, 1);
+    else    % multichannel input
+        C = eye(net1.N, stim1.N);
+    end
+    model.n{model.netList(1)} = connectAdd(stim1, net1, C, 'weight', 1, 'type', '1freq');
+    disp({'At least one network must be connected to a stimulus.',['modelMake connected Network ' num2str(model.netList(1)) ' to Stimulus ' num2str(model.stimList(1)) '.']})
+end
+
+%% Cast everything as complex and single
+
+for nx = model.netList
+    model.n{nx}.z0 = castCS(model.n{nx}.z0);
+    model.n{nx}.z  = castCS(model.n{nx}.z);
+    model.n{nx}.Z  = castCS(model.n{nx}.Z);
+    model.n{nx}.a  = castCS(model.n{nx}.a);
+    model.n{nx}.b1 = castCS(model.n{nx}.b1);
+    model.n{nx}.b2 = castCS(model.n{nx}.b2);
+    model.n{nx}.e  = castCS(model.n{nx}.e);
+    for cx = 1:length(model.n{nx}.con)
+        if any(model.n{nx}.conLearn) && any(model.n{nx}.conLearn == cx)
+            model.n{nx}.con{cx}.C0 = castCS(model.n{nx}.con{cx}.C0);
+            model.n{nx}.con{cx}.C  = castCS(model.n{nx}.con{cx}.C);
+            model.n{nx}.con{cx}.C3 = castCS(model.n{nx}.con{cx}.C3);
+        end
+        model.n{nx}.con{cx}.w      = castCS(model.n{nx}.con{cx}.w);
+        model.n{nx}.con{cx}.lambda = castCS(model.n{nx}.con{cx}.lambda);
+        model.n{nx}.con{cx}.mu1    = castCS(model.n{nx}.con{cx}.mu1);
+        model.n{nx}.con{cx}.mu2    = castCS(model.n{nx}.con{cx}.mu2);
+        model.n{nx}.con{cx}.kappa  = castCS(model.n{nx}.con{cx}.kappa);
+        model.n{nx}.con{cx}.e      = castCS(model.n{nx}.con{cx}.e);
+    end
+end
+
+
+%% If dotfunc (override) option is empty, then use base dotfunc from network and oscillator-model
+
+if isempty(model.zfun)
+    n = varargin{1}; % for now, restrict to only one osc-model
+    if strcmp(n.model, 'vdp')
+        model.zfun = @zdotv;
+    end
+    if strcmp(n.model, 'wc')
+        model.zfun = @zdotw_sc;
+    end
+    if strcmp(n.model, 'wce')
+        model.zfun = @zdotw_sc;
+    end
+    if strcmp(n.model, 'hopft')
+        model.zfun = @zdotw_sc;
+    end
+    if strcmp(n.model, 'hopfx')
+        model.zfun = @zdotw_sc;
+    end
+    
+end
+
+##### SOURCE END #####
+--></body></html>

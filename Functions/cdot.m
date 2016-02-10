@@ -35,7 +35,6 @@ end
 z   = M.n{con.target}.z;
 
 %%   Input to connection rule
-% $X = \kappa*\vec{z}\vec{z'}^T$
 
 switch nType    % cases ordered by frequency of use
     
@@ -87,8 +86,6 @@ X = single(X);
 %% The differential equation
 % $\dot{C} = C \left( \lambda + \mu_1 |C|^2+ \frac{\epsilon \mu_2 |C|^4}{1-\epsilon |C|^2} \right) + X$
 
-%% oops ...not scaling by frequency
-% Why not con.e?
 dCdt = C.*(lambda + mu1.*abs(C).^2 + e*mu2.*(abs(C).^4)./(1-e*abs(C).^2)) + X;
 
 %% Nonlinear Function Definitions

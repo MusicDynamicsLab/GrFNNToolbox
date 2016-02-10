@@ -19,12 +19,14 @@
 %   s = stimulusMake('fcn', ts, fs, carrier, fc, ac, startPhases, 'ramp', 1, 2, 'mask', 0, 'filtmask', {b a})
 %
 %   Type 'wav'
-%   Note: To be safe, filename should always include the file extension,
-%   e.g. 'stimulus.wav'. In Matlabs prior to 2012b, @wavread is used, the
-%   file extension does not need to be present, but only .wav files can be
-%   read. In 2012b and subsequent versions, @audioread is used, and other
-%   audio formats such as .mp3 and .ogg can be read, but the file extension
-%   must ALWAYS be specified.
+%
+%    Note: To be safe, filename should always include the file extension,
+%    e.g. 'stimulus.wav'. In Matlabs prior to 2012b, @wavread is used, the
+%    file extension does not need to be present, but only .wav files can be
+%    read. In 2012b and subsequent versions, @audioread is used, and other
+%    audio formats such as .mp3 and .ogg can be read, but the file extension
+%    must ALWAYS be specified.
+%
 %   s = stimulusMake('wav', filename)
 %   s = stimulusMake('wav', filename, 'ts', newTimeSpan, 'fs', newSamplingFrequency)
 %   s = stimulusMake('wav', filename, 'ramp', 1, 1, 'mask', 10, 'filtstim', {b a})

@@ -80,13 +80,12 @@ s = stimulusMake('fcn', ts, fs, carrier, fc, ac)</pre><pre class="language-matla
 s = stimulusMake(<span class="string">'fcn'</span>, ts, fs, carrier, fc, ac)
 s = stimulusMake(<span class="string">'fcn'</span>, ts, fs, carrier, fc, ac, startPhases, <span class="string">'ramp'</span>, 1, 2, <span class="string">'mask'</span>, 0, <span class="string">'filtmask'</span>, {b a})
 </pre><pre class="language-matlab">Type <span class="string">'wav'</span>
-Note: To be <span class="string">safe</span>, filename <span class="string">should</span> <span class="string">always</span> <span class="string">include</span> <span class="string">the</span> <span class="string">file</span> <span class="string">extension</span>,
-e.g. <span class="string">'stimulus.wav'</span>. In Matlabs <span class="string">prior</span> <span class="string">to</span> <span class="string">2012b</span>, @wavread is <span class="string">used</span>, the
-file <span class="string">extension</span> <span class="string">does</span> <span class="string">not</span> <span class="string">need</span> <span class="string">to</span> <span class="string">be</span> <span class="string">present</span>, but <span class="string">only</span> <span class="string">.wav</span> <span class="string">files</span> <span class="string">can</span> <span class="string">be</span>
-read. In 2012b and <span class="string">subsequent</span> <span class="string">versions</span>, @audioread is <span class="string">used</span>, and <span class="string">other</span>
-audio <span class="string">formats</span> <span class="string">such</span> <span class="string">as</span> <span class="string">.mp3</span> <span class="string">and</span> <span class="string">.ogg</span> <span class="string">can</span> <span class="string">be</span> <span class="string">read</span>, but <span class="string">the</span> <span class="string">file</span> <span class="string">extension</span>
-must <span class="string">ALWAYS</span> <span class="string">be</span> <span class="string">specified.</span>
-s = stimulusMake(<span class="string">'wav'</span>, filename)
+</pre><pre>  Note: To be safe, filename should always include the file extension,
+  e.g. 'stimulus.wav'. In Matlabs prior to 2012b, @wavread is used, the
+  file extension does not need to be present, but only .wav files can be
+  read. In 2012b and subsequent versions, @audioread is used, and other
+  audio formats such as .mp3 and .ogg can be read, but the file extension
+  must ALWAYS be specified.</pre><pre class="language-matlab">s = stimulusMake(<span class="string">'wav'</span>, filename)
 s = stimulusMake(<span class="string">'wav'</span>, filename, <span class="string">'ts'</span>, newTimeSpan, <span class="string">'fs'</span>, newSamplingFrequency)
 s = stimulusMake(<span class="string">'wav'</span>, filename, <span class="string">'ramp'</span>, 1, 1, <span class="string">'mask'</span>, 10, <span class="string">'filtstim'</span>, {b a})
 </pre><pre class="language-matlab">Type <span class="string">'mid'</span>
@@ -684,12 +683,14 @@ s.x = O;
 %   s = stimulusMake('fcn', ts, fs, carrier, fc, ac, startPhases, 'ramp', 1, 2, 'mask', 0, 'filtmask', {b a})
 %
 %   Type 'wav'
-%   Note: To be safe, filename should always include the file extension,
-%   e.g. 'stimulus.wav'. In Matlabs prior to 2012b, @wavread is used, the
-%   file extension does not need to be present, but only .wav files can be
-%   read. In 2012b and subsequent versions, @audioread is used, and other
-%   audio formats such as .mp3 and .ogg can be read, but the file extension
-%   must ALWAYS be specified.
+%
+%    Note: To be safe, filename should always include the file extension,
+%    e.g. 'stimulus.wav'. In Matlabs prior to 2012b, @wavread is used, the
+%    file extension does not need to be present, but only .wav files can be
+%    read. In 2012b and subsequent versions, @audioread is used, and other
+%    audio formats such as .mp3 and .ogg can be read, but the file extension
+%    must ALWAYS be specified.
+%
 %   s = stimulusMake('wav', filename)
 %   s = stimulusMake('wav', filename, 'ts', newTimeSpan, 'fs', newSamplingFrequency)
 %   s = stimulusMake('wav', filename, 'ramp', 1, 1, 'mask', 10, 'filtstim', {b a})
