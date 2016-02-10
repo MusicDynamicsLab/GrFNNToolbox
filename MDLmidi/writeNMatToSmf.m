@@ -1,5 +1,5 @@
-function debugMat = writenmat2smf(midMat, filename, tempo, tpqn)
-% writenmat2smf(midMat,filename, [tempo], [tpqn])
+function debugMat = writeNMatToSmf(midMat, filename, tempo, tpqn)
+% writeNMatToSmf(midMat,filename, [tempo], [tpqn])
 %
 % Takes an nmat and writes to a midi file
 % 

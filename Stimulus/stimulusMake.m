@@ -390,7 +390,7 @@ s.fn   = varargin{1};
 
 %Parse data input type. Filename or nmat matrix
 if ischar(s.fn)
-    N = mdlreadmidi(s.fn);
+    N = mdlReadMidi(s.fn);
 else
     %user passed in a nmat matrix directly
     N = s.fn;

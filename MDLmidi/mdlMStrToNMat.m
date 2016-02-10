@@ -1,4 +1,4 @@
-%% mdlmstr2nmat
+%% mdlMStrToNMat
 %  From code written by Ken Schutte
 %  see http://www.kenschutte.com/midi for example
 %
@@ -25,7 +25,7 @@
 %  Where 'midi' is a matlab-midi structure as returned by readmidi.
 
 %%
-function nmat = mdlmstr2nmat(midi)
+function nmat = mdlMStrToNMat(midi)
 
 
 

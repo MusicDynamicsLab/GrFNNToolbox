@@ -1,4 +1,4 @@
-%% mdlmidi2mstr
+%% mdlMidiToMStr
 %  midi = readmidi(filename, rawbytes)
 %  midi = readmidi(filename)
 %
@@ -14,7 +14,7 @@
 %
 
 %%
-function midi = mdlmidi2mstr(filename, rawbytes)
+function midi = mdlMidiToMStr(filename, rawbytes)
 %% Read MIDI file
 if (nargin<2)
   rawbytes=0;
