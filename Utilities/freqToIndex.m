@@ -10,7 +10,7 @@ function index = freqToIndex(n, freq)
 
 [NF, FREQ] = meshgrid(n.f, freq);
 
-switch n.fspac
+switch n.nfspac
     case 1 % lin spacing
         [~, index] = min(abs(NF - FREQ), [], 2);
     case 2 % log spacing

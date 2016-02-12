@@ -45,7 +45,7 @@ n.nClass = 2; % numerical class
 models = {'hopf'};              % Can add to this array later
 
 n.model = [];                   % Initialize these to use isempty to error check later
-n.fspac = [];
+n.nfspac = [];
 
 n.dStep = 0;                    % Initialize these to zero/empty in case not specified in varargin
 n.sStep = 0;
@@ -75,14 +75,19 @@ for i = 1:length(varargin)
     
     if ischar(varargin{i}) && any(strcmpi(varargin{i}(1:3),{'lin' 'log'})) && length(varargin) > i + 2 && isscalar(varargin{i+1}) && isscalar(varargin{i+2}) && isscalar(varargin{i+3})
         
-        fspac_str = lower(varargin{i}(1:3));
-        n.fspac = freqSpacingStrToInt(fspac_str); % fspac is now an integer 
+        fspac = lower(varargin{i}(1:3));
+        % Assign nfspac integer value based on fspac string value
+        if strcmpi(fspac, 'lin')
+            n.nfspac = 1;
+        elseif strcmpi(fspac, 'log')
+            n.nfspac = 2;
+        end
         
         lf   = varargin{i+1};            % min freq
         hf   = varargin{i+2};            % max freq
         N    = varargin{i+3};            % number of frequency steps
         n.N  = N;
-        switch n.fspac
+        switch n.nfspac
             
             case 1 % linear spacing
                 n.f  = linspace(lf,hf,N)';
@@ -153,7 +158,7 @@ end
 
 
 %% Define oscillator parameters
-switch n.fspac
+switch n.nfspac
     
     case 1 % linear spacing
         n.a  = single(alpha + 1i*2*pi.*n.f);
@@ -206,21 +211,10 @@ end
 
 n.z = n.z0;
 
-%% Function: Converts frequency spacing string to an integer
-function freqSpacingInt = freqSpacingStrToInt(fs_string)
-
-if strcmpi(fs_string, 'lin')
-    freqSpacingInt = 1;
-elseif strcmpi(fs_string, 'log')
-    freqSpacingInt = 2;
-else
-    error('Invalid frequency spacing identifier');
-end
-
 %% Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin
 % Define ticks and tick labels to be used for plotting
 % m   = ceil(n.N/2);                  % middle frequency of network
-% switch n.fspac
+% switch n.nfspac
 %     case 'lin'
 %         n.tck = floor(linspace(1, n.N,5));
 %     case 'log'

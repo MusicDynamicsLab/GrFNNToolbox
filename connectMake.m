@@ -42,7 +42,7 @@ if ~any(strcmpi(type,{'full' 'near' 'one' 'gaus'}))
 end
 
 amp  = 1;                   % Set defaults
-switch n2.fspac
+switch n2.nfspac
     case 2 % log spacing
         range = 1.02; % freq ratio
     case 1 % lin spacing
@@ -103,7 +103,7 @@ end
 
 %% Generate connectivity kernel(s)
 
-switch n2.fspac
+switch n2.nfspac
     case 2
         F = log2(relFreq(n1.f, n2.f)); % F: log2 of freq ratios
         sigma = abs(log2(range))*ranges;
