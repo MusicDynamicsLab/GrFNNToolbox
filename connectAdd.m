@@ -1,12 +1,12 @@
 %% connectAdd
 %  n = connectAdd(n1, n2, C, varargin)
 %
-%  Updates and returns target network n2, with new connectivity from source
-%  network n1, with connectivity matrix specified by pattern C.
+%  Updates and returns target network, with new connectivity from source,
+%  with connectivity matrix specified by pattern C.
 %
 %  Required input argumenets:
-%  n1               Source network (network getting the connection input).
-%  n2               Target network.
+%  n1               Source (stimulus or network providing connection input)
+%  n2               Target network
 %  C                Connection pattern, either a scalar or a matrix of N2 by N1
 %                   where N1 is the number of oscillators for n1 and N2 for
 %                   n2. When learning is on, this is used as initial
@@ -16,7 +16,8 @@
 %  Optional input arguments:
 %  'type'           Followed by a charater string specifying connection type.
 %                   Options are '1freq', '2freq', '3freq', '3freqAll', 'active',
-%                   'All2freq', and 'Allfreq' ('Allfreq' is default).
+%                   'All2freq', and 'Allfreq'. '1freq' is default for stimulus
+%                   source and 'Allfreq' is for network source.
 %  'learn'          Followed by five parameters for the learning rule:
 %                   lambda, mu1, mu2, epsilon, and kappa
 %  'weight'         Followed by a weight (scalar or column vector) to be multiplied
@@ -62,7 +63,11 @@ con.targetN = n2.N;
 
 %% Initialize parameters
 
-con.type = 'Allfreq';
+if con.nSourceClass == 1
+    con.type = '1freq';     % default connection type for stimulus source
+else
+    con.type = 'Allfreq';   % default connection type for network source
+end
 con.dStep = 0;
 con.sStep = 0;
 con.no11 = 0;
@@ -284,14 +289,6 @@ end
 
 con.C = con.C0;
 
-
-%% Input
-%      n1: index into n1 (the network in the signal is coming from)
-%      n2: index into n2 (the network in the signal is going to)
-con.n1 = n1.id;
-con.n2 = n2.id;
-
-
 %% Masking
 %      This process operates on the initial condition and parameter
 %      matrices to hange the way things work (i.e.
@@ -321,7 +318,7 @@ n = n2;
 con.id = length(n.con)+1;
 n.con{con.id} = con;
 
-%% Add index to conLearn if learn
+%% Add index to learnList if learn
 if con.learn
-    n.conLearn = [n.conLearn con.id];
+    n.learnList = [n.learnList con.id];
 end
