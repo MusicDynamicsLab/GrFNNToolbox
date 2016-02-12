@@ -2,9 +2,11 @@
 % [r, drdt] = avfExtrema(alpha, beta1, beta2, epsilon)
 %
 % Gets amplitude (r) and time derivative (drdt) at local extrema of
-% the amplitude vector field of an autonomous canonical oscillator
+% the amplitude vector field of an autonomous canonical oscillator defined
+% by parameters alpha, beta1, beta2, epsilon.
 %
 % See also AVFGUI
+%
 
 %%
 function [r, drdt] = avfExtrema(alpha, beta1, beta2, epsilon)

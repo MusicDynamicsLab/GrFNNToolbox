@@ -1,0 +1,670 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>networkMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="networkMake.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>networkMake</h1><!--introduction--><pre>n = networkMake(idNumber, varargin)</pre><pre>Makes an oscillator network structure for a model
+idNumber: is a layer id, should match model structure index</pre><pre>Attributes can come in any order.</pre><pre>Necessary attributes
+Model, such as 'hopf'                Next 6 inputs are necessary, parameters of the network:
+                                     alpha, beta1, beta2, delta1, delta2, epsilon
+Frequency spacing, 'lin' or 'log'    Next 3 inputs are necessary, min freq of network,
+                                     max freq of network, and number of oscillators</pre><pre>Optional attributes:
+'channel'                            Next input is scalar (or vector if channelizing the stimulus)
+                                     specifying which channel(s) of the stimulus this network
+                                     will receive as input. If this is not used, the network will
+                                     not receive the stimulus. This is typically specified only
+                                     for the first layer, for instance.
+'display'                            Next input is scalar which is the time step interval in
+                                     between display steps as the network integrates. Default
+                                     is zero.
+'save'                               Next input is scalar which is the time step interval in
+                                     between save steps as the network integrates. Default is
+                                     zero.
+'znaught'                            Next input is a vector of initial conditions for the oscillators
+                                     overriding the defaults, which are the spontaneous amplitudes
+                                     of the oscillators with a small amount of randomness, and
+                                     random phase. Can be a scalar if that value should be used
+                                     for all oscillators.
+'tick'                               Next input is a vector of axis ticks to be used for this network
+                                     for plotting, if 'display' is nonzero.</pre><pre>Example calls:</pre><pre class="language-matlab">n  = networkMake(3, <span class="string">'hopf'</span>, .1, -10, -1, 0, 0, 1, <span class="string">'log'</span>, 100, 1300, 400, <span class="string">'display'</span>, 20, <span class="string">'save'</span>, 1, <span class="string">'znaught'</span>, z0{3});
+n  = networkMake(1, <span class="string">'hopf'</span>, 0, -100, -1, 0, 0, .0025, <span class="string">'log'</span>, 20, 20000, 800, <span class="string">'save'</span>, 1, <span class="string">'channel'</span>, 1);
+</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Set defaults and initialize variables</a></li><li><a href="#3">Parse input</a></li><li><a href="#4">Error check for necessary inputs</a></li><li><a href="#5">Define oscillator parameters</a></li><li><a href="#6">Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin</a></li><li><a href="#7">Older things not to throw away</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> n = networkMake(id, varargin)
+</pre><h2>Set defaults and initialize variables<a name="2"></a></h2><pre class="codeinput">n.id = id;
+n.class = <span class="string">'net'</span>;
+n.nClass = 2; <span class="comment">% numerical class</span>
+
+models = {<span class="string">'hopf'</span>};              <span class="comment">% Can add to this array later</span>
+
+n.model = [];                   <span class="comment">% Initialize these to use isempty to error check later</span>
+n.fspac = [];
+
+n.dStep = 0;                    <span class="comment">% Initialize these to zero/empty in case not specified in varargin</span>
+n.sStep = 0;
+n.ext   = 0;                    <span class="comment">% Now obsolete but needed for backward compatibility</span>
+overrideInitialConditions = 0;
+n.tick  = [];
+</pre><h2>Parse input<a name="3"></a></h2><pre class="codeinput"><span class="keyword">for</span> i = 1:length(varargin)
+
+    <span class="keyword">if</span> any(strcmpi(varargin{i},models)) &amp;&amp; length(varargin) &gt; i + 5 &amp;&amp; ~ischar(varargin{i+1}) &amp;&amp; ~ischar(varargin{i+2}) &amp;&amp; ~ischar(varargin{i+3}) &amp;&amp; ~ischar(varargin{i+4}) &amp;&amp; ~ischar(varargin{i+5}) &amp;&amp; ~ischar(varargin{i+6})
+
+        n.model = lower(varargin{i});
+
+        <span class="keyword">switch</span> varargin{i}
+
+            <span class="keyword">case</span> {<span class="string">'hopf'</span>} <span class="comment">% 'hopp'? Let's make it 'hopf' ...</span>
+                alpha   = varargin{i+1};
+                beta1   = varargin{i+2};
+                beta2   = varargin{i+3};
+                delta1  = varargin{i+4};
+                delta2  = varargin{i+5};
+                epsilon = varargin{i+6};
+
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; any(strcmpi(varargin{i}(1:3),{<span class="string">'lin'</span> <span class="string">'log'</span>})) &amp;&amp; length(varargin) &gt; i + 2 &amp;&amp; isscalar(varargin{i+1}) &amp;&amp; isscalar(varargin{i+2}) &amp;&amp; isscalar(varargin{i+3})
+
+        n.fspac = lower(varargin{i}(1:3));
+        lf   = varargin{i+1};            <span class="comment">% min freq</span>
+        hf   = varargin{i+2};            <span class="comment">% max freq</span>
+        N    = varargin{i+3};            <span class="comment">% number of frequency steps</span>
+        n.N  = N;
+        <span class="keyword">switch</span> n.fspac
+
+            <span class="keyword">case</span> <span class="string">'lin'</span>
+                n.f  = linspace(lf,hf,N)';
+                <span class="keyword">if</span> N &gt; 1
+                    n.df = abs(n.f(2)-n.f(1)); <span class="comment">% to scale for frequency density</span>
+                <span class="keyword">else</span>
+                    n.df = 1;
+                <span class="keyword">end</span>
+
+            <span class="keyword">case</span> <span class="string">'log'</span>
+                n.f  = logspace(log10(lf),log10(hf),N)';
+                <span class="keyword">if</span> N &gt; 1
+                    n.df = abs(log2(n.f(2)/n.f(1)));          <span class="comment">% to scale for frequency density</span>
+                <span class="keyword">else</span>
+                    n.df = 1;
+                <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        n.f   = single(n.f);
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'cha'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; ~ischar(varargin{i+1})
+
+        n.ext = varargin{i+1};  <span class="comment">% now obsolete but needed for backward compatibility</span>
+
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'dis'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; isscalar(varargin{i+1})
+
+        n.dStep = varargin{i+1};
+
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'sav'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; isscalar(varargin{i+1})
+
+        n.sStep = varargin{i+1};
+
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'zna'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; ~ischar(varargin{i+1})
+
+        overrideInitialConditions = 1;
+        z0 = varargin{i+1};
+
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'tic'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; ~ischar(varargin{i+1})
+
+        n.tick = varargin{i+1};
+
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; ~any(strcmpi(varargin{i},models)) &amp;&amp; ~any(strcmpi(varargin{i},{<span class="string">'lin'</span> <span class="string">'log'</span>})) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'cha'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'dis'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'sav'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'zna'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'tic'</span>)
+
+        error([<span class="string">'Unrecognized input to networkMake: '</span> varargin{i}]);
+
+    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+n.con = {}; <span class="comment">% JCK: got rid of aff/eff/int distinction</span>
+n.conLearn = []; <span class="comment">% indices for learned connections (used in integrator)</span>
+</pre><h2>Error check for necessary inputs<a name="4"></a></h2><pre class="codeinput"><span class="keyword">if</span> isempty(n.model)
+
+    error(<span class="string">'Must specify a model and all parameters in networkMake'</span>)
+
+<span class="keyword">end</span>
+
+
+<span class="keyword">if</span> isempty(n.fspac)
+
+    error(<span class="string">'Must specify a linear or logarithmic frequency gradient in networkMake'</span>)
+
+<span class="keyword">end</span>
+</pre><h2>Define oscillator parameters<a name="5"></a></h2><pre class="codeinput"><span class="keyword">switch</span> n.fspac
+
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        n.a  = single(alpha + 1i*2*pi.*n.f);
+        n.b1 = single(beta1 + 1i*delta1);
+        n.b2 = single(beta2 + 1i*delta2);
+        n.w  = 1;
+
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        n.a  = single(alpha + 1i*2*pi  ).*n.f;  <span class="comment">% Redefinition of a, b1 &amp; b2</span>
+        n.b1 = single(beta1 + 1i*delta1).*n.f;
+        n.b2 = single(beta2 + 1i*delta2).*n.f;
+        n.w  = n.f;
+<span class="keyword">end</span>
+<span class="comment">%         if isempty(n.b2) n.b2 = n.b1; end;              % &#65533; NECESSARY ?</span>
+
+<span class="comment">%         if length(model)&gt;4</span>
+<span class="comment">%             n.e = model{7};</span>
+<span class="comment">%         else</span>
+<span class="comment">%             n.e = 1.0;</span>
+<span class="comment">%         end</span>
+
+n.e = single(epsilon);
+
+
+<span class="keyword">switch</span> n.model
+    <span class="keyword">case</span> {<span class="string">'hopf'</span>, <span class="string">'hopp'</span>}
+        r0 = zeros(size(n.a));
+        r = spontAmp(real(n.a(1)), real(n.b1(1)), real(n.b2(1)), n.e);
+        r0 = r(end)+r0;
+        r0 = r0+.01*randn(size(r0));
+        phi0 = 2*pi*randn(size(r0));
+        n.z0 = r0.*exp(1i*2*pi*phi0);
+
+    <span class="keyword">otherwise</span>
+        error(<span class="string">'Unknown model type: %s'</span>, n.model);
+
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> overrideInitialConditions
+    <span class="keyword">if</span> numel(z0) == 1
+        n.z0 = repmat(z0,N,1);
+    <span class="keyword">elseif</span> all(size(z0) == [1 N])
+        n.z0 = z0.';
+    <span class="keyword">elseif</span> all(size(z0) == [N 1])
+        n.z0 = z0;
+    <span class="keyword">else</span>
+        error(<span class="string">'Length of initial conditions must be 1 or N'</span>)
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+n.z = n.z0;
+</pre><h2>Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin<a name="6"></a></h2><p>Define ticks and tick labels to be used for plotting m   = ceil(n.N/2);                  % middle frequency of network switch n.fspac     case 'lin'         n.tck = floor(linspace(1, n.N,5));     case 'log'         per = floor(n.N/(log2(n.f(end))-log2(n.f(1))));</p><pre>       tckup = m:per:n.N;
+       tckdn = m:-per:1;
+       n.tck = unique([tckdn,tckup]);
+end
+n.tckl = {};
+for tt = 1:length(n.tck)
+   if n.f(m) &lt; 10
+       n.tckl{tt} = sprintf('%5.1f', n.f(n.tck(tt)));
+   else
+       n.tckl{tt} = sprintf('%d', round(n.f(n.tck(tt))));
+   end
+end</pre><h2>Older things not to throw away<a name="7"></a></h2><pre class="codeinput"><span class="comment">% model is oscillator-level model-type {'vrd', 'wils', 'hopf'} + model</span>
+<span class="comment">% parameters</span>
+<span class="comment">% -for W-C: model = {'wils', a, b, omega, xstar, ystar}</span>
+<span class="comment">%  parameters c, d of W-C are calcaulated internally based on omega, and</span>
+<span class="comment">%  the desired fixed point (xstar, ystar)</span>
+<span class="comment">% -for Hopf: model = {'hopf', a, b1, b2, d1, d2, epsilon} with a, b1, b2,</span>
+<span class="comment">%  d1, d2, epsilon are all real</span>
+<span class="comment">% -for VDR = {'vdr', a, b, c, d, A, B}</span>
+<span class="comment">% freqs is parameters for eigen-frequencies in the oscillator array</span>
+<span class="comment">% for linear spaced array freqs is a list of {'lin', minimum frequency,</span>
+<span class="comment">% frequency step-size, and maximum frequency}</span>
+<span class="comment">% for log-spaced array freqs is a list of {'log', center frequency, number of octaves (on each side),</span>
+<span class="comment">% oscillators per octave}</span>
+<span class="comment">%</span>
+
+<span class="comment">% switch n.model</span>
+<span class="comment">%     % Other cases that could be implemented:</span>
+<span class="comment">%     %   case 'term'</span>
+<span class="comment">%     %       error('Terman-Wang model not yet implemented');</span>
+<span class="comment">%     %   case 'fitz'</span>
+<span class="comment">%     %       error('Fitzhugh-Nagumo model not yet implemented');</span>
+<span class="comment">%</span>
+<span class="comment">%     case {'vrd', 'vrd2'}</span>
+<span class="comment">%         n.a = model{2};</span>
+<span class="comment">%         n.b = model{3};   % coefficient for the vanderPol term</span>
+<span class="comment">%         n.c = model{4};   % coefficient for the Rayleigh term</span>
+<span class="comment">%         n.d = model{5};   % coefficient for the Duffing term</span>
+<span class="comment">%         n.A = model{6};</span>
+<span class="comment">%         n.B = model{7};</span>
+<span class="comment">%     case {'wils', 'wilse'}</span>
+<span class="comment">%         n.a  = model{2};</span>
+<span class="comment">%         n.b  = model{3};</span>
+<span class="comment">%         n.Om = model{4};</span>
+<span class="comment">%         n.xe = model{5};</span>
+<span class="comment">%         n.ye = model{6};</span>
+<span class="comment">%         if length(model)&gt;6</span>
+<span class="comment">%             n.e = model{7};</span>
+<span class="comment">%         else</span>
+<span class="comment">%             n.e = 1.0;</span>
+<span class="comment">%         end</span>
+<span class="comment">%</span>
+<span class="comment">%         [n.c, n.d, n.px, n.py] = wcparams(n.a, n.b, n.Om, n.xe, n.ye);</span>
+<span class="comment">%         n.mx = n.Om/2/pi;</span>
+<span class="comment">%         n.my = n.mx;</span>
+<span class="comment">%</span>
+<span class="comment">%         n.a1 = -1 + n.a*n.xe*(1-n.xe);</span>
+<span class="comment">%         n.a2 = -    n.b*n.xe*(1-n.xe);</span>
+<span class="comment">%         n.a3 =      n.c*n.ye*(1-n.ye);</span>
+<span class="comment">%         n.a4 = -1 + n.d*n.ye*(1-n.ye);</span>
+<span class="comment">%</span>
+<span class="comment">%         n.c1 = 1;</span>
+<span class="comment">%         n.c3 = 1;</span>
+<span class="comment">%</span>
+<span class="comment">% end % end switch/case</span>
+
+<span class="comment">% switch n.model</span>
+<span class="comment">%     case {'hopf', 'hopp'}</span>
+<span class="comment">%         n.z0 = 1e-10*(1*ones(size(n.f))+i*ones(size(n.f)));</span>
+<span class="comment">%</span>
+<span class="comment">%     case {'wils', 'wilse'}</span>
+<span class="comment">%         x0  = n.xe*ones(size(n.f));</span>
+<span class="comment">%         y0  = n.ye*ones(size(n.f));</span>
+<span class="comment">%</span>
+<span class="comment">%         n.z0 = zeros(2*n.N,1);</span>
+<span class="comment">%         n.z0(1:2:2*n.N) = x0;</span>
+<span class="comment">%         n.z0(2:2:2*n.N) = y0;</span>
+<span class="comment">%     case {'kura'}</span>
+<span class="comment">%         % start all oscillators at amp=1, phase = 0; (amp=1 is implicit)</span>
+<span class="comment">%         n.z0 = zeros(size(n.f));</span>
+<span class="comment">%         n.z0 = zeros(size(n.f)) + n.init_dispersion*(2*pi*rand(size(n.f))-pi);</span>
+<span class="comment">%</span>
+<span class="comment">%     otherwise</span>
+<span class="comment">%         v1  = 1e-10*ones(size(n.f));</span>
+<span class="comment">%         v2  = 1e-10*ones(size(n.f));</span>
+<span class="comment">%         n.z0 = zeros(2*n.N,1);</span>
+<span class="comment">%         n.z0(1:2:2*n.N) = v1;</span>
+<span class="comment">%         n.z0(2:2:2*n.N) = v2;</span>
+<span class="comment">% end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% networkMake
+%  n = networkMake(idNumber, varargin)
+% 
+%  Makes an oscillator network structure for a model
+%  idNumber: is a layer id, should match model structure index
+%  
+%  Attributes can come in any order.
+% 
+%  Necessary attributes 
+%  Model, such as 'hopf'                Next 6 inputs are necessary, parameters of the network: 
+%                                       alpha, beta1, beta2, delta1, delta2, epsilon
+%  Frequency spacing, 'lin' or 'log'    Next 3 inputs are necessary, min freq of network, 
+%                                       max freq of network, and number of oscillators
+% 
+%  Optional attributes:
+%  'channel'                            Next input is scalar (or vector if channelizing the stimulus)
+%                                       specifying which channel(s) of the stimulus this network 
+%                                       will receive as input. If this is not used, the network will
+%                                       not receive the stimulus. This is typically specified only 
+%                                       for the first layer, for instance.
+%  'display'                            Next input is scalar which is the time step interval in 
+%                                       between display steps as the network integrates. Default
+%                                       is zero.
+%  'save'                               Next input is scalar which is the time step interval in 
+%                                       between save steps as the network integrates. Default is
+%                                       zero.
+%  'znaught'                            Next input is a vector of initial conditions for the oscillators 
+%                                       overriding the defaults, which are the spontaneous amplitudes
+%                                       of the oscillators with a small amount of randomness, and 
+%                                       random phase. Can be a scalar if that value should be used 
+%                                       for all oscillators.
+%  'tick'                               Next input is a vector of axis ticks to be used for this network
+%                                       for plotting, if 'display' is nonzero.
+% 
+%  Example calls:
+% 
+%   n  = networkMake(3, 'hopf', .1, -10, -1, 0, 0, 1, 'log', 100, 1300, 400, 'display', 20, 'save', 1, 'znaught', z0{3});
+%   n  = networkMake(1, 'hopf', 0, -100, -1, 0, 0, .0025, 'log', 20, 20000, 800, 'save', 1, 'channel', 1);
+%
+
+%%
+function n = networkMake(id, varargin)
+%% Set defaults and initialize variables
+n.id = id;
+n.class = 'net';
+n.nClass = 2; % numerical class
+
+models = {'hopf'};              % Can add to this array later
+
+n.model = [];                   % Initialize these to use isempty to error check later
+n.fspac = [];
+
+n.dStep = 0;                    % Initialize these to zero/empty in case not specified in varargin
+n.sStep = 0;
+n.ext   = 0;                    % Now obsolete but needed for backward compatibility
+overrideInitialConditions = 0;
+n.tick  = [];
+
+%% Parse input
+for i = 1:length(varargin)
+    
+    if any(strcmpi(varargin{i},models)) && length(varargin) > i + 5 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2}) && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4}) && ~ischar(varargin{i+5}) && ~ischar(varargin{i+6})
+        
+        n.model = lower(varargin{i});
+        
+        switch varargin{i}
+            
+            case {'hopf'} % 'hopp'? Let's make it 'hopf' ...
+                alpha   = varargin{i+1};
+                beta1   = varargin{i+2};
+                beta2   = varargin{i+3};
+                delta1  = varargin{i+4};
+                delta2  = varargin{i+5};
+                epsilon = varargin{i+6};
+                
+        end
+    end
+    
+    if ischar(varargin{i}) && any(strcmpi(varargin{i}(1:3),{'lin' 'log'})) && length(varargin) > i + 2 && isscalar(varargin{i+1}) && isscalar(varargin{i+2}) && isscalar(varargin{i+3})
+        
+        n.fspac = lower(varargin{i}(1:3));
+        lf   = varargin{i+1};            % min freq
+        hf   = varargin{i+2};            % max freq
+        N    = varargin{i+3};            % number of frequency steps
+        n.N  = N;
+        switch n.fspac
+            
+            case 'lin'
+                n.f  = linspace(lf,hf,N)';
+                if N > 1
+                    n.df = abs(n.f(2)-n.f(1)); % to scale for frequency density
+                else
+                    n.df = 1;
+                end
+                
+            case 'log'
+                n.f  = logspace(log10(lf),log10(hf),N)';
+                if N > 1
+                    n.df = abs(log2(n.f(2)/n.f(1)));          % to scale for frequency density
+                else
+                    n.df = 1;
+                end
+        end
+        n.f   = single(n.f);
+    end
+     
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'cha') && length(varargin) > i && ~ischar(varargin{i+1})
+    
+        n.ext = varargin{i+1};  % now obsolete but needed for backward compatibility
+        
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'dis') && length(varargin) > i && isscalar(varargin{i+1})
+        
+        n.dStep = varargin{i+1};
+        
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'sav') && length(varargin) > i && isscalar(varargin{i+1})
+        
+        n.sStep = varargin{i+1};
+        
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'zna') && length(varargin) > i && ~ischar(varargin{i+1})
+       
+        overrideInitialConditions = 1;
+        z0 = varargin{i+1};
+        
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'tic') && length(varargin) > i && ~ischar(varargin{i+1})
+    
+        n.tick = varargin{i+1};
+        
+    end
+    
+    if ischar(varargin{i}) && ~any(strcmpi(varargin{i},models)) && ~any(strcmpi(varargin{i},{'lin' 'log'})) && ~strcmpi(varargin{i}(1:3),'cha') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~strcmpi(varargin{i}(1:3),'zna') && ~strcmpi(varargin{i}(1:3),'tic')
+        
+        error(['Unrecognized input to networkMake: ' varargin{i}]);
+        
+    end
+    
+end
+n.con = {}; % JCK: got rid of aff/eff/int distinction
+n.conLearn = []; % indices for learned connections (used in integrator)
+
+%% Error check for necessary inputs
+if isempty(n.model)
+    
+    error('Must specify a model and all parameters in networkMake')
+    
+end
+
+
+if isempty(n.fspac)
+    
+    error('Must specify a linear or logarithmic frequency gradient in networkMake')
+    
+end
+
+%% Define oscillator parameters
+switch n.fspac
+    
+    case 'lin'
+        n.a  = single(alpha + 1i*2*pi.*n.f);
+        n.b1 = single(beta1 + 1i*delta1);
+        n.b2 = single(beta2 + 1i*delta2);
+        n.w  = 1;
+        
+    case 'log'
+        n.a  = single(alpha + 1i*2*pi  ).*n.f;  % Redefinition of a, b1 & b2
+        n.b1 = single(beta1 + 1i*delta1).*n.f;
+        n.b2 = single(beta2 + 1i*delta2).*n.f;
+        n.w  = n.f;
+end
+%         if isempty(n.b2) n.b2 = n.b1; end;              % � NECESSARY ?
+
+%         if length(model)>4
+%             n.e = model{7};
+%         else
+%             n.e = 1.0;
+%         end
+
+n.e = single(epsilon);
+
+
+switch n.model
+    case {'hopf', 'hopp'}
+        r0 = zeros(size(n.a));
+        r = spontAmp(real(n.a(1)), real(n.b1(1)), real(n.b2(1)), n.e);
+        r0 = r(end)+r0;
+        r0 = r0+.01*randn(size(r0));
+        phi0 = 2*pi*randn(size(r0));
+        n.z0 = r0.*exp(1i*2*pi*phi0);
+        
+    otherwise
+        error('Unknown model type: %s', n.model);
+        
+end
+
+if overrideInitialConditions
+    if numel(z0) == 1
+        n.z0 = repmat(z0,N,1);
+    elseif all(size(z0) == [1 N])
+        n.z0 = z0.';
+    elseif all(size(z0) == [N 1])
+        n.z0 = z0;
+    else
+        error('Length of initial conditions must be 1 or N')
+    end        
+end
+
+n.z = n.z0;
+
+%% Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin
+% Define ticks and tick labels to be used for plotting
+% m   = ceil(n.N/2);                  % middle frequency of network
+% switch n.fspac
+%     case 'lin'
+%         n.tck = floor(linspace(1, n.N,5));
+%     case 'log'
+%         per = floor(n.N/(log2(n.f(end))-log2(n.f(1))));
+% 
+%         tckup = m:per:n.N;
+%         tckdn = m:-per:1;
+%         n.tck = unique([tckdn,tckup]);
+% end
+% n.tckl = {};
+% for tt = 1:length(n.tck)
+%     if n.f(m) < 10
+%         n.tckl{tt} = sprintf('%5.1f', n.f(n.tck(tt)));
+%     else
+%         n.tckl{tt} = sprintf('%d', round(n.f(n.tck(tt))));
+%     end
+% end
+
+%% Older things not to throw away
+
+% model is oscillator-level model-type {'vrd', 'wils', 'hopf'} + model
+% parameters
+% -for W-C: model = {'wils', a, b, omega, xstar, ystar}
+%  parameters c, d of W-C are calcaulated internally based on omega, and
+%  the desired fixed point (xstar, ystar)
+% -for Hopf: model = {'hopf', a, b1, b2, d1, d2, epsilon} with a, b1, b2,
+%  d1, d2, epsilon are all real
+% -for VDR = {'vdr', a, b, c, d, A, B}
+% freqs is parameters for eigen-frequencies in the oscillator array
+% for linear spaced array freqs is a list of {'lin', minimum frequency,
+% frequency step-size, and maximum frequency}
+% for log-spaced array freqs is a list of {'log', center frequency, number of octaves (on each side),
+% oscillators per octave}
+%
+
+% switch n.model
+%     % Other cases that could be implemented:
+%     %   case 'term'
+%     %       error('Terman-Wang model not yet implemented');
+%     %   case 'fitz'
+%     %       error('Fitzhugh-Nagumo model not yet implemented');
+%
+%     case {'vrd', 'vrd2'}
+%         n.a = model{2};
+%         n.b = model{3};   % coefficient for the vanderPol term
+%         n.c = model{4};   % coefficient for the Rayleigh term
+%         n.d = model{5};   % coefficient for the Duffing term
+%         n.A = model{6};
+%         n.B = model{7};
+%     case {'wils', 'wilse'}
+%         n.a  = model{2};
+%         n.b  = model{3};
+%         n.Om = model{4};
+%         n.xe = model{5};
+%         n.ye = model{6};
+%         if length(model)>6
+%             n.e = model{7};
+%         else
+%             n.e = 1.0;
+%         end
+%
+%         [n.c, n.d, n.px, n.py] = wcparams(n.a, n.b, n.Om, n.xe, n.ye);
+%         n.mx = n.Om/2/pi;
+%         n.my = n.mx;
+%
+%         n.a1 = -1 + n.a*n.xe*(1-n.xe);
+%         n.a2 = -    n.b*n.xe*(1-n.xe);
+%         n.a3 =      n.c*n.ye*(1-n.ye);
+%         n.a4 = -1 + n.d*n.ye*(1-n.ye);
+%
+%         n.c1 = 1;
+%         n.c3 = 1;
+%
+% end % end switch/case
+
+% switch n.model
+%     case {'hopf', 'hopp'}
+%         n.z0 = 1e-10*(1*ones(size(n.f))+i*ones(size(n.f)));
+%
+%     case {'wils', 'wilse'}
+%         x0  = n.xe*ones(size(n.f));
+%         y0  = n.ye*ones(size(n.f));
+%
+%         n.z0 = zeros(2*n.N,1);
+%         n.z0(1:2:2*n.N) = x0;
+%         n.z0(2:2:2*n.N) = y0;
+%     case {'kura'}
+%         % start all oscillators at amp=1, phase = 0; (amp=1 is implicit)
+%         n.z0 = zeros(size(n.f));
+%         n.z0 = zeros(size(n.f)) + n.init_dispersion*(2*pi*rand(size(n.f))-pi);
+%
+%     otherwise
+%         v1  = 1e-10*ones(size(n.f));
+%         v2  = 1e-10*ones(size(n.f));
+%         n.z0 = zeros(2*n.N,1);
+%         n.z0(1:2:2*n.N) = v1;
+%         n.z0(2:2:2*n.N) = v2;
+% end
+
+##### SOURCE END #####
+--></body></html>

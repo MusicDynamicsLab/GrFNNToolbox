@@ -1,7 +1,9 @@
 %% spontAmp
 %  r = spontAmp(alpha, beta1, beta2, epsilon)
 %
-%  Finds spontaneous amplitude(s) of a canonical model
+%  Finds spontaneous amplitude(s), r, of a canonical oscillator defined by
+%  parameters alpha, beta1, beta2, and epsilon.
+%
 
 %%
 function r = spontAmp(a, b1, b2, e)

@@ -1,18 +1,39 @@
 %% rStarCoupled11Learn
-%   [rStar, AStar, psiStar, stability, stabType] = rStarCoupled11Learn(alpha, beta1, lambda, mu1, kappa, Omega, All)
+%  [rStar, AStar, psiStar, stability, stabType] = rStarCoupled11Learn(alpha, beta1, lambda, mu1, kappa, Omega, All)
 %
-%  Finds r*, A*, psi*, stability (1 or 0), and stability type (0-4)
-%  numerically for two oscillators (truncated after the cubic term)
-%  connected via a plastic 1:1 coupling. Omega is the difference
-%  between the oscillators' natural frequencies in radian.
-%  Set the optional input argument 'All' to 1 (or any nonzero value)
-%  to get both stable and unstable fixed points. (Default for All is 0,
-%  that is, rStarDriven11Learn outputs only stable fixed points.)
+%  Finds steady-state oscillator amplitude (r*), connection amplitude (A*)
+%  and relative phase (psi*) along with their stability and stability type
+%  for two canonical oscillators connected via plastic 1:1 coupling. Both 
+%  oscillator and connection equations are truncated after cubic terms.
+%  Currently, rStarCoupled11Learn obtains only symmetric solutions (i.e. 
+%  rStar = r1Star = r2Star, AStar = A12Star = A21Star).
 %
-%  stability: 1 = stable, 0 = unstable
+%  Input arguments:
+%  alpha, beta1         Oscillator parameters
+%  lambda, mu1, kappa   Learning parameters
+%  Omega                Natural frequency difference (i.e. the first 
+%                       oscillator's natural frequency minus the second
+%                       oscilltor's frequency) in radian
 %
-%  stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
-%  1 = unstable spiral, 0 = saddle point
+%  Optional input:
+%  All                  Set it to 1 (or any nonzero value) to get both 
+%                       stable and unstable fixed points. (Default is 0,
+%                       i.e., only stable fixed points are output.)
+%
+%  Output:
+%  rStar                Steady-state amplitude(s) of oscillators
+%  AStar                Steady-state amplitude(s) of connections
+%  psiStar              Steady-state relative phase(s) (i.e. phase of
+%                       connection from the second oscillator to the first
+%                       oscillator minus first oscillator phase plus second
+%                       oscillator phase)
+%  stability            Stability of steady state(s)
+%                       (1 = stable, 0 = unstable)
+%  stabType             Stability type of steady state(s)
+%                       (4 = stable node, 3 = stable spiral,
+%                       2 = unstable node, 1 = unstable spiral,
+%                       0 = saddle point)
+%
 
 %% Equation
 % $$\frac{dz_1}{dt} = z_1\left(\alpha + \textrm{i}\omega_1 +
@@ -27,6 +48,7 @@
 % $$\frac{dc_{21}}{dt} = c_{21}\left(\lambda + \mu_1|c_{21}|^2\right) +
 % \kappa z_2\bar{z_1}$$
 
+%%
 function [rStar, AStar, psiStar, stability, stabType] = ...
   rStarCoupled11Learn(a, b1, l, m1, ka, W, All)
 

@@ -297,7 +297,7 @@ if isempty(handle)
 else
     axes(handle);
 end
-myFreqs(Z,NFFT,fs,percentages);
+mdlSpec(Z,NFFT,fs,percentages);
 title(sprintf('Spectrogram for mean field of network %d',id));
 grid on
 

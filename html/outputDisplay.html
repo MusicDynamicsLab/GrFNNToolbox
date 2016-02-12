@@ -1,0 +1,1534 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>outputDisplay</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="outputDisplay.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>outputDisplay</h1><!--introduction--><pre>General function for displaying network and/or connection outputs after running a simulation, given a model variable</pre><pre>The first input must be the model structure
+Each subsequent group of inputs specifies a particular display or group of displays</pre><pre>For network display(s):
+ First input 'net',
+	then the unique network id assigned in the model structure to the desired network,
+	then one or more display types, each specified as a string.
+		'mean'   - Plot of mean field time-domain waveform of the network
+		'amp'    - Plot of averaged amplitudes of each oscillator in the network
+		'fft'    - Plot of mean-field log spectrum of the network
+		'ampx'   - Image of amplitudes (in color) of all oscillators (Y-axis) over time (X-axis)
+		'spec'   - Spectrogram of mean-field of network
+		'auto'   - Autocorrelogram of mean-field of network
+		'oscfft' - Log spectrum (in color) of each oscillator (X-axis), with frequency on Y-axis</pre><pre>For connection display(s):
+	First input 'con',
+	then the unique network id assigned in the model structure to the desired network,
+	then the unique connection id assigned in the network structure for the desired input connectivity,
+	then one or more display types of the final connectivity, each specified as a string.
+		'ampall'   - Image of the amplitudes of the connectivity matrix
+		'phaseall' - Image of the phases of the connectivity matrix
+		'realall'  - Image of the real portion of the connectivity matrix
+		'imagall'  - Image of the imaginary portion of the connectivity matrix
+		'amp'      - Plot of the amplitudes of the middle row of the connectivity matrix
+		'phase'    - Plot of the phases of the middle row of the connectivity matrix
+		'real'     - Plot of the real portion of the middle row of the connectivity matrix
+		'imag'     - Plot of the imaginary portion of the middle row of the connectivity matrix</pre><pre>A figure is automatically generated for each individual plot specified. If a specific axes handle should
+be used instead of a novel figure, that handle can be an input directly before the display type string.</pre><pre>Example calls:</pre><pre class="language-matlab">outputDisplay(M,<span class="string">'net'</span>,3,<span class="string">'oscfft'</span>,<span class="string">'fft'</span>)
+outputDisplay(M,<span class="string">'net'</span>,2,<span class="string">'ampx'</span>,<span class="string">'net'</span>,1,<span class="string">'amp'</span>,<span class="string">'net'</span>,3,<span class="string">'spec'</span>,<span class="string">'auto'</span>)
+outputDisplay(M,<span class="string">'net'</span>,2,<span class="string">'con'</span>,2,1,<span class="string">'con'</span>,3,1,<span class="string">'phaseall'</span>)
+</pre><pre>And if hand1 and hand2 are axes handles,
+outputDisplay(M,'net',2,'con',2,1,'net',3,hand1,'fft',hand2,'ampx','con',3,1,'phaseall')</pre><pre>The following code generates a 2-by-2 subplot, assuming there were at least 2 networks in the simulation:</pre><pre class="language-matlab">figure
+set(gcf,<span class="string">'position'</span>,[50 50 800 600])
+subplot(2,2,1)
+hand1=gca;
+subplot(2,2,2)
+hand2=gca;
+subplot(2,2,3)
+hand3=gca;
+subplot(2,2,4)
+hand4=gca;
+outputDisplay(M,<span class="string">'net'</span>,1,hand1,<span class="string">'fft'</span>,hand3,<span class="string">'spec'</span>,<span class="string">'net'</span>,2,hand2,<span class="string">'fft'</span>,hand4,<span class="string">'spec'</span>)
+</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Parse input</a></li><li><a href="#3">Network mean field time domain plot</a></li><li><a href="#6">Network averaged amplitudes plot</a></li><li><a href="#9">Network mean-field FFT plot</a></li><li><a href="#12">Image of oscillator amplitudes over time</a></li><li><a href="#15">Network mean-field spectrogram</a></li><li><a href="#18">Network mean-field autocorrelogram</a></li><li><a href="#21">Network FFT of all oscillators</a></li><li><a href="#24">Image of amplitudes of connectivity matrix</a></li><li><a href="#27">Image of phases of connectivity matrix</a></li><li><a href="#30">Image of real portion of connectivity matrix</a></li><li><a href="#33">Image of imaginary portion of connectivity matrix</a></li><li><a href="#36">Connection amplitudes of middle row of connectivity matrix</a></li><li><a href="#39">Connection phases of middle row of connectivity matrix</a></li><li><a href="#42">Real values of middle row of connectivity matrix</a></li><li><a href="#45">Imaginary values of middle row of connectivity matrix</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> outputDisplay(M,varargin)
+</pre><h2>Parse input<a name="2"></a></h2><pre class="codeinput"><span class="keyword">for</span> i=1:length(varargin)
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i},<span class="string">'net'</span>) &amp;&amp; length(varargin) &gt; i
+        id = varargin{i+1};
+        displays = {};
+        handles = {};
+        <span class="keyword">if</span> length(varargin) &gt; i + 1 &amp;&amp; (ischar(varargin{i+2}) || ishghandle(varargin{i+2})) &amp;&amp; ~strcmpi(varargin{i+2},<span class="string">'net'</span>) &amp;&amp; ~strcmpi(varargin{i+2},<span class="string">'con'</span>)
+            temp = varargin{i+2};
+            count = i + 2;
+            plotNum = 1;
+            <span class="keyword">while</span> ~isempty(temp) &amp;&amp; ~strcmpi(temp,<span class="string">'net'</span>) &amp;&amp; ~strcmpi(temp,<span class="string">'con'</span>)
+                <span class="keyword">if</span> ishghandle(temp)
+                    handles{plotNum} = temp;
+                    <span class="keyword">if</span> length(varargin) &gt; count
+                        temp = varargin{count+1};
+                    <span class="keyword">else</span>
+                        temp = [];
+                    <span class="keyword">end</span>
+                <span class="keyword">else</span>
+                    displays{plotNum} = temp;
+                    <span class="keyword">if</span> length(handles) &lt; length(displays)
+                        handles{plotNum} = [];
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> length(varargin) &gt; count
+                        temp = varargin{count+1};
+                        plotNum = plotNum + 1;
+                    <span class="keyword">else</span>
+                        temp = [];
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+                count = count + 1;
+            <span class="keyword">end</span>
+        <span class="keyword">else</span>
+            handles={[]};
+            displays = {<span class="string">'amp'</span>};
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> length(handles) == 1 &amp;&amp; isempty(displays)
+            displays = {<span class="string">'amp'</span>};
+        <span class="keyword">end</span>
+
+
+        <span class="keyword">for</span> j = 1:length(displays)
+            <span class="keyword">if</span> strcmpi(displays{j},<span class="string">'mean'</span>)
+                meanTime(M,id,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'amp'</span>)
+                averagedAmps(M,id,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'fft'</span>)
+                simpleSpec(M,id,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'ampx'</span>)
+                allAmps(M,id,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'spec'</span>)
+                spectrogramMeanField(M,id,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'auto'</span>)
+                autocorrelogramMeanField(M,id,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'oscfft'</span>)
+                allFFT(M,id,handles{j});
+            <span class="keyword">else</span>
+                message = [<span class="string">'Not a valid network display: '</span> displays{j}];
+                error(message);
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i},<span class="string">'con'</span>) &amp;&amp; length(varargin) &gt; i + 1
+        netid = varargin{i+1};
+        conid = varargin{i+2};
+        displays = {};
+        handles = {};
+        <span class="keyword">if</span> length(varargin) &gt; i + 2 &amp;&amp; (ischar(varargin{i+3}) || ishghandle(varargin{i+3})) &amp;&amp; ~strcmpi(varargin{i+3},<span class="string">'net'</span>) &amp;&amp; ~strcmpi(varargin{i+3},<span class="string">'con'</span>)
+            temp = varargin{i+3};
+            count = i + 3;
+            plotNum = 1;
+            <span class="keyword">while</span> ~isempty(temp) &amp;&amp; ~strcmpi(temp,<span class="string">'net'</span>) &amp;&amp; ~strcmpi(temp,<span class="string">'con'</span>)
+                <span class="keyword">if</span> ishghandle(temp)
+                    handles{plotNum} = temp;
+                    <span class="keyword">if</span> length(varargin) &gt; count
+                        temp = varargin{count+1};
+                    <span class="keyword">else</span>
+                        temp = [];
+                    <span class="keyword">end</span>
+                <span class="keyword">else</span>
+                    displays{plotNum} = temp;
+                    <span class="keyword">if</span> length(handles) &lt; length(displays)
+                        handles{plotNum} = [];
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> length(varargin) &gt; count
+                        temp = varargin{count+1};
+                        plotNum = plotNum + 1;
+                    <span class="keyword">else</span>
+                        temp = [];
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+                count = count + 1;
+            <span class="keyword">end</span>
+        <span class="keyword">else</span>
+            handles={[]};
+            displays = {<span class="string">'ampall'</span>};
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> length(handles) == 1 &amp;&amp; isempty(displays)
+            displays = {<span class="string">'ampall'</span>};
+        <span class="keyword">end</span>
+        <span class="keyword">for</span> j = 1:length(displays)
+            <span class="keyword">if</span> strcmpi(displays{j},<span class="string">'ampall'</span>)
+                connectionAmpsAll(M,netid,conid,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'phaseall'</span>)
+                connectionPhasesAll(M,netid,conid,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'realall'</span>)
+                connectionRealAll(M,netid,conid,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'imagall'</span>)
+                connectionImagAll(M,netid,conid,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'amp'</span>)
+                connectionAmps(M,netid,conid,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'phase'</span>)
+                connectionPhases(M,netid,conid,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'real'</span>)
+                connectionReal(M,netid,conid,handles{j});
+            <span class="keyword">elseif</span> strcmpi(displays{j},<span class="string">'imag'</span>)
+                connectionImag(M,netid,conid,handles{j});
+            <span class="keyword">else</span>
+                message = [<span class="string">'Not a valid connection display: '</span> displays{j}];
+                error(message);
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>Network mean field time domain plot<a name="3"></a></h2><pre class="codeinput"><span class="keyword">function</span> meanTime(M,id,handle)
+</pre><pre class="codeinput">n = M.n{id};
+t = n.t;
+Z = real(mean(n.Z));
+<span class="comment">% ticks = tickMake(f,8);</span>
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+plot(t,Z);axis <span class="string">tight</span>;grid <span class="string">on</span>;zoom <span class="string">xon</span>;
+title(sprintf(<span class="string">'Mean field time-domain waveform of network %d'</span>,id));
+xlabel(<span class="string">'Time (sec)'</span>);
+ylabel(<span class="string">'Amplitude'</span>);
+grid <span class="string">on</span>
+drawnow;
+</pre><h2>Network averaged amplitudes plot<a name="6"></a></h2><pre class="codeinput"><span class="keyword">function</span> averagedAmps(M,id,handle)
+</pre><pre class="codeinput">n = M.n{id};
+f = n.f;
+amps = mean(abs(n.Z),2);
+<span class="comment">% ticks = tickMake(f,8);</span>
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+<span class="keyword">switch</span> n.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        semilogx(f,amps,<span class="string">'.-'</span>);axis <span class="string">tight</span>;grid <span class="string">on</span>;zoom <span class="string">xon</span>;
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        plot(f,amps,<span class="string">'.-'</span>);axis <span class="string">tight</span>;grid <span class="string">on</span>;zoom <span class="string">xon</span>;
+<span class="keyword">end</span>
+<span class="keyword">if</span> ~isempty(n.tick)
+    set(gca,<span class="string">'xtick'</span>,n.tick);
+<span class="keyword">end</span>
+title(sprintf(<span class="string">'Averaged amplitudes of oscillators in network %d'</span>,id));
+xlabel(<span class="string">'Oscillator natural frequency (Hz)'</span>);
+ylabel(<span class="string">'Average amplitude'</span>);
+grid <span class="string">on</span>
+drawnow;
+</pre><h2>Network mean-field FFT plot<a name="9"></a></h2><pre class="codeinput"><span class="keyword">function</span> simpleSpec(M,id,handle)
+</pre><pre class="codeinput">freqLim = max(M.n{id}.f)*2;
+Z = real(mean(M.n{id}.Z));
+fs = M.fs/M.n{id}.sStep;
+NFFT = 16384;
+freqs = fs/2*linspace(0,1,NFFT/2);
+ind = floor(length(freqs)*freqLim/(fs/2));
+<span class="comment">% ind = length(freqs)-1';</span>
+Zfreq = magSpec(Z,NFFT);
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+plot(freqs(1:ind),Zfreq(1:ind));axis <span class="string">tight</span>;grid <span class="string">on</span>;zoom <span class="string">xon</span>;
+title(sprintf(<span class="string">'Fourier transform of mean field of network %d'</span>,id));
+xlabel(<span class="string">'Frequency (Hz)'</span>);
+ylabel(<span class="string">'Amplitude (dB)'</span>);
+grid <span class="string">on</span>
+drawnow;
+</pre><h2>Image of oscillator amplitudes over time<a name="12"></a></h2><pre class="codeinput"><span class="keyword">function</span> allAmps(M,id,handle)
+</pre><pre class="codeinput">n = M.n{id};
+t = n.t;
+Z = abs(n.Z);
+f = getLim(n);
+<span class="comment">% ticks = tickMake(f,8);</span>
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+imagesc(t,f,Z);
+cbar = colorbar;set(get(cbar,<span class="string">'ylabel'</span>),<span class="string">'string'</span>,<span class="string">'Amplitude'</span>);
+<span class="keyword">switch</span> n.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(n.tick)
+            set(gca,<span class="string">'ydir'</span>,<span class="string">'normal'</span>,<span class="string">'yscale'</span>,<span class="string">'log'</span>,<span class="string">'ytick'</span>,n.tick);
+        <span class="keyword">else</span>
+            set(gca,<span class="string">'ydir'</span>,<span class="string">'normal'</span>,<span class="string">'yscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(n.tick)
+            set(gca,<span class="string">'ydir'</span>,<span class="string">'normal'</span>,<span class="string">'ytick'</span>,n.tick);
+        <span class="keyword">else</span>
+            set(gca,<span class="string">'ydir'</span>,<span class="string">'normal'</span>);
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+title(sprintf(<span class="string">'Amplitudes of oscillators over time in network %d'</span>,id));
+xlabel(<span class="string">'Time (sec)'</span>);
+ylabel(<span class="string">'Oscillator natural frequency (Hz)'</span>);
+grid <span class="string">on</span>
+drawnow;
+</pre><h2>Network mean-field spectrogram<a name="15"></a></h2><pre class="codeinput"><span class="keyword">function</span> spectrogramMeanField(M,id,handle)
+</pre><pre class="codeinput">Z = real(mean(M.n{id}.Z));
+fs = M.fs/M.n{id}.sStep;
+NFFT = 16384;
+freqLim = max(M.n{id}.f)*2;
+percentages = [0 100*freqLim/(fs/2)];
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+mdlSpec(Z,NFFT,fs,percentages);
+title(sprintf(<span class="string">'Spectrogram for mean field of network %d'</span>,id));
+grid <span class="string">on</span>
+</pre><h2>Network mean-field autocorrelogram<a name="18"></a></h2><pre class="codeinput"><span class="keyword">function</span> autocorrelogramMeanField(M,id,handle)
+</pre><pre class="codeinput">Z = real(mean(M.n{id}.Z));
+fs = M.fs/M.n{id}.sStep;
+NFFT = 16384;
+freqLim = max(M.n{id}.f)*2;
+percentages = [0 100*freqLim/(fs/2)];
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+myAutocorr(Z,NFFT,fs,percentages);
+title(sprintf(<span class="string">'Autocorrelogram for mean field of network %d'</span>,id));
+grid <span class="string">on</span>
+</pre><h2>Network FFT of all oscillators<a name="21"></a></h2><pre class="codeinput"><span class="keyword">function</span> allFFT(M,id,handle)
+</pre><pre class="codeinput">n = M.n{id};
+Z = real(n.Z)';
+NFFT = 16384;
+freqLim = max(n.f)*2;
+fs = M.fs/n.sStep;
+freqs = fs/2*linspace(0,1,NFFT/2);
+ind = floor(length(freqs)*freqLim/(fs/2));
+<span class="comment">% ticks = tickMake(f,8);</span>
+Zfreq = magSpec(Z,NFFT);
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+f = getLim(n);
+imagesc(f,freqs(1:ind),Zfreq(1:ind,:));
+cbar = colorbar;set(get(cbar,<span class="string">'ylabel'</span>),<span class="string">'string'</span>,<span class="string">'Amplitude (dB)'</span>);
+<span class="keyword">switch</span> n.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(n.tick)
+            set(gca,<span class="string">'ydir'</span>,<span class="string">'normal'</span>,<span class="string">'xscale'</span>,<span class="string">'log'</span>,<span class="string">'xtick'</span>,n.tick);
+        <span class="keyword">else</span>
+            set(gca,<span class="string">'ydir'</span>,<span class="string">'normal'</span>,<span class="string">'xscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(n.tick)
+            set(gca,<span class="string">'ydir'</span>,<span class="string">'normal'</span>,<span class="string">'xtick'</span>,n.tick);
+        <span class="keyword">else</span>
+            set(gca,<span class="string">'ydir'</span>,<span class="string">'normal'</span>);
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+title(sprintf(<span class="string">'Fourier transform of every oscillator in network %d'</span>,id));
+xlabel(<span class="string">'Oscillator natural frequency (Hz)'</span>);
+ylabel(<span class="string">'Frequency (Hz)'</span>);
+grid <span class="string">on</span>
+drawnow;
+</pre><h2>Image of amplitudes of connectivity matrix<a name="24"></a></h2><pre class="codeinput"><span class="keyword">function</span> connectionAmpsAll(M,netTo,conid,handle)
+</pre><pre class="codeinput">nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+fTo = getLim(nTo);
+is3freq = strcmpi(con.type(1:5), <span class="string">'3freq'</span>);
+<span class="keyword">if</span> is3freq
+    fFrom = [1 size(con.NUM1, 2)];
+<span class="keyword">else</span>
+    fFrom = getLim(nFrom);
+<span class="keyword">end</span>
+C = abs(con.C);
+<span class="comment">% ticks = tickMake(f,8);</span>
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+imagesc(fFrom,fTo,C);
+cbar = colorbar;set(get(cbar,<span class="string">'ylabel'</span>),<span class="string">'string'</span>,<span class="string">'Amplitude'</span>);
+<span class="keyword">switch</span> nFrom.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>,<span class="string">'xtick'</span>,nFrom.tick);
+        <span class="keyword">elseif</span> ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xtick'</span>,nFrom.tick)
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">switch</span> nTo.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(nTo.tick)
+            set(gca,<span class="string">'yscale'</span>,<span class="string">'log'</span>,<span class="string">'ytick'</span>,nTo.tick);
+        <span class="keyword">else</span>
+            set(gca,<span class="string">'yscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(nTo.tick)
+            set(gca,<span class="string">'ytick'</span>,nTo.tick)
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> isfield(con,<span class="string">'titleA'</span>) &amp;&amp; ischar(con.titleA)
+    title(con.titleA)
+<span class="keyword">else</span>
+    title(sprintf(<span class="string">'Amplitudes of connection matrix %d to network %d'</span>,conid,netTo));
+<span class="keyword">end</span>
+<span class="keyword">if</span> is3freq
+    xlabel(sprintf(<span class="string">'Oscillator pair: Network %d'</span>,nFrom.id))
+<span class="keyword">else</span>
+    xlabel(sprintf(<span class="string">'Oscillator natural frequency (Hz): Network %d'</span>,nFrom.id));
+<span class="keyword">end</span>
+ylabel(sprintf(<span class="string">'Oscillator natural frequency (Hz): Network %d'</span>,netTo));
+grid <span class="string">on</span>
+drawnow;
+</pre><h2>Image of phases of connectivity matrix<a name="27"></a></h2><pre class="codeinput"><span class="keyword">function</span> connectionPhasesAll(M,netTo,conid,handle)
+</pre><pre class="codeinput">nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+fTo = getLim(nTo);
+is3freq = strcmpi(con.type(1:5), <span class="string">'3freq'</span>);
+<span class="keyword">if</span> is3freq
+    fFrom = [1 size(con.NUM1, 2)];
+<span class="keyword">else</span>
+    fFrom = getLim(nFrom);
+<span class="keyword">end</span>
+C = angle(con.C);
+<span class="comment">% ticks = tickMake(f,8);</span>
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+imagesc(fFrom,fTo,C);
+load(<span class="string">'MyColormaps'</span>, <span class="string">'IF_colormap'</span>);
+circular = IF_colormap;
+cbar = colorbar;set(get(cbar,<span class="string">'ylabel'</span>),<span class="string">'string'</span>,<span class="string">'Phase'</span>);
+colormap(gca,circular);
+<span class="keyword">switch</span> nFrom.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>,<span class="string">'xtick'</span>,nFrom.tick);
+        <span class="keyword">elseif</span> ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xtick'</span>,nFrom.tick)
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">switch</span> nTo.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(nTo.tick)
+            set(gca,<span class="string">'yscale'</span>,<span class="string">'log'</span>,<span class="string">'ytick'</span>,nTo.tick);
+        <span class="keyword">else</span>
+            set(gca,<span class="string">'yscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(nTo.tick)
+            set(gca,<span class="string">'ytick'</span>,nTo.tick)
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> isfield(con,<span class="string">'titleP'</span>) &amp;&amp; ischar(con.titleP)
+    title(con.titleP)
+<span class="keyword">else</span>
+    title(sprintf(<span class="string">'Phases of connection matrix %d to network %d'</span>,conid,netTo));
+<span class="keyword">end</span>
+<span class="keyword">if</span> is3freq
+    xlabel(sprintf(<span class="string">'Oscillator pair: Network %d'</span>,nFrom.id))
+<span class="keyword">else</span>
+    xlabel(sprintf(<span class="string">'Oscillator natural frequency (Hz): Network %d'</span>,nFrom.id));
+<span class="keyword">end</span>
+ylabel(sprintf(<span class="string">'Oscillator natural frequency (Hz): Network %d'</span>,netTo));
+grid <span class="string">on</span>
+drawnow;
+</pre><h2>Image of real portion of connectivity matrix<a name="30"></a></h2><pre class="codeinput"><span class="keyword">function</span> connectionRealAll(M,netTo,conid,handle)
+</pre><pre class="codeinput">nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+fTo = getLim(nTo);
+is3freq = strcmpi(con.type(1:5), <span class="string">'3freq'</span>);
+<span class="keyword">if</span> is3freq
+    fFrom = [1 size(con.NUM1, 2)];
+<span class="keyword">else</span>
+    fFrom = getLim(nFrom);
+<span class="keyword">end</span>
+C = real(con.C);
+<span class="comment">% ticks = tickMake(f,8);</span>
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+imagesc(fFrom,fTo,C);
+cbar = colorbar;set(get(cbar,<span class="string">'ylabel'</span>),<span class="string">'string'</span>,<span class="string">'Real part'</span>);
+<span class="keyword">switch</span> nFrom.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>,<span class="string">'xtick'</span>,nFrom.tick);
+        <span class="keyword">elseif</span> ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xtick'</span>,nFrom.tick)
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">switch</span> nTo.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(nTo.tick)
+            set(gca,<span class="string">'yscale'</span>,<span class="string">'log'</span>,<span class="string">'ytick'</span>,nTo.tick);
+        <span class="keyword">else</span>
+            set(gca,<span class="string">'yscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(nTo.tick)
+            set(gca,<span class="string">'ytick'</span>,nTo.tick)
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+title(sprintf(<span class="string">'Real part of connection matrix %d to network %d'</span>,conid,netTo));
+<span class="keyword">if</span> is3freq
+    xlabel(sprintf(<span class="string">'Oscillator pair: Network %d'</span>,nFrom.id))
+<span class="keyword">else</span>
+    xlabel(sprintf(<span class="string">'Oscillator natural frequency (Hz): Network %d'</span>,nFrom.id));
+<span class="keyword">end</span>
+ylabel(sprintf(<span class="string">'Oscillator natural frequency (Hz): Network %d'</span>,netTo));
+grid <span class="string">on</span>
+drawnow;
+</pre><h2>Image of imaginary portion of connectivity matrix<a name="33"></a></h2><pre class="codeinput"><span class="keyword">function</span> connectionImagAll(M,netTo,conid,handle)
+</pre><pre class="codeinput">nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+fTo = getLim(nTo);
+is3freq = strcmpi(con.type(1:5), <span class="string">'3freq'</span>);
+<span class="keyword">if</span> is3freq
+    fFrom = [1 size(con.NUM1, 2)];
+<span class="keyword">else</span>
+    fFrom = getLim(nFrom);
+<span class="keyword">end</span>
+C = imag(con.C);
+<span class="comment">% ticks = tickMake(f,8);</span>
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+imagesc(fFrom,fTo,C);
+cbar = colorbar;set(get(cbar,<span class="string">'ylabel'</span>),<span class="string">'string'</span>,<span class="string">'Imaginary part'</span>);
+<span class="keyword">switch</span> nFrom.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>,<span class="string">'xtick'</span>,nFrom.tick);
+        <span class="keyword">elseif</span> ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xtick'</span>,nFrom.tick)
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">switch</span> nTo.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(nTo.tick)
+            set(gca,<span class="string">'yscale'</span>,<span class="string">'log'</span>,<span class="string">'ytick'</span>,nTo.tick);
+        <span class="keyword">else</span>
+            set(gca,<span class="string">'yscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(nTo.tick)
+            set(gca,<span class="string">'ytick'</span>,nTo.tick)
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+title(sprintf(<span class="string">'Imaginary part of connection matrix %d to network %d'</span>,conid,netTo));
+<span class="keyword">if</span> is3freq
+    xlabel(sprintf(<span class="string">'Oscillator pair: Network %d'</span>,nFrom.id))
+<span class="keyword">else</span>
+    xlabel(sprintf(<span class="string">'Oscillator natural frequency (Hz): Network %d'</span>,nFrom.id));
+<span class="keyword">end</span>
+ylabel(sprintf(<span class="string">'Oscillator natural frequency (Hz): Network %d'</span>,netTo));
+grid <span class="string">on</span>
+drawnow;
+</pre><h2>Connection amplitudes of middle row of connectivity matrix<a name="36"></a></h2><pre class="codeinput"><span class="keyword">function</span> connectionAmps(M,netTo,conid,handle)
+</pre><pre class="codeinput">nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+is3freq = strcmpi(con.type(1:5), <span class="string">'3freq'</span>);
+<span class="keyword">if</span> is3freq
+    f = 1:size(con.NUM1, 2);
+<span class="keyword">else</span>
+    f = nFrom.f;
+<span class="keyword">end</span>
+ind = ceil(nTo.N/2);
+<span class="comment">% ticks = tickMake(f,8);</span>
+amps = abs(con.C(ind,:));
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+plot(f,amps,<span class="string">'.-'</span>);axis <span class="string">tight</span>;grid <span class="string">on</span>;zoom <span class="string">xon</span>;
+<span class="keyword">switch</span> nFrom.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>,<span class="string">'xtick'</span>,nFrom.tick);
+        <span class="keyword">elseif</span> ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xtick'</span>,nFrom.tick);
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+title(sprintf(<span class="string">'Amplitudes of connections to middle oscillator of network %d in matrix %d'</span>,netTo,conid));
+<span class="keyword">if</span> is3freq
+    xlabel(sprintf(<span class="string">'Oscillator pair: Network %d'</span>,nFrom.id))
+<span class="keyword">else</span>
+    xlabel(sprintf(<span class="string">'Oscillator natural frequency (Hz): Network %d'</span>,nFrom.id));
+<span class="keyword">end</span>
+ylabel(<span class="string">'Amplitude'</span>);
+grid <span class="string">on</span>
+drawnow;
+</pre><h2>Connection phases of middle row of connectivity matrix<a name="39"></a></h2><pre class="codeinput"><span class="keyword">function</span> connectionPhases(M,netTo,conid,handle)
+</pre><pre class="codeinput">nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+is3freq = strcmpi(con.type(1:5), <span class="string">'3freq'</span>);
+<span class="keyword">if</span> is3freq
+    f = 1:size(con.NUM1, 2);
+<span class="keyword">else</span>
+    f = nFrom.f;
+<span class="keyword">end</span>
+ind = ceil(nTo.N/2);
+<span class="comment">% ticks = tickMake(f,8);</span>
+phases = angle(con.C(ind,:));
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+plot(f,phases,<span class="string">'.-'</span>);axis <span class="string">tight</span>;grid <span class="string">on</span>;zoom <span class="string">xon</span>;
+<span class="keyword">switch</span> nFrom.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>,<span class="string">'xtick'</span>,nFrom.tick);
+        <span class="keyword">elseif</span> ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xtick'</span>,nFrom.tick);
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+title(sprintf(<span class="string">'Phases of connections to middle oscillator of network %d in matrix %d'</span>,netTo,conid));
+<span class="keyword">if</span> is3freq
+    xlabel(sprintf(<span class="string">'Oscillator pair: Network %d'</span>,nFrom.id))
+<span class="keyword">else</span>
+    xlabel(sprintf(<span class="string">'Oscillator natural frequency (Hz): Network %d'</span>,nFrom.id));
+<span class="keyword">end</span>
+ylabel(<span class="string">'Phase'</span>);
+grid <span class="string">on</span>
+drawnow;
+</pre><h2>Real values of middle row of connectivity matrix<a name="42"></a></h2><pre class="codeinput"><span class="keyword">function</span> connectionReal(M,netTo,conid,handle)
+</pre><pre class="codeinput">nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+is3freq = strcmpi(con.type(1:5), <span class="string">'3freq'</span>);
+<span class="keyword">if</span> is3freq
+    f = 1:size(con.NUM1, 2);
+<span class="keyword">else</span>
+    f = nFrom.f;
+<span class="keyword">end</span>
+ind = ceil(nTo.N/2);
+<span class="comment">% ticks = tickMake(f,8);</span>
+realPart = real(con.C(ind,:));
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+plot(f,realPart,<span class="string">'.-'</span>);axis <span class="string">tight</span>;grid <span class="string">on</span>;zoom <span class="string">xon</span>;
+<span class="keyword">switch</span> nFrom.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>,<span class="string">'xtick'</span>,nFrom.tick);
+        <span class="keyword">elseif</span> ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xtick'</span>,nFrom.tick);
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+title(sprintf(<span class="string">'Real part of connections to middle oscillator of network %d in matrix %d'</span>,netTo,conid));
+<span class="keyword">if</span> is3freq
+    xlabel(sprintf(<span class="string">'Oscillator pair: Network %d'</span>,nFrom.id))
+<span class="keyword">else</span>
+    xlabel(sprintf(<span class="string">'Oscillator natural frequency (Hz): Network %d'</span>,nFrom.id));
+<span class="keyword">end</span>
+ylabel(<span class="string">'Real part'</span>);
+grid <span class="string">on</span>
+drawnow;
+</pre><h2>Imaginary values of middle row of connectivity matrix<a name="45"></a></h2><pre class="codeinput"><span class="keyword">function</span> connectionImag(M,netTo,conid,handle)
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+is3freq = strcmpi(con.type(1:5), <span class="string">'3freq'</span>);
+<span class="keyword">if</span> is3freq
+    f = 1:size(con.NUM1, 2);
+<span class="keyword">else</span>
+    f = nFrom.f;
+<span class="keyword">end</span>
+ind = ceil(nTo.N/2);
+<span class="comment">% ticks = tickMake(f,8);</span>
+imagPart = imag(con.C(ind,:));
+<span class="keyword">if</span> isempty(handle)
+    figure;
+<span class="keyword">else</span>
+    axes(handle);
+<span class="keyword">end</span>
+plot(f,imagPart,<span class="string">'.-'</span>);axis <span class="string">tight</span>;grid <span class="string">on</span>;zoom <span class="string">xon</span>;
+<span class="keyword">switch</span> nFrom.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>,<span class="string">'xtick'</span>,nFrom.tick);
+        <span class="keyword">elseif</span> ~is3freq
+            set(gca,<span class="string">'xscale'</span>,<span class="string">'log'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        <span class="keyword">if</span> ~isempty(nFrom.tick) &amp;&amp; ~is3freq
+            set(gca,<span class="string">'xtick'</span>,nFrom.tick);
+        <span class="keyword">end</span>
+<span class="keyword">end</span>
+title(sprintf(<span class="string">'Imaginary part of connections to middle oscillator of network %d in matrix %d'</span>,netTo,conid));
+<span class="keyword">if</span> is3freq
+    xlabel(sprintf(<span class="string">'Oscillator pair: Network %d'</span>,nFrom.id))
+<span class="keyword">else</span>
+    xlabel(sprintf(<span class="string">'Oscillator natural frequency (Hz): Network %d'</span>,nFrom.id));
+<span class="keyword">end</span>
+ylabel(<span class="string">'Imaginary part'</span>);
+grid <span class="string">on</span>
+drawnow;
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% outputDisplay
+%  General function for displaying network and/or connection outputs after running a simulation, given a model variable
+% 
+%  The first input must be the model structure
+%  Each subsequent group of inputs specifies a particular display or group of displays
+% 
+%  For network display(s):
+%   First input 'net', 
+% 	then the unique network id assigned in the model structure to the desired network,
+% 	then one or more display types, each specified as a string.
+% 		'mean'   - Plot of mean field time-domain waveform of the network
+% 		'amp'    - Plot of averaged amplitudes of each oscillator in the network 
+% 		'fft'    - Plot of mean-field log spectrum of the network 
+% 		'ampx'   - Image of amplitudes (in color) of all oscillators (Y-axis) over time (X-axis)
+% 		'spec'   - Spectrogram of mean-field of network 
+% 		'auto'   - Autocorrelogram of mean-field of network 
+% 		'oscfft' - Log spectrum (in color) of each oscillator (X-axis), with frequency on Y-axis
+% 
+%  For connection display(s):
+% 	First input 'con',
+% 	then the unique network id assigned in the model structure to the desired network,
+% 	then the unique connection id assigned in the network structure for the desired input connectivity,
+% 	then one or more display types of the final connectivity, each specified as a string.
+% 		'ampall'   - Image of the amplitudes of the connectivity matrix
+% 		'phaseall' - Image of the phases of the connectivity matrix
+% 		'realall'  - Image of the real portion of the connectivity matrix
+% 		'imagall'  - Image of the imaginary portion of the connectivity matrix
+% 		'amp'      - Plot of the amplitudes of the middle row of the connectivity matrix
+% 		'phase'    - Plot of the phases of the middle row of the connectivity matrix
+% 		'real'     - Plot of the real portion of the middle row of the connectivity matrix
+% 		'imag'     - Plot of the imaginary portion of the middle row of the connectivity matrix
+% 
+%  A figure is automatically generated for each individual plot specified. If a specific axes handle should
+%  be used instead of a novel figure, that handle can be an input directly before the display type string.
+% 
+%  Example calls:
+% 
+%   outputDisplay(M,'net',3,'oscfft','fft')
+%   outputDisplay(M,'net',2,'ampx','net',1,'amp','net',3,'spec','auto')
+%   outputDisplay(M,'net',2,'con',2,1,'con',3,1,'phaseall')
+% 
+%  And if hand1 and hand2 are axes handles,
+%  outputDisplay(M,'net',2,'con',2,1,'net',3,hand1,'fft',hand2,'ampx','con',3,1,'phaseall')
+% 
+%  The following code generates a 2-by-2 subplot, assuming there were at least 2 networks in the simulation:
+% 
+%   figure
+%   set(gcf,'position',[50 50 800 600])
+%   subplot(2,2,1)
+%   hand1=gca;
+%   subplot(2,2,2)
+%   hand2=gca;
+%   subplot(2,2,3)
+%   hand3=gca;
+%   subplot(2,2,4)
+%   hand4=gca;
+%   outputDisplay(M,'net',1,hand1,'fft',hand3,'spec','net',2,hand2,'fft',hand4,'spec')
+
+%%
+function outputDisplay(M,varargin)
+%% Parse input
+for i=1:length(varargin)
+    if ischar(varargin{i}) && strcmpi(varargin{i},'net') && length(varargin) > i
+        id = varargin{i+1};
+        displays = {};
+        handles = {};
+        if length(varargin) > i + 1 && (ischar(varargin{i+2}) || ishghandle(varargin{i+2})) && ~strcmpi(varargin{i+2},'net') && ~strcmpi(varargin{i+2},'con')
+            temp = varargin{i+2};
+            count = i + 2;
+            plotNum = 1;
+            while ~isempty(temp) && ~strcmpi(temp,'net') && ~strcmpi(temp,'con')
+                if ishghandle(temp)
+                    handles{plotNum} = temp;
+                    if length(varargin) > count
+                        temp = varargin{count+1};
+                    else
+                        temp = [];
+                    end
+                else
+                    displays{plotNum} = temp;
+                    if length(handles) < length(displays)
+                        handles{plotNum} = [];
+                    end
+                    if length(varargin) > count
+                        temp = varargin{count+1};
+                        plotNum = plotNum + 1;
+                    else
+                        temp = [];
+                    end
+                end
+                count = count + 1;
+            end
+        else
+            handles={[]};
+            displays = {'amp'};
+        end
+        if length(handles) == 1 && isempty(displays)
+            displays = {'amp'};
+        end
+        
+        
+        for j = 1:length(displays)
+            if strcmpi(displays{j},'mean')
+                meanTime(M,id,handles{j});
+            elseif strcmpi(displays{j},'amp')
+                averagedAmps(M,id,handles{j});
+            elseif strcmpi(displays{j},'fft')
+                simpleSpec(M,id,handles{j});
+            elseif strcmpi(displays{j},'ampx')
+                allAmps(M,id,handles{j});
+            elseif strcmpi(displays{j},'spec')
+                spectrogramMeanField(M,id,handles{j});
+            elseif strcmpi(displays{j},'auto')
+                autocorrelogramMeanField(M,id,handles{j});
+            elseif strcmpi(displays{j},'oscfft')
+                allFFT(M,id,handles{j});
+            else
+                message = ['Not a valid network display: ' displays{j}];
+                error(message);
+            end
+        end
+    end
+    
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i},'con') && length(varargin) > i + 1
+        netid = varargin{i+1};
+        conid = varargin{i+2};
+        displays = {};
+        handles = {};
+        if length(varargin) > i + 2 && (ischar(varargin{i+3}) || ishghandle(varargin{i+3})) && ~strcmpi(varargin{i+3},'net') && ~strcmpi(varargin{i+3},'con')
+            temp = varargin{i+3};
+            count = i + 3;
+            plotNum = 1;
+            while ~isempty(temp) && ~strcmpi(temp,'net') && ~strcmpi(temp,'con')
+                if ishghandle(temp)
+                    handles{plotNum} = temp;
+                    if length(varargin) > count
+                        temp = varargin{count+1};
+                    else
+                        temp = [];
+                    end
+                else
+                    displays{plotNum} = temp;
+                    if length(handles) < length(displays)
+                        handles{plotNum} = [];
+                    end
+                    if length(varargin) > count
+                        temp = varargin{count+1};
+                        plotNum = plotNum + 1;
+                    else
+                        temp = [];
+                    end
+                end
+                count = count + 1;
+            end
+        else
+            handles={[]};
+            displays = {'ampall'};
+        end
+        if length(handles) == 1 && isempty(displays)
+            displays = {'ampall'};
+        end
+        for j = 1:length(displays)
+            if strcmpi(displays{j},'ampall')
+                connectionAmpsAll(M,netid,conid,handles{j});
+            elseif strcmpi(displays{j},'phaseall')
+                connectionPhasesAll(M,netid,conid,handles{j});
+            elseif strcmpi(displays{j},'realall')
+                connectionRealAll(M,netid,conid,handles{j});
+            elseif strcmpi(displays{j},'imagall')
+                connectionImagAll(M,netid,conid,handles{j});
+            elseif strcmpi(displays{j},'amp')
+                connectionAmps(M,netid,conid,handles{j});
+            elseif strcmpi(displays{j},'phase')
+                connectionPhases(M,netid,conid,handles{j});
+            elseif strcmpi(displays{j},'real')
+                connectionReal(M,netid,conid,handles{j});
+            elseif strcmpi(displays{j},'imag')
+                connectionImag(M,netid,conid,handles{j});
+            else
+                message = ['Not a valid connection display: ' displays{j}];
+                error(message);
+            end
+        end
+    end
+end
+
+%% Network mean field time domain plot
+function meanTime(M,id,handle)
+n = M.n{id};
+t = n.t;
+Z = real(mean(n.Z));
+% ticks = tickMake(f,8);
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+plot(t,Z);axis tight;grid on;zoom xon;
+title(sprintf('Mean field time-domain waveform of network %d',id));
+xlabel('Time (sec)');
+ylabel('Amplitude');
+grid on
+drawnow;
+
+%% Network averaged amplitudes plot
+function averagedAmps(M,id,handle)
+n = M.n{id};
+f = n.f;
+amps = mean(abs(n.Z),2);
+% ticks = tickMake(f,8);
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+switch n.fspac
+    case 'log'
+        semilogx(f,amps,'.-');axis tight;grid on;zoom xon;
+    case 'lin'
+        plot(f,amps,'.-');axis tight;grid on;zoom xon;
+end
+if ~isempty(n.tick)
+    set(gca,'xtick',n.tick);
+end
+title(sprintf('Averaged amplitudes of oscillators in network %d',id));
+xlabel('Oscillator natural frequency (Hz)');
+ylabel('Average amplitude');
+grid on
+drawnow;
+
+%% Network mean-field FFT plot
+function simpleSpec(M,id,handle)
+freqLim = max(M.n{id}.f)*2;
+Z = real(mean(M.n{id}.Z));
+fs = M.fs/M.n{id}.sStep;
+NFFT = 16384;
+freqs = fs/2*linspace(0,1,NFFT/2);
+ind = floor(length(freqs)*freqLim/(fs/2));
+% ind = length(freqs)-1';
+Zfreq = magSpec(Z,NFFT);
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+plot(freqs(1:ind),Zfreq(1:ind));axis tight;grid on;zoom xon;
+title(sprintf('Fourier transform of mean field of network %d',id));
+xlabel('Frequency (Hz)');
+ylabel('Amplitude (dB)');
+grid on
+drawnow;
+
+%% Image of oscillator amplitudes over time
+function allAmps(M,id,handle)
+n = M.n{id};
+t = n.t;
+Z = abs(n.Z);
+f = getLim(n);
+% ticks = tickMake(f,8);
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+imagesc(t,f,Z);
+cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude');
+switch n.fspac
+    case 'log'
+        if ~isempty(n.tick)
+            set(gca,'ydir','normal','yscale','log','ytick',n.tick);
+        else
+            set(gca,'ydir','normal','yscale','log');
+        end
+    case 'lin'
+        if ~isempty(n.tick)
+            set(gca,'ydir','normal','ytick',n.tick);
+        else
+            set(gca,'ydir','normal');
+        end
+end
+title(sprintf('Amplitudes of oscillators over time in network %d',id));
+xlabel('Time (sec)');
+ylabel('Oscillator natural frequency (Hz)');
+grid on
+drawnow;
+
+%% Network mean-field spectrogram
+function spectrogramMeanField(M,id,handle)
+Z = real(mean(M.n{id}.Z));
+fs = M.fs/M.n{id}.sStep;
+NFFT = 16384;
+freqLim = max(M.n{id}.f)*2;
+percentages = [0 100*freqLim/(fs/2)];
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+mdlSpec(Z,NFFT,fs,percentages);
+title(sprintf('Spectrogram for mean field of network %d',id));
+grid on
+
+%% Network mean-field autocorrelogram
+function autocorrelogramMeanField(M,id,handle)
+Z = real(mean(M.n{id}.Z));
+fs = M.fs/M.n{id}.sStep;
+NFFT = 16384;
+freqLim = max(M.n{id}.f)*2;
+percentages = [0 100*freqLim/(fs/2)];
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+myAutocorr(Z,NFFT,fs,percentages);
+title(sprintf('Autocorrelogram for mean field of network %d',id));
+grid on
+
+%% Network FFT of all oscillators
+function allFFT(M,id,handle)
+n = M.n{id};
+Z = real(n.Z)';
+NFFT = 16384;
+freqLim = max(n.f)*2;
+fs = M.fs/n.sStep;
+freqs = fs/2*linspace(0,1,NFFT/2);
+ind = floor(length(freqs)*freqLim/(fs/2));
+% ticks = tickMake(f,8);
+Zfreq = magSpec(Z,NFFT);
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+f = getLim(n);
+imagesc(f,freqs(1:ind),Zfreq(1:ind,:));
+cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude (dB)');
+switch n.fspac
+    case 'log'
+        if ~isempty(n.tick)
+            set(gca,'ydir','normal','xscale','log','xtick',n.tick);
+        else
+            set(gca,'ydir','normal','xscale','log');
+        end
+    case 'lin'
+        if ~isempty(n.tick)
+            set(gca,'ydir','normal','xtick',n.tick);
+        else
+            set(gca,'ydir','normal');
+        end
+end
+title(sprintf('Fourier transform of every oscillator in network %d',id));
+xlabel('Oscillator natural frequency (Hz)');
+ylabel('Frequency (Hz)');
+grid on
+drawnow;
+
+%% Image of amplitudes of connectivity matrix
+function connectionAmpsAll(M,netTo,conid,handle)
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+fTo = getLim(nTo);
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    fFrom = [1 size(con.NUM1, 2)];
+else
+    fFrom = getLim(nFrom);
+end
+C = abs(con.C);
+% ticks = tickMake(f,8);
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+imagesc(fFrom,fTo,C);
+cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude');
+switch nFrom.fspac
+    case 'log'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xscale','log','xtick',nFrom.tick);            
+        elseif ~is3freq
+            set(gca,'xscale','log');
+        end
+    case 'lin'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xtick',nFrom.tick)
+        end
+end
+switch nTo.fspac
+    case 'log'
+        if ~isempty(nTo.tick)
+            set(gca,'yscale','log','ytick',nTo.tick);            
+        else
+            set(gca,'yscale','log');
+        end
+    case 'lin'
+        if ~isempty(nTo.tick)
+            set(gca,'ytick',nTo.tick)
+        end
+end
+if isfield(con,'titleA') && ischar(con.titleA)
+    title(con.titleA)
+else
+    title(sprintf('Amplitudes of connection matrix %d to network %d',conid,netTo));
+end
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
+ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',netTo));
+grid on
+drawnow;
+
+%% Image of phases of connectivity matrix
+function connectionPhasesAll(M,netTo,conid,handle)
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+fTo = getLim(nTo);
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    fFrom = [1 size(con.NUM1, 2)];
+else
+    fFrom = getLim(nFrom);
+end
+C = angle(con.C);
+% ticks = tickMake(f,8);
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+imagesc(fFrom,fTo,C);
+load('MyColormaps', 'IF_colormap');
+circular = IF_colormap;
+cbar = colorbar;set(get(cbar,'ylabel'),'string','Phase');
+colormap(gca,circular);
+switch nFrom.fspac
+    case 'log'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xscale','log','xtick',nFrom.tick);            
+        elseif ~is3freq
+            set(gca,'xscale','log');
+        end
+    case 'lin'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xtick',nFrom.tick)
+        end
+end
+switch nTo.fspac
+    case 'log'
+        if ~isempty(nTo.tick)
+            set(gca,'yscale','log','ytick',nTo.tick);            
+        else
+            set(gca,'yscale','log');
+        end
+    case 'lin'
+        if ~isempty(nTo.tick)
+            set(gca,'ytick',nTo.tick)
+        end
+end
+if isfield(con,'titleP') && ischar(con.titleP)
+    title(con.titleP)
+else
+    title(sprintf('Phases of connection matrix %d to network %d',conid,netTo));
+end
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
+ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',netTo));
+grid on
+drawnow;
+
+%% Image of real portion of connectivity matrix
+function connectionRealAll(M,netTo,conid,handle)
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+fTo = getLim(nTo);
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    fFrom = [1 size(con.NUM1, 2)];
+else
+    fFrom = getLim(nFrom);
+end
+C = real(con.C);
+% ticks = tickMake(f,8);
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+imagesc(fFrom,fTo,C);
+cbar = colorbar;set(get(cbar,'ylabel'),'string','Real part');
+switch nFrom.fspac
+    case 'log'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xscale','log','xtick',nFrom.tick);            
+        elseif ~is3freq
+            set(gca,'xscale','log');
+        end
+    case 'lin'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xtick',nFrom.tick)
+        end
+end
+switch nTo.fspac
+    case 'log'
+        if ~isempty(nTo.tick)
+            set(gca,'yscale','log','ytick',nTo.tick);            
+        else
+            set(gca,'yscale','log');
+        end
+    case 'lin'
+        if ~isempty(nTo.tick)
+            set(gca,'ytick',nTo.tick)
+        end
+end
+title(sprintf('Real part of connection matrix %d to network %d',conid,netTo));
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
+ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',netTo));
+grid on
+drawnow;
+
+%% Image of imaginary portion of connectivity matrix
+function connectionImagAll(M,netTo,conid,handle)
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+fTo = getLim(nTo);
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    fFrom = [1 size(con.NUM1, 2)];
+else
+    fFrom = getLim(nFrom);
+end
+C = imag(con.C);
+% ticks = tickMake(f,8);
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+imagesc(fFrom,fTo,C);
+cbar = colorbar;set(get(cbar,'ylabel'),'string','Imaginary part');
+switch nFrom.fspac
+    case 'log'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xscale','log','xtick',nFrom.tick);            
+        elseif ~is3freq
+            set(gca,'xscale','log');
+        end
+    case 'lin'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xtick',nFrom.tick)
+        end
+end
+switch nTo.fspac
+    case 'log'
+        if ~isempty(nTo.tick)
+            set(gca,'yscale','log','ytick',nTo.tick);            
+        else
+            set(gca,'yscale','log');
+        end
+    case 'lin'
+        if ~isempty(nTo.tick)
+            set(gca,'ytick',nTo.tick)
+        end
+end
+title(sprintf('Imaginary part of connection matrix %d to network %d',conid,netTo));
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
+ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',netTo));
+grid on
+drawnow;
+
+%% Connection amplitudes of middle row of connectivity matrix
+function connectionAmps(M,netTo,conid,handle)
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    f = 1:size(con.NUM1, 2);
+else
+    f = nFrom.f;
+end
+ind = ceil(nTo.N/2);
+% ticks = tickMake(f,8);
+amps = abs(con.C(ind,:));
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+plot(f,amps,'.-');axis tight;grid on;zoom xon;
+switch nFrom.fspac
+    case 'log'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xscale','log','xtick',nFrom.tick);
+        elseif ~is3freq
+            set(gca,'xscale','log');
+        end
+    case 'lin'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xtick',nFrom.tick);
+        end
+end
+title(sprintf('Amplitudes of connections to middle oscillator of network %d in matrix %d',netTo,conid));
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
+ylabel('Amplitude');
+grid on
+drawnow;
+
+%% Connection phases of middle row of connectivity matrix
+function connectionPhases(M,netTo,conid,handle)
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    f = 1:size(con.NUM1, 2);
+else
+    f = nFrom.f;
+end
+ind = ceil(nTo.N/2);
+% ticks = tickMake(f,8);
+phases = angle(con.C(ind,:));
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+plot(f,phases,'.-');axis tight;grid on;zoom xon;
+switch nFrom.fspac
+    case 'log'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xscale','log','xtick',nFrom.tick);
+        elseif ~is3freq
+            set(gca,'xscale','log');
+        end
+    case 'lin'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xtick',nFrom.tick);
+        end
+end
+title(sprintf('Phases of connections to middle oscillator of network %d in matrix %d',netTo,conid));
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
+ylabel('Phase');
+grid on
+drawnow;
+
+%% Real values of middle row of connectivity matrix
+function connectionReal(M,netTo,conid,handle)
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    f = 1:size(con.NUM1, 2);
+else
+    f = nFrom.f;
+end
+ind = ceil(nTo.N/2);
+% ticks = tickMake(f,8);
+realPart = real(con.C(ind,:));
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+plot(f,realPart,'.-');axis tight;grid on;zoom xon;
+switch nFrom.fspac
+    case 'log'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xscale','log','xtick',nFrom.tick);
+        elseif ~is3freq
+            set(gca,'xscale','log');
+        end
+    case 'lin'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xtick',nFrom.tick);
+        end
+end
+title(sprintf('Real part of connections to middle oscillator of network %d in matrix %d',netTo,conid));
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
+ylabel('Real part');
+grid on
+drawnow;
+
+%% Imaginary values of middle row of connectivity matrix
+function connectionImag(M,netTo,conid,handle)
+nTo = M.n{netTo};
+con = nTo.con{conid};
+nFrom = M.n{con.source};
+is3freq = strcmpi(con.type(1:5), '3freq');
+if is3freq
+    f = 1:size(con.NUM1, 2);
+else
+    f = nFrom.f;
+end
+ind = ceil(nTo.N/2);
+% ticks = tickMake(f,8);
+imagPart = imag(con.C(ind,:));
+if isempty(handle)
+    figure;
+else
+    axes(handle);
+end
+plot(f,imagPart,'.-');axis tight;grid on;zoom xon;
+switch nFrom.fspac
+    case 'log'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xscale','log','xtick',nFrom.tick);
+        elseif ~is3freq
+            set(gca,'xscale','log');
+        end
+    case 'lin'
+        if ~isempty(nFrom.tick) && ~is3freq
+            set(gca,'xtick',nFrom.tick);
+        end
+end
+title(sprintf('Imaginary part of connections to middle oscillator of network %d in matrix %d',netTo,conid));
+if is3freq
+    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+else
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+end
+ylabel('Imaginary part');
+grid on
+drawnow;
+
+##### SOURCE END #####
+--></body></html>

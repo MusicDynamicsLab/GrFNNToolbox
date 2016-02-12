@@ -1,0 +1,189 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>stimulusRamp</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="stimulusRamp.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>stimulusRamp</h1><!--introduction--><pre>Ramps signal up from zero and down back to zero, acc. to linear or nonlinear scale
+If y is a matrix, stimulusRamp works along columns.
+So,
+x = stimulusRamp(signal, time in sec of ramps, exponent of scale (+), sampling rate of signal)</pre><pre>Examples:
+S = stimulusRamp(x, 0.05, 1, 44100);
+Ramps the start up and the end down of signal x over the course of 50 ms each, linearly.</pre><pre>S = stimulusRamp(x, 0.05, 4, 44100);
+Does the same thing except ramps are more sudden (by factor of 4) than linear. A number between
+0 and 1 here makes ramps less sudden. No negative values.</pre><!--/introduction--><pre class="codeinput"><span class="keyword">function</span> x = stimulusRamp(y, c, p, fs)
+
+
+<span class="keyword">if</span> nargin ~= 4
+    error(<span class="string">'stimulusRamp takes four arguments'</span>)
+<span class="keyword">elseif</span> isempty(y)
+    error(<span class="string">'Signal is empty'</span>)
+<span class="keyword">end</span>
+
+cutoff = round(fs*c);
+
+row = 0;
+maxSamp = cutoff;
+<span class="keyword">if</span> size(y,1) == 1 &amp;&amp; size(y,2) &gt; 1
+    row = 1;
+    y = y.';
+<span class="keyword">end</span>
+
+len = size(y,1);
+
+scfcn = ones(len,1);
+
+<span class="keyword">if</span> 2 * cutoff == len
+    warning(<span class="string">'Stimulus section length equal to summed ramp times'</span>)
+<span class="keyword">elseif</span> 2 * cutoff &gt; len &amp;&amp; len &gt; cutoff
+    warning(<span class="string">'Stimulus section length shorter than summed ramp times'</span>)
+    maxSamp = len / 2;
+<span class="keyword">elseif</span> len == cutoff
+    error(<span class="string">'Stimulus section length equal to ramp time'</span>)
+<span class="keyword">elseif</span> len &lt; cutoff
+    error(<span class="string">'Stimulus section length shorter than ramp time'</span>)
+<span class="keyword">end</span>
+
+
+<span class="keyword">for</span> i = 1:maxSamp
+    scfcn(i) = ((i-1)/cutoff)^p;
+    scfcn(len+1-i) = ((i-1)/cutoff)^p;
+<span class="keyword">end</span>
+
+scfcn = repmat(scfcn,1,size(y,2));
+
+<span class="keyword">if</span> row
+    x = y .* scfcn;
+    x = x.';
+<span class="keyword">else</span>
+    x = y .* scfcn;
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% stimulusRamp
+%  Ramps signal up from zero and down back to zero, acc. to linear or nonlinear scale
+%  If y is a matrix, stimulusRamp works along columns.
+%  So,
+%  x = stimulusRamp(signal, time in sec of ramps, exponent of scale (+), sampling rate of signal)
+%
+%  Examples:
+%  S = stimulusRamp(x, 0.05, 1, 44100);
+%  Ramps the start up and the end down of signal x over the course of 50 ms each, linearly.
+%
+%  S = stimulusRamp(x, 0.05, 4, 44100);
+%  Does the same thing except ramps are more sudden (by factor of 4) than linear. A number between
+%  0 and 1 here makes ramps less sudden. No negative values.
+
+%%
+function x = stimulusRamp(y, c, p, fs)
+
+
+if nargin ~= 4
+    error('stimulusRamp takes four arguments')
+elseif isempty(y)
+    error('Signal is empty')
+end
+
+cutoff = round(fs*c);
+
+row = 0;
+maxSamp = cutoff;
+if size(y,1) == 1 && size(y,2) > 1
+    row = 1;
+    y = y.';
+end
+
+len = size(y,1);
+
+scfcn = ones(len,1);
+
+if 2 * cutoff == len
+    warning('Stimulus section length equal to summed ramp times')
+elseif 2 * cutoff > len && len > cutoff
+    warning('Stimulus section length shorter than summed ramp times')
+    maxSamp = len / 2;
+elseif len == cutoff
+    error('Stimulus section length equal to ramp time')
+elseif len < cutoff
+    error('Stimulus section length shorter than ramp time')
+end
+
+
+for i = 1:maxSamp
+    scfcn(i) = ((i-1)/cutoff)^p;
+    scfcn(len+1-i) = ((i-1)/cutoff)^p;
+end
+
+scfcn = repmat(scfcn,1,size(y,2));
+
+if row
+    x = y .* scfcn;
+    x = x.';
+else
+    x = y .* scfcn;
+end
+
+##### SOURCE END #####
+--></body></html>

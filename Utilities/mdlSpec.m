@@ -1,6 +1,20 @@
-function struct = myFreqs(y,NFFT,fs,varargin)
+%% mdlSpec
+%  struct = mdlSpec(y,NFFT,fs,varargin)
+%
+%  Plotting function. Produces a spectrogram of signal vector y. Input 
+%  arguments for fft length NFFT and sampling frequency fs are required. 
+%  Optional inputs must come in order afterwards, including portion, N, and
+%  windowstep. portion is a two element vector of percentages indicating 
+%  the range of frequencies, from 0 Hz to the Nyquist, that should be 
+%  displayed. N is the length of each window in samples. windowStep is the 
+%  length by which to step to the next window, in samples. If an output 
+%  argument is specified, it will be a struct containing three things:
+%  struct.spec (spectrogram matrix), as well as struct.t (time vector) and 
+%  struct.f (frequency vector) for axis labels when plotting the matrix.
 
-if nargin<3,error('myFreqs needs at least 3 inputs: signal vector, fft size, and samp. freq.');end
+function struct = mdlSpec(y,NFFT,fs,varargin)
+
+if nargin<3,error('mdlSpec needs at least 3 inputs: signal vector, fft size, and samp. freq.');end
 if size(y,1)>1 && size(y,2)>1
     error('Signal must be only a vector');
 end
@@ -36,7 +50,7 @@ elseif length(varargin)==5 && strcmpi(varargin{5},'dbg')
     if strcmpi(varargin{4},'loop'), loop=1;end
     dbg=1;
 else
-    error('myFreqs only takes 6 inputs')
+    error('mdlSpec only takes 6 inputs')
 end
 if ~isreal(y)
     warning('Input signal is complex; only real portion taken')
@@ -51,26 +65,16 @@ f = fs/2*linspace(0,1,NFFT/2+1);
 % if mod(N,2),N=N+1;end
 n = 0:N-1;
 window = exp(-.5*((n-(N-1)/2)/(.4*(N-1)/2)).^2)';
-% window = gausswin(N)';
-% window = ones(N,1);
-% window = hamming(N)';
-% figure;plot(n,window);drawnow;
-
-% x = zeros(length(y)+2*N,1);
-% x(N:length(y)+N-1) = y;
 
 if loop
     
-    %     Tstep = floor((length(y)+N)/windowStep);
     Tstep = floor((length(y)-N)/windowStep);
     Sfft = zeros(length(f),Tstep);
     
     count = 1;
     
-    %     for i = 1:windowStep:length(y)+N
     for i = 1:windowStep:length(y)-N
         
-        %         Y = fft(window.*x(i:i+N-1),NFFT);
         Y = fft(window.*y(i:i+N-1),NFFT);
         Sfft(:,count) = Y(1:NFFT/2+1).';
         
@@ -79,14 +83,7 @@ if loop
     
 else
     
-    %     Sfft = fft(repmat(window,1,ceil((length(y)+N)/windowStep)).*...
-    %         buffer(x(N+1:end),N,N-windowStep),NFFT);if dbg, toc;end
-    
-    % disp(size(repmat(window,1,ceil((length(y)-N)/windowStep))));
-    % disp(size(buffer(y,N,N-windowStep,'nodelay')));
-    
-    [Y ~]=buffer(y,N,N-windowStep,'nodelay');
-%     Sfft = fft(repmat(window,1,size(Y,2)).*Y,NFFT);
+    [Y,~]=buffer(y,N,N-windowStep,'nodelay');
     Sfft = fft(bsxfun(@times,Y,window),NFFT);
     if dbg, toc;end
     
@@ -98,8 +95,6 @@ f1 = floor((portion(1)/100)*length(f))+1;
 f2 = floor((portion(2)/100)*length(f));
 fRange = [f(f1) f(f2)];
 
-% absSpec = 20*log10(abs(Sfft(i1:i2,:))+1);
-% angleSpec = angle(Sfft(i1:i2,:));
 if nargout==0
     if loop
         if portion(2)<100
@@ -107,7 +102,7 @@ if nargout==0
             i2 = floor((portion(2)/100)*size(Sfft,1));
             imagesc(t,fRange,20*log10(abs(Sfft(i1:i2,:))+1));
         else
-            imagesc(t,fRange,20*log10(abs(Sfft)+1));
+            imagesc(t,fRange,20*log10(abs(Sfft)));
         end
         xlabel('Time (sec)');ylabel('Frequency (Hz)');
         set(gca,'YDir','normal');
@@ -116,11 +111,8 @@ if nargout==0
     else
         i1 = floor((portion(1)/200)*size(Sfft,1)+1);
         i2 = floor((portion(2)/200)*size(Sfft,1));
-        %         imagesc(t,fRange,20*log10(abs(Sfft(i1:i2,:))));
-        temp=20*log10(abs(Sfft(i1:i2,:))+1);
-%         temp(temp<1)=1;
+        temp=20*log10(abs(Sfft(i1:i2,:)));
         imagesc(t,fRange,temp);
-        %         imagesc(t,fRange,angle(Sfft(i1:i2,:)));
         xlabel('Time (sec)');ylabel('Frequency (Hz)');
         set(gca,'YDir','normal');
         cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude (dB)');
@@ -131,11 +123,11 @@ else
         if portion(2)<100
             i1 = floor((portion(1)/100)*size(Sfft,1))+1;
             i2 = floor((portion(2)/100)*size(Sfft,1));
-            struct.spec = 20*log10(abs(Sfft(i1:i2,:))+1);
+            struct.spec = 20*log10(abs(Sfft(i1:i2,:)));
             struct.t = t;
             struct.f = linspace(fRange(1),fRange(2),size(struct.spec,1));
         else
-            struct.spec = 20*log10(abs(Sfft)+1);
+            struct.spec = 20*log10(abs(Sfft));
             struct.t = t;
             struct.f = linspace(fRange(1),fRange(2),size(struct.spec,1));
         end
@@ -143,7 +135,7 @@ else
     else
         i1 = floor((portion(1)/200)*size(Sfft,1))+1;
         i2 = floor((portion(2)/200)*size(Sfft,1));
-        struct.spec = 20*log10(abs(Sfft(i1:i2,:))+1);
+        struct.spec = 20*log10(abs(Sfft(i1:i2,:)));
         struct.t = t;
         struct.f = linspace(fRange(1),fRange(2),size(struct.spec,1));
         if dbg, toc; end;

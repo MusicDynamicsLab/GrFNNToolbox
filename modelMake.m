@@ -1,29 +1,41 @@
 %% modelMake
-%  Input dotfunc handle first, then optionally cdot function handle.
-%  Then stimulus structure, then each network structure.
+%  M = modelMake(varargin)
+%
+%  Creates a model, M, out of stimulus and networks in varargin. Network
+%  indices in the created model follow network id's assigned in networkMake
+%  calls. Function handles for network and connection dot functions can be
+%  specified as first two input arguments (zdot.m and cdot.m are default,
+%  and you have to specify network dot function to specify connection
+%  dot function).
 %
 %  Example calls:
 %
-%   m = modelMake(@zdot, s, n);
-%   m = modelMake(@zdot, @cdot, s, n1, n2, n3);
+%   M = modelMake(s, n1, n2);
+%   M = modelMake(@zdot, s, n);
+%   M = modelMake(@zdot, @cdot, s, n1, n2, n3);
 %
-%  collect output network with:
-%  n = m.n{1};
 
 %%
 function model = modelMake(varargin)
 
-model.dotfunc      = varargin{1};
-if isa(varargin{2},'function_handle')
-    model.cfun     = varargin{2};
-    ind            = 3;
+if isa(varargin{1},'function_handle')
+    model.zfun = varargin{1};
+    if isa(varargin{2},'function_handle')
+        model.cfun = varargin{2};
+        ind = 3;
+    else
+        model.cfun = @cdot;
+        ind = 2;
+    end
 else
-    model.cfun     = @cdot;
-    ind            = 2;
+    model.zfun = @zdot;
+    model.cfun = @cdot;
+    ind = 1;
 end
 
 %% Get stimuli first to get time info
-stimList = []; % list of stimulus id's
+stimListAll = []; % list of all stimulus id's
+stimList = []; % list of stimulus id's, only those used as source
 netList = []; % list of network id's
 fs = [];
 dt = [];
@@ -32,12 +44,12 @@ t = [];
 
 for v = ind:length(varargin)
     temp = varargin{v};
-    if strcmp(temp.class, 'stim')
+    if temp.nClass == 1
         sid = temp.id;
-        temp.N = size(temp.x, 1);
+        temp.N = size(temp.x, 1);   % in case extra channel was added
         temp.z = temp.x(:,1);   % initialize current state z
         model.s{sid} = temp;
-        stimList = [stimList sid];
+        stimListAll = [stimListAll sid];
         
         if isempty(fs)
             fs = temp.fs;
@@ -52,6 +64,10 @@ for v = ind:length(varargin)
     end
 end
 
+if isempty(stimListAll)   % if no stimulus is given
+    error('No stimulus is given.')
+end
+
 model.fs           = fs;
 model.dt           = dt;
 model.tspan        = ts;
@@ -61,7 +77,7 @@ model.t            = t;
 
 for v = ind:length(varargin)
     temp = varargin{v};
-    if strcmp(temp.class, 'net')
+    if temp.nClass == 2
         nid = temp.id;
         model.n{nid} = temp;
         netList = [netList nid];
@@ -76,7 +92,7 @@ for v = ind:length(varargin)
             model.n{nid}.Z = [];
         end
         
-        for cx = temp.conLearn
+        for cx = temp.learnList
             con = temp.con{cx};
             if con.sStep > 0
                 Nt = ceil(length(t)/con.sStep);
@@ -92,33 +108,21 @@ for v = ind:length(varargin)
     end
 end
 
-model.stimList = sort(stimList);
+model.stimListAll = sort(stimListAll);
 model.netList = sort(netList);
 
 %% Check if all connections are valid and at least one network gets stimulus
-stimcount = 0;
 for j = model.netList
-    net = model.n{j};
-    if net.ext   % connect first stimulus if ext is nonzero (backward compatible)
-        stim1 = model.s{model.stimList(1)};
-        if stim1.N == 1 % single channel input
-            C = ones(net.N, 1);
-        else    % multichannel input
-            C = zeros(net.N, stim1.N);
-            C(sub2ind(size(C), 1:net.N, net.ext)) = 1;
-        end
-        model.n{j} = connectAdd(stim1, net, C, 'weight', 1, 'type', stim1.inputType);
-    end
-    
     for k = 1:length(model.n{j}.con)
         con = model.n{j}.con{k};
-        if strcmp(con.sourceClass, 'stim')
-            if ~ismember(con.source, model.stimList)
+        if con.nSourceClass == 1
+            if ~ismember(con.source, model.stimListAll)
                 error(['Input to Network ' num2str(j) ' is missing (Stimulus ' num2str(k) ')'])
+            else
+                stimList = [stimList con.source];
             end
-            stimcount = stimcount + 1;
         end
-        if strcmp(con.sourceClass, 'net')
+        if con.nSourceClass == 2
             if ~ismember(con.source, model.netList)
                 error(['Input to Network ' num2str(j) ' is missing (Network ' num2str(k) ')'])
             end
@@ -126,16 +130,10 @@ for j = model.netList
     end
 end
 
-if ~stimcount   % if no network is connected to stimulus
-    stim1 = model.s{model.stimList(1)};
-    net1 = model.n{model.netList(1)};
-    if stim1.N == 1 % single channel input
-        C = ones(net1.N, 1);
-    else    % multichannel input
-        C = eye(net1.N, stim1.N);
-    end
-    model.n{model.netList(1)} = connectAdd(stim1, net1, C, 'weight', 1, 'type', '1freq');
-    disp({'At least one network must be connected to a stimulus.',['modelMake connected Network ' num2str(model.netList(1)) ' to Stimulus ' num2str(model.stimList(1)) '.']})
+model.stimList = sort(stimList);
+
+if isempty(stimList)   % if no network is connected to stimulus
+    disp('Warning (modelMake): No network is connected to stimulus.')
 end
 
 %% Cast everything as complex and single
@@ -149,7 +147,7 @@ for nx = model.netList
     model.n{nx}.b2 = castCS(model.n{nx}.b2);
     model.n{nx}.e  = castCS(model.n{nx}.e);
     for cx = 1:length(model.n{nx}.con)
-        if any(model.n{nx}.conLearn) && any(model.n{nx}.conLearn == cx)
+        if any(model.n{nx}.learnList) && any(model.n{nx}.learnList == cx)
             model.n{nx}.con{cx}.C0 = castCS(model.n{nx}.con{cx}.C0);
             model.n{nx}.con{cx}.C  = castCS(model.n{nx}.con{cx}.C);
             model.n{nx}.con{cx}.C3 = castCS(model.n{nx}.con{cx}.C3);
@@ -166,22 +164,22 @@ end
 
 %% If dotfunc (override) option is empty, then use base dotfunc from network and oscillator-model
 
-if isempty(model.dotfunc)
+if isempty(model.zfun)
     n = varargin{1}; % for now, restrict to only one osc-model
     if strcmp(n.model, 'vdp')
-        model.dotfunc = @zdotv;
+        model.zfun = @zdotv;
     end
     if strcmp(n.model, 'wc')
-        model.dotfunc = @zdotw_sc;
+        model.zfun = @zdotw_sc;
     end
     if strcmp(n.model, 'wce')
-        model.dotfunc = @zdotw_sc;
+        model.zfun = @zdotw_sc;
     end
     if strcmp(n.model, 'hopft')
-        model.dotfunc = @zdotw_sc;
+        model.zfun = @zdotw_sc;
     end
     if strcmp(n.model, 'hopfx')
-        model.dotfunc = @zdotw_sc;
+        model.zfun = @zdotw_sc;
     end
     
 end

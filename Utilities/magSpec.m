@@ -1,4 +1,13 @@
-function y=magSpec(x,varargin)
+%% magSpec
+%  y = magSpec(x,varargin)
+%
+%  Computes magnitude spectrum y in dB of input signal x. If there are no
+%  other input arguments, the fft length NFFT defaults to the length of x. 
+%  If there is a second input argument, it is the fft length NFFT. If there
+%  is a third input argument, it is the reference of the dB transform. Else
+%  the reference is 1.
+
+function y = magSpec(x,varargin)
 
 if isempty(varargin), NFFT=length(x);else NFFT=varargin{1};end
 if ~isreal(x)
@@ -17,7 +26,7 @@ if length(varargin)>1
     y=abs(fft(x,NFFT))*2;
 else
     correction=1;
-    y=abs(fft(x,NFFT))+1;
+    y=abs(fft(x,NFFT));
 end
 len=size(y,1);
 ind=floor(len/2);

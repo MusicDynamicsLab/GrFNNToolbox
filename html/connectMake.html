@@ -1,0 +1,373 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>connectMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="connectMake.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>connectMake</h1><!--introduction--><pre>C = connectMake(n1, n2, type, varargin)</pre><pre>Creates a connection matrix from network n1 to network n2
+'type' is the type of connectivity</pre><pre>n1                connection From here
+n2                connection To here
+type              'full', 'near', 'one', 'gaus'</pre><pre>Optional inputs that must come in this order after type:</pre><pre>amplitude         One scalar afterward, strength
+range             Another scalar (freq ratio for log fspac, freq diff for lin)
+                  Use di2df to specify range in number of oscillators
+                  This specifies the range of frequencies type 'gaus' or
+                  'one' applies</pre><pre>Other optional inputs, can come in any order:</pre><pre>'complex'           No input afterwards; this will specify that
+                    connections will have both amplitude and phase
+'modes'             Input scalar or vector afterwards, location (freq ratio) of multiple modes
+'amps'              Input scalar or vector afterwards, relative amplitude of multiple modes
+'ranges'            Input scalar or vector afterwards, range of multiple modes (in fraction of range)</pre><pre>Example calls:</pre><pre class="language-matlab">C = connectMake(n1, n2, <span class="string">'gaus'</span>, .7, 1.05, <span class="string">'modes'</span>, [1/2 1 2], <span class="string">'amps'</span>, [.25 1 .5], <span class="string">'ranges'</span>, [.3 1 .7]);
+C = connectMake(n1, n2, <span class="string">'one'</span>, .4, di2df(n1, 5), <span class="string">'complex'</span>);
+C = connectMake(n1,n2,<span class="string">'full'</span>,10);
+</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Parse input</a></li><li><a href="#4">Generate connectivity kernel(s)</a></li><li><a href="#7">revision history</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> C = connectMake(n1, n2, type, varargin)
+</pre><pre class="codeinput"><span class="keyword">if</span> nargin &lt; 3 || ~ischar(type)
+    error(<span class="string">'Must specify kernel type: full, near, one, or gaus'</span>);
+<span class="keyword">end</span>
+<span class="keyword">if</span> ~any(strcmpi(type,{<span class="string">'full'</span> <span class="string">'near'</span> <span class="string">'one'</span> <span class="string">'gaus'</span>}))
+    error(<span class="string">'Must specify kernel type: full, near, one, or gaus'</span>);
+<span class="keyword">end</span>
+
+amp  = 1;                   <span class="comment">% Set defaults</span>
+<span class="keyword">switch</span> n2.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        range = 1.02; <span class="comment">% freq ratio</span>
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        range = .02; <span class="comment">% freq difference</span>
+<span class="keyword">end</span>
+complexKernel = 0;
+modes = 1;
+amps = 1;
+ranges = 1;
+
+
+<span class="keyword">if</span> ~isempty(varargin) &amp;&amp; isscalar(varargin{1})
+    amp = varargin{1};
+    <span class="keyword">if</span> length(varargin) &gt; 1 &amp;&amp; isscalar(varargin{2})
+        range = varargin{2};
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>Parse input<a name="3"></a></h2><pre class="codeinput"><span class="keyword">for</span> i = 1:length(varargin)
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'com'</span>)
+        complexKernel = 1;
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'modes'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; ~ischar(varargin{i+1})
+        modes = varargin{i+1};
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'amps'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; ~ischar(varargin{i+1})
+        amps = varargin{i+1};
+        amps = amps/max(amps); <span class="comment">% normalize so that max(amps) = 1</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'ranges'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; ~ischar(varargin{i+1})
+        ranges = varargin{i+1};
+    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+
+
+<span class="keyword">if</span> length(modes) &gt; 1
+
+    <span class="keyword">if</span> length(amps) == 1
+        amps = repmat(amps,1,length(modes));
+    <span class="keyword">elseif</span> length(amps) ~= length(modes)
+        error(<span class="string">'modes, amps, and ranges must be same length, or amps and ranges can be scalars that will be copied'</span>);
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> length(ranges) == 1
+        ranges = repmat(ranges,1,length(modes));
+    <span class="keyword">elseif</span> length(ranges) ~= length(modes)
+        error(<span class="string">'modes, amps, and ranges must be same length, or amps and ranges can be scalars that will be copied'</span>);
+    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+</pre><h2>Generate connectivity kernel(s)<a name="4"></a></h2><pre class="codeinput"><span class="keyword">switch</span> n2.fspac
+    <span class="keyword">case</span> <span class="string">'log'</span>
+        F = log2(relFreq(n1.f, n2.f)); <span class="comment">% F: log2 of freq ratios</span>
+        sigma = abs(log2(range))*ranges;
+        per = floor(n1.N/(log2(n1.f(end))-log2(n1.f(1))));
+        df = 1/per;
+    <span class="keyword">case</span> <span class="string">'lin'</span>
+        F = diffFreq(n1.f, n2.f); <span class="comment">% F: freq differences</span>
+        sigma = range*ranges;
+        df = n1.df;
+<span class="keyword">end</span>
+
+R = zeros(size(F));
+Q = zeros(size(F));
+
+<span class="keyword">for</span> nn = 1:length(modes)
+    <span class="keyword">switch</span> type
+        <span class="keyword">case</span> <span class="string">'full'</span>
+            R1 = ones(size(F));
+            <span class="comment">%       R1 = R1/n1.N; % normalize so that sum = 1</span>
+        <span class="keyword">case</span> <span class="string">'near'</span>
+            R1 = amps(nn)*(abs(F-log2(modes(nn))) &lt;= sigma(nn) + eps);
+            <span class="comment">% JCK had to add eps b/c Matlab is inconsistent at +/- boundaries</span>
+            R1 = R1/(2*floor((sigma(nn) + eps)/df)+1); <span class="comment">% normalization</span>
+        <span class="keyword">case</span> <span class="string">'one'</span>
+            R1 = eye(n2.N, n1.N);
+        <span class="keyword">case</span> <span class="string">'gaus'</span>
+<span class="comment">%             R1 = amps(nn)*normpdf(F, log2(modes(nn)), sigma(nn));</span>
+            R1 = amps(nn)*gaussPdf(F, log2(modes(nn)), sigma(nn));
+            R1 = R1*df; <span class="comment">% normalization</span>
+            <span class="keyword">if</span> complexKernel
+<span class="comment">%                 Q1 = (pi/2)*(2*normcdf(F, log2(modes(nn)), sigma(nn))-1);</span>
+                Q1 = (pi/2)*erf((F-log2(modes(nn)))/sigma(nn));
+            <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="comment">% R and Q are updated where R1 &gt; R</span>
+    ind = find(abs(R1) &gt; abs(R));
+    R(ind) = R1(ind);
+    <span class="keyword">if</span> complexKernel &amp;&amp; strcmpi(type, <span class="string">'gaus'</span>)
+        Q(ind) = Q1(ind);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+C = R.*exp(1i*Q);
+C = amp*C; <span class="comment">% Scale to user-specified strength</span>
+C(abs(C)&lt;max(max(abs(C)))/100) = 0; <span class="comment">% eliminate zeros so we can declare sparse</span>
+
+<span class="comment">% =====================================================================================</span>
+</pre><pre class="codeinput"><span class="keyword">function</span> RF = relFreq(f1, f2)
+<span class="comment">% Ratio of f1s (from) in terms of f2s (to)</span>
+[F1, F2] = meshgrid(f1, f2);
+RF = F1./F2;
+<span class="comment">% =====================================================================================</span>
+<span class="keyword">function</span> DF = diffFreq(f1, f2)
+</pre><pre class="codeinput"><span class="comment">% f1s (from) minus f2s (to)</span>
+[F1, F2] = meshgrid(f1, f2);
+DF = F1 - F2;
+</pre><h2>revision history<a name="7"></a></h2><p>12/15/2011 JCK Combined and modified connectMakeLog and connectMakeLin                Added varargin for defining multimodal connections                Log, lin fspacs treated equivalently using log2(relFreq), diffFreq</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% connectMake
+%  C = connectMake(n1, n2, type, varargin)
+% 
+%  Creates a connection matrix from network n1 to network n2
+%  'type' is the type of connectivity
+%
+%  n1                connection From here
+%  n2                connection To here
+%  type              'full', 'near', 'one', 'gaus'
+% 
+%  Optional inputs that must come in this order after type:
+% 
+%  amplitude         One scalar afterward, strength
+%  range             Another scalar (freq ratio for log fspac, freq diff for lin)
+%                    Use di2df to specify range in number of oscillators
+%                    This specifies the range of frequencies type 'gaus' or
+%                    'one' applies
+% 
+%  Other optional inputs, can come in any order:
+% 
+%  'complex'           No input afterwards; this will specify that
+%                      connections will have both amplitude and phase
+%  'modes'             Input scalar or vector afterwards, location (freq ratio) of multiple modes
+%  'amps'              Input scalar or vector afterwards, relative amplitude of multiple modes
+%  'ranges'            Input scalar or vector afterwards, range of multiple modes (in fraction of range)
+% 
+%  Example calls:
+%
+%   C = connectMake(n1, n2, 'gaus', .7, 1.05, 'modes', [1/2 1 2], 'amps', [.25 1 .5], 'ranges', [.3 1 .7]);
+%   C = connectMake(n1, n2, 'one', .4, di2df(n1, 5), 'complex');
+%   C = connectMake(n1,n2,'full',10);
+%
+
+%%
+function C = connectMake(n1, n2, type, varargin)
+
+if nargin < 3 || ~ischar(type)
+    error('Must specify kernel type: full, near, one, or gaus');
+end
+if ~any(strcmpi(type,{'full' 'near' 'one' 'gaus'}))
+    error('Must specify kernel type: full, near, one, or gaus');
+end
+
+amp  = 1;                   % Set defaults
+switch n2.fspac
+    case 'log'
+        range = 1.02; % freq ratio
+    case 'lin'
+        range = .02; % freq difference
+end
+complexKernel = 0;
+modes = 1;
+amps = 1;
+ranges = 1;
+
+
+if ~isempty(varargin) && isscalar(varargin{1})
+    amp = varargin{1};
+    if length(varargin) > 1 && isscalar(varargin{2})
+        range = varargin{2};
+    end
+end
+
+%% Parse input
+
+for i = 1:length(varargin)
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'com')
+        complexKernel = 1;
+    end
+    
+    if strcmpi(varargin{i},'modes') && length(varargin) > i && ~ischar(varargin{i+1})
+        modes = varargin{i+1};
+    end
+    
+    if strcmpi(varargin{i},'amps') && length(varargin) > i && ~ischar(varargin{i+1})
+        amps = varargin{i+1};
+        amps = amps/max(amps); % normalize so that max(amps) = 1
+    end
+    
+    if strcmpi(varargin{i},'ranges') && length(varargin) > i && ~ischar(varargin{i+1})
+        ranges = varargin{i+1};
+    end
+
+end
+
+
+if length(modes) > 1
+    
+    if length(amps) == 1
+        amps = repmat(amps,1,length(modes));
+    elseif length(amps) ~= length(modes)
+        error('modes, amps, and ranges must be same length, or amps and ranges can be scalars that will be copied');
+    end
+    
+    if length(ranges) == 1
+        ranges = repmat(ranges,1,length(modes));
+    elseif length(ranges) ~= length(modes)
+        error('modes, amps, and ranges must be same length, or amps and ranges can be scalars that will be copied');
+    end
+    
+end
+
+%% Generate connectivity kernel(s)
+
+switch n2.fspac
+    case 'log'
+        F = log2(relFreq(n1.f, n2.f)); % F: log2 of freq ratios
+        sigma = abs(log2(range))*ranges;
+        per = floor(n1.N/(log2(n1.f(end))-log2(n1.f(1))));
+        df = 1/per;
+    case 'lin'
+        F = diffFreq(n1.f, n2.f); % F: freq differences
+        sigma = range*ranges;
+        df = n1.df;
+end
+
+R = zeros(size(F));
+Q = zeros(size(F));
+
+for nn = 1:length(modes)
+    switch type
+        case 'full'
+            R1 = ones(size(F));
+            %       R1 = R1/n1.N; % normalize so that sum = 1
+        case 'near'
+            R1 = amps(nn)*(abs(F-log2(modes(nn))) <= sigma(nn) + eps);
+            % JCK had to add eps b/c Matlab is inconsistent at +/- boundaries
+            R1 = R1/(2*floor((sigma(nn) + eps)/df)+1); % normalization
+        case 'one'
+            R1 = eye(n2.N, n1.N);
+        case 'gaus'
+%             R1 = amps(nn)*normpdf(F, log2(modes(nn)), sigma(nn));
+            R1 = amps(nn)*gaussPdf(F, log2(modes(nn)), sigma(nn));
+            R1 = R1*df; % normalization
+            if complexKernel
+%                 Q1 = (pi/2)*(2*normcdf(F, log2(modes(nn)), sigma(nn))-1);
+                Q1 = (pi/2)*erf((F-log2(modes(nn)))/sigma(nn));
+            end
+    end
+    % R and Q are updated where R1 > R
+    ind = find(abs(R1) > abs(R));
+    R(ind) = R1(ind);
+    if complexKernel && strcmpi(type, 'gaus')
+        Q(ind) = Q1(ind);
+    end
+end
+
+C = R.*exp(1i*Q);
+C = amp*C; % Scale to user-specified strength
+C(abs(C)<max(max(abs(C)))/100) = 0; % eliminate zeros so we can declare sparse
+
+% =====================================================================================
+function RF = relFreq(f1, f2)
+% Ratio of f1s (from) in terms of f2s (to)
+[F1, F2] = meshgrid(f1, f2);
+RF = F1./F2;
+% =====================================================================================
+function DF = diffFreq(f1, f2)
+% f1s (from) minus f2s (to)
+[F1, F2] = meshgrid(f1, f2);
+DF = F1 - F2;
+%% revision history
+% 12/15/2011 JCK Combined and modified connectMakeLog and connectMakeLin
+%                Added varargin for defining multimodal connections
+%                Log, lin fspacs treated equivalently using log2(relFreq), diffFreq
+##### SOURCE END #####
+--></body></html>

@@ -1,19 +1,36 @@
 %% rStarDriven11Learn
-%   [rStar, AStar, psiStar, stability, stabType] = rStarDriven11Learn(alpha, beta1, lambda, mu1, kappa, forcing amplitude, Omega, All)
+%  [rStar, AStar, psiStar, stability, stabType] = rStarDriven11Learn(alpha, beta1, lambda, mu1, kappa, forcing amplitude, Omega, All)
 %
-%  Finds r*, A*, psi*, stability (1 or 0), and stability type (0-4)
-%  numerically for an oscillator (truncated after the cubic term) driven by
-%  a sinusoidal input via a plastic 1:1 coupling. Omega is the difference
-%  between the oscillator's natural frequency and the input frequency
-%  in radian.
-%  Set the optional input argument 'All' to 1 (or any nonzero value)
-%  to get both stable and unstable fixed points. (Default for All is 0,
-%  that is, rStarDriven11Learn outputs only stable fixed points.)
+%  Finds steady-state oscillator amplitude (r*), connection amplitude (A*)
+%  and relative phase (psi*) along with their stability and stability type
+%  for a canonical oscillator driven by single sinusoidal forcing via
+%  plastic 1:1 coupling. Both oscillator and connection equations are
+%  truncated after cubic terms.
 %
-%  stability: 1 = stable, 0 = unstable
+%  Input arguments:
+%  alpha, beta1         Oscillator parameters
+%  lambda, mu1, kappa   Learning parameters
+%  forcing amplitude    Amplitude of sinusoidal forcing
+%  Omega                Frequency difference (i.e. oscillator's natural 
+%                       frequency minus forcing frequency) in radian
 %
-%  stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
-%  1 = unstable spiral, 0 = saddle point
+%  Optional input:
+%  All                  Set it to 1 (or any nonzero value) to get both 
+%                       stable and unstable fixed points. (Default is 0,
+%                       i.e., only stable fixed points are output.)
+%
+%  Output:
+%  rStar                Steady-state oscillator amplitude(s)
+%  AStar                Steady-state connection amplitude(s)
+%  psiStar              Steady-state relative phase(s) (i.e. connection
+%                       phase minus oscillator phase plus forcing phase)
+%  stability            Stability of steady state(s)
+%                       (1 = stable, 0 = unstable)
+%  stabType             Stability type of steady state(s)
+%                       (4 = stable node, 3 = stable spiral,
+%                       2 = unstable node, 1 = unstable spiral,
+%                       0 = saddle point)
+%
 
 %% Equation
 % $$\frac{dz}{dt} = z\left(\alpha + \textrm{i}\omega + \beta_1 |z|^2\right)
@@ -26,6 +43,7 @@
 % x = Fe^{\textrm{i}\vartheta}, \psi = \theta - \phi + \vartheta,
 % \vartheta = \omega_0t + \theta_0,$ and $\Omega = \omega - \omega_0$
 
+%%
 function [rStar, AStar, psiStar, stability, stabType] = ...
   rStarDriven11Learn(a, b1, l, m1, ka, F, W, All)
 

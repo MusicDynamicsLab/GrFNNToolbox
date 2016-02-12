@@ -1,5 +1,9 @@
-%% STIMULUSFCN
-%  Generates time series for stimulus signal.
+%% stimulusFcn
+%  x = stimulusFcn(t, s, a)
+%  Generates analytical time series x for stimulus signal given t, 
+%  stimulus time vector, s, stimulus structure, and a, section of 
+%  stimulus (row number of s.ts)
+%
 %  Called by stimulusMake; not a standalone function.
 
 %%

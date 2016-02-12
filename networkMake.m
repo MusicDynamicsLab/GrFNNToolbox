@@ -13,33 +13,31 @@
 %                                       max freq of network, and number of oscillators
 % 
 %  Optional attributes:
-%  'channel'                            Next input is scalar (or vector if channelizing the stimulus)
-%                                       specifying which channel(s) of the stimulus this network 
-%                                       will receive as input. If this is not used, the network will
-%                                       not receive the stimulus. This is typically specified only 
-%                                       for the first layer, for instance.
 %  'display'                            Next input is scalar which is the time step interval in 
 %                                       between display steps as the network integrates. Default
 %                                       is zero.
 %  'save'                               Next input is scalar which is the time step interval in 
 %                                       between save steps as the network integrates. Default is
 %                                       zero.
-%  'znaught'                            Next input is a vector (or scalar if network is only a single
-%                                       oscillator) of initial conditions for the oscillators 
+%  'znaught'                            Next input is a vector of initial conditions for the oscillators 
 %                                       overriding the defaults, which are the spontaneous amplitudes
 %                                       of the oscillators with a small amount of randomness, and 
-%                                       random phase.
+%                                       random phase. Can be a scalar if that value should be used 
+%                                       for all oscillators.
+%  'tick'                               Next input is a vector of axis ticks to be used for this network
+%                                       for plotting, if 'display' is nonzero.
 % 
 %  Example calls:
 % 
-%   n  = networkMake(3, 'hopf', .1, -10, -1, 0, 0, 1, 'log', 100, 1300, 400, 'display', 20,'save', 1, 'znaught', z0{3});
+%   n  = networkMake(3, 'hopf', .1, -10, -1, 0, 0, 1, 'log', 100, 1300, 400, 'display', 20, 'save', 1, 'znaught', z0{3});
 %   n  = networkMake(1, 'hopf', 0, -100, -1, 0, 0, .0025, 'log', 20, 20000, 800, 'save', 1, 'channel', 1);
+%
 
 %%
 function n = networkMake(id, varargin)
 %% Set defaults and initialize variables
 n.id = id;
-n.class = 'net';
+n.class = 'network';
 n.nClass = 2; % numerical class
 
 models = {'hopf'};              % Can add to this array later
@@ -50,7 +48,6 @@ n.fspac = [];
 n.nfspac= 0;
 n.dStep = 0;                    % Initialize these to zero/empty in case not specified in varargin
 n.sStep = 0;
-n.ext   = 0;                    % Now obsolete but needed for backward compatibility
 overrideInitialConditions = 0;
 n.tick  = [];
 
@@ -109,12 +106,6 @@ for i = 1:length(varargin)
         n.f   = single(n.f);
     end
      
-    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'cha') && length(varargin) > i && ~ischar(varargin{i+1})
-    
-        n.ext = varargin{i+1};  % now obsolete but needed for backward compatibility
-        
-    end
-    
     if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'dis') && length(varargin) > i && isscalar(varargin{i+1})
         
         n.dStep = varargin{i+1};
@@ -148,7 +139,7 @@ for i = 1:length(varargin)
     
 end
 n.con = {}; % JCK: got rid of aff/eff/int distinction
-n.conLearn = []; % indices for learned connections (used in integrator)
+n.learnList = []; % indices for learned connections (used in integrator)
 
 %% Error check for necessary inputs
 if isempty(n.model)
@@ -165,21 +156,12 @@ switch n.nfspac
         n.a  = single(alpha + 1i*2*pi.*n.f);
         n.b1 = single(beta1 + 1i*delta1);
         n.b2 = single(beta2 + 1i*delta2);
-        n.w  = 1;
         
     case 2 % log spacing
         n.a  = single(alpha + 1i*2*pi  ).*n.f;  % Redefinition of a, b1 & b2
         n.b1 = single(beta1 + 1i*delta1).*n.f;
         n.b2 = single(beta2 + 1i*delta2).*n.f;
-        n.w  = n.f;
 end
-%         if isempty(n.b2) n.b2 = n.b1; end;              % � NECESSARY ?
-
-%         if length(model)>4
-%             n.e = model{7};
-%         else
-%             n.e = 1.0;
-%         end
 
 n.e = single(epsilon);
 

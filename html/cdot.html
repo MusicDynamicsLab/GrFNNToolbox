@@ -1,0 +1,278 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>cdot</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="cdot.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>cdot</h1><!--introduction--><pre>dCdt = cdot(M, nx, cx)</pre><pre>Calculates time derivative for a single connection M.n{nx}.con{cx}</pre><pre>Input arguments:
+M        Model
+nx       Target network id
+cx       Connection id</pre><pre>Output:
+dCdt     Time derivative of connection states</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Initialize variables and stimulus</a></li><li><a href="#4">Input to connection rule</a></li><li><a href="#5">The differential equation</a></li><li><a href="#6">Nonlinear Function Definitions</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> [dCdt] = cdot(M, nx, cx)
+</pre><h2>Initialize variables and stimulus<a name="3"></a></h2><pre class="codeinput">con  = M.n{nx}.con{cx};
+C = con.C;
+kappa = con.kappa;
+lambda = con.lambda;
+mu1 = con.mu1;
+mu2 = con.mu2;
+e = con.e;
+nType = con.nType;
+no11 = con.no11;
+
+<span class="keyword">if</span> con.nSourceClass == 1
+    y = M.s{con.source}.z;
+<span class="keyword">else</span>
+    y = M.n{con.source}.z;
+<span class="keyword">end</span>
+z   = M.n{con.target}.z;
+</pre><h2>Input to connection rule<a name="4"></a></h2><pre class="codeinput"><span class="keyword">switch</span> nType    <span class="comment">% cases ordered by frequency of use</span>
+
+    <span class="keyword">case</span> 1  <span class="comment">% 1freq</span>
+        X = kappa.*(z * y');
+
+    <span class="keyword">case</span> 6  <span class="comment">% all2freq</span>
+        <span class="keyword">if</span> no11 <span class="comment">% remove 1:1 (and subsequent n:n) monomials</span>
+            X = kappa.*(P(e, z) * P(e, y') - P(e^2, z*y'));
+        <span class="keyword">else</span>
+            X = kappa.*(P(e, z) * P(e, y'));
+        <span class="keyword">end</span>
+
+    <span class="keyword">case</span> 7  <span class="comment">% allfreq</span>
+        <span class="keyword">if</span> no11
+            X = kappa.*(P(e, z) * P_new(e, y') <span class="keyword">...</span>
+                - P(e^2, z*y') .* repmat(A(e^2, abs(y').^2), M.n{nx}.N, 1));
+        <span class="keyword">else</span>
+            X = kappa.*(P(e, z) * P_new(e, y'));
+        <span class="keyword">end</span>
+
+    <span class="keyword">case</span> 2  <span class="comment">% 2freq</span>
+        Y = repmat(y', con.targetN, 1); <span class="comment">% conjugate transpose is what we want</span>
+        Z = repmat(z , 1, con.sourceN);
+        NUM = con.NUM; DEN = con.DEN;
+        X  = kappa.*con.epsc.*((Z.^DEN) .* (Y.^NUM));
+
+    <span class="keyword">case</span> 5  <span class="comment">% active</span>
+        <span class="keyword">if</span> no11
+            X = kappa.*((sqrt(e)*z.*P(e, z)) * y');
+        <span class="keyword">else</span>
+            X = kappa.*(P(e, z) * y');
+        <span class="keyword">end</span>
+
+    <span class="keyword">otherwise</span> <span class="comment">% 3freq or 3freqall</span>
+        Y1 = y(con.IDX1); Y1(~con.CON1) = conj(Y1(~con.CON1));
+        Y2 = y(con.IDX2); Y2(~con.CON2) = conj(Y2(~con.CON2));
+        Z  = z(con.IDXZ);
+        NUM1 = con.NUM1; NUM2 = con.NUM2; DEN = con.DEN;
+        Y1NUM1 = (Y1.^NUM1);
+        Y2NUM2 = (Y2.^NUM2);
+        ZDEN  = (Z .^DEN);
+        X = kappa.*con.epsc.*ZDEN.*Y1NUM1.*Y2NUM2;
+
+<span class="keyword">end</span>
+
+X = single(X);
+</pre><h2>The differential equation<a name="5"></a></h2><p><img src="cdot_eq10220624966087766672.png" alt="$\dot{C} = C \left( \lambda + \mu_1 |C|^2+ \frac{\epsilon \mu_2 |C|^4}{1-\epsilon |C|^2} \right) + X$"></p><pre class="codeinput">dCdt = C.*(lambda + mu1.*abs(C).^2 + e*mu2.*(abs(C).^4)./(1-e*abs(C).^2)) + X;
+</pre><h2>Nonlinear Function Definitions<a name="6"></a></h2><pre class="codeinput"><span class="keyword">function</span> y = P(epsilon, x)
+y = ( x ./ (1 - sqrt(epsilon)*x) );
+
+<span class="keyword">function</span> y = P_new(epsilon, x)
+y = ( x ./ (1 - sqrt(epsilon)*x) ) .* ( 1 ./ (1 - sqrt(epsilon)*conj(x) ));
+<span class="comment">%y = y - Pc(epsilon, x);</span>
+
+<span class="keyword">function</span> y = A(epsilon, z)
+y = ( 1 ./ (1 - sqrt(epsilon)*conj(z) ));
+
+<span class="keyword">function</span> y = Pc(epsilon, x)
+y = ( sqrt(epsilon)*x.*conj(x) ./ (1 - epsilon*x.*conj(x)) );
+
+<span class="keyword">function</span> y = Ac(epsilon, x, z)
+y = ( sqrt(epsilon)*x.*conj(z) ./ (1 - epsilon*x.*conj(z)) );
+
+<span class="keyword">function</span> y = H(epsilon, r)
+y = (epsilon * r.^4 ./ (1- epsilon * r.^2) );
+
+<span class="keyword">function</span> y = Sc(epsilon, z2, z1)
+y = ( sqrt(epsilon)*z2*z1' ./ (1 - sqrt(epsilon)*z2*z1') );
+<span class="comment">% should this be sqrt(epsilon) in the denominator?</span>
+<span class="comment">% Ask Ji Chul to verify</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% cdot
+%  dCdt = cdot(M, nx, cx)
+%
+%  Calculates time derivative for a single connection M.n{nx}.con{cx}
+%
+%  Input arguments:
+%  M        Model
+%  nx       Target network id
+%  cx       Connection id
+%
+%  Output:
+%  dCdt     Time derivative of connection states
+%
+
+%%
+function [dCdt] = cdot(M, nx, cx)
+
+%% Initialize variables and stimulus
+
+con  = M.n{nx}.con{cx};
+C = con.C;
+kappa = con.kappa;
+lambda = con.lambda;
+mu1 = con.mu1;
+mu2 = con.mu2;
+e = con.e;
+nType = con.nType;
+no11 = con.no11;
+
+if con.nSourceClass == 1
+    y = M.s{con.source}.z;
+else
+    y = M.n{con.source}.z;
+end
+z   = M.n{con.target}.z;
+
+%%   Input to connection rule
+
+switch nType    % cases ordered by frequency of use
+    
+    case 1  % 1freq
+        X = kappa.*(z * y');
+        
+    case 6  % all2freq
+        if no11 % remove 1:1 (and subsequent n:n) monomials
+            X = kappa.*(P(e, z) * P(e, y') - P(e^2, z*y'));
+        else
+            X = kappa.*(P(e, z) * P(e, y'));
+        end
+        
+    case 7  % allfreq
+        if no11
+            X = kappa.*(P(e, z) * P_new(e, y') ...
+                - P(e^2, z*y') .* repmat(A(e^2, abs(y').^2), M.n{nx}.N, 1));
+        else
+            X = kappa.*(P(e, z) * P_new(e, y'));
+        end
+        
+    case 2  % 2freq
+        Y = repmat(y', con.targetN, 1); % conjugate transpose is what we want
+        Z = repmat(z , 1, con.sourceN);
+        NUM = con.NUM; DEN = con.DEN;
+        X  = kappa.*con.epsc.*((Z.^DEN) .* (Y.^NUM));
+        
+    case 5  % active
+        if no11
+            X = kappa.*((sqrt(e)*z.*P(e, z)) * y');
+        else
+            X = kappa.*(P(e, z) * y');
+        end
+        
+    otherwise % 3freq or 3freqall
+        Y1 = y(con.IDX1); Y1(~con.CON1) = conj(Y1(~con.CON1));
+        Y2 = y(con.IDX2); Y2(~con.CON2) = conj(Y2(~con.CON2));
+        Z  = z(con.IDXZ);
+        NUM1 = con.NUM1; NUM2 = con.NUM2; DEN = con.DEN;
+        Y1NUM1 = (Y1.^NUM1);
+        Y2NUM2 = (Y2.^NUM2);
+        ZDEN  = (Z .^DEN);
+        X = kappa.*con.epsc.*ZDEN.*Y1NUM1.*Y2NUM2;
+        
+end
+
+X = single(X);
+
+%% The differential equation
+% $\dot{C} = C \left( \lambda + \mu_1 |C|^2+ \frac{\epsilon \mu_2 |C|^4}{1-\epsilon |C|^2} \right) + X$
+
+dCdt = C.*(lambda + mu1.*abs(C).^2 + e*mu2.*(abs(C).^4)./(1-e*abs(C).^2)) + X;
+
+%% Nonlinear Function Definitions
+function y = P(epsilon, x)
+y = ( x ./ (1 - sqrt(epsilon)*x) );
+
+function y = P_new(epsilon, x)
+y = ( x ./ (1 - sqrt(epsilon)*x) ) .* ( 1 ./ (1 - sqrt(epsilon)*conj(x) ));
+%y = y - Pc(epsilon, x);
+
+function y = A(epsilon, z)
+y = ( 1 ./ (1 - sqrt(epsilon)*conj(z) ));
+
+function y = Pc(epsilon, x)
+y = ( sqrt(epsilon)*x.*conj(x) ./ (1 - epsilon*x.*conj(x)) );
+
+function y = Ac(epsilon, x, z)
+y = ( sqrt(epsilon)*x.*conj(z) ./ (1 - epsilon*x.*conj(z)) );
+
+function y = H(epsilon, r)
+y = (epsilon * r.^4 ./ (1- epsilon * r.^2) );
+
+function y = Sc(epsilon, z2, z1)
+y = ( sqrt(epsilon)*z2*z1' ./ (1 - sqrt(epsilon)*z2*z1') );
+% should this be sqrt(epsilon) in the denominator?
+% Ask Ji Chul to verify
+
+##### SOURCE END #####
+--></body></html>

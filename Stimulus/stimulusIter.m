@@ -1,5 +1,8 @@
-%% STIMULUSITER
-% Delay-and-add circuit.
+%% stimulusIter
+%  y = stimulusIter(y, iter, Niter)
+%
+%  Transforms signal vector y with a delay-and-add circuit using iter,
+%  length of delay in samples, and Niter, number of iterations.
 
 %%
 function y = stimulusIter(y, iter, Niter)

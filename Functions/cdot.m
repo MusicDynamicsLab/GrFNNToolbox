@@ -1,7 +1,16 @@
 %% cdot
-% [dCdt] = cdot(M, nx, cx)
+%  dCdt = cdot(M, nx, cx)
 %
-% Integrates a single connection M.n{nx}.con{cx}
+%  Calculates time derivative for a single connection M.n{nx}.con{cx}
+%
+%  Input arguments:
+%  M        Model
+%  nx       Target network id
+%  cx       Connection id
+%
+%  Output:
+%  dCdt     Time derivative of connection states
+%
 
 %%
 function [dCdt] = cdot(M, nx, cx)
@@ -26,7 +35,6 @@ end
 z   = M.n{con.target}.z;
 
 %%   Input to connection rule
-% $X = \kappa*\vec{z}\vec{z'}^T$
 
 switch nType    % cases ordered by frequency of use
     
@@ -76,10 +84,8 @@ end
 X = single(X);
 
 %% The differential equation
-% $\dot{C} = C (\lambda + \mu_1 C^2+ \epsilon\mu_2 \frac{|C|.^4}{1-\sqrt{\epsilon}*|C|.^2}$ + X
+% $\dot{C} = C \left( \lambda + \mu_1 |C|^2+ \frac{\epsilon \mu_2 |C|^4}{1-\epsilon |C|^2} \right) + X$
 
-%% oops ...not scaling by frequency
-% Why not con.e?
 dCdt = C.*(lambda + mu1.*abs(C).^2 + e*mu2.*(abs(C).^4)./(1-e*abs(C).^2)) + X;
 
 %% Nonlinear Function Definitions

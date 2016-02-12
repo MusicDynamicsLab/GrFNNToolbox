@@ -1,4 +1,4 @@
-%% STIMULUSPARSER
+%% stimulusParser
 % Error checker and interpolator for all user inputs to stimulusMake. Not a standalone function.
 %
 
@@ -400,12 +400,12 @@ elseif strcmpi(s.type,'wav')
     s.ts = [s0 sf]/s.fs;
     
     for i = 1:length(varargin)
-        if isstr(varargin{i}) && strcmpi(varargin{i},'ste')
+        if strcmpi(varargin{i}(1:3),'ste')
             if size(s.x,2) == 1                            % Expand to stereo if mono
                 s.x = [s.x s.x];
             end
         end
-        if isstr(varargin{i}) && strcmpi(varargin{i},'mon')
+        if strcmpi(varargin{i}(1:3),'mon')
             if size(s.x,2) == 2
                 s.x = sum(s.x,2) / size(s.x,2);            % Contract to mono if stereo
             end
@@ -475,34 +475,20 @@ elseif strcmpi(s.type,'wav')
                 error('Filtmaskall takes one variable: A 1-by-2 array, b and a, vectors to filter() function')
             end
         end
-        if isstr(varargin{i}) && strcmpi(varargin{i},'ts')
-            s.ts = varargin{i+1};
-            s0 = round(s.ts(  1)*s.fs+1); %MGS - 6/28/09 Added round(...) to allow non-integer time spans
-            sf = round(s.ts(end)*s.fs);   %MGS - 6/28/09 Added round(...) to allow non-integer time spans
-            s.x  = s.x(s0:sf,:);                           % Take only specified time span
+        if strcmpi(varargin{i},'ts')
+            s.newTS = varargin{i+1};
         end
-        if isstr(varargin{i}) && strcmpi(varargin{i},'fs')
-            fs = varargin{i+1};
-            s.x = resample(s.x, fs, s.fs);
-            s.fs = fs;                                     % Resample at specified sample rate
+        if strcmpi(varargin{i},'fs')
+            s.newFS = varargin{i+1};
         end
-        if isstr(varargin{i}) && strcmpi(varargin{i},'gam')
-            mincf     = varargin{i+1};
-            maxcf     = varargin{i+2};
-            numChans  = varargin{i+3};
-            cfs       = MakeErbCFs(mincf,maxcf,numChans);
-            temp      = zeros(size(s.x,1),size(s.x,2) * numChans);
-            for j = 1:size(s.x,2)                          % Split up each channel of stim into specified number of cochlear channels
-                [~,env] = gammatoneFast(s.x(:,j),cfs,s.fs);
-                index = (numChans * (j - 1) + 1):numChans * j;
-                temp(:,index) = env;                       % Take only the Hilbert envelope of each channel
-            end
-            s.x = temp;
+        if strcmpi(varargin{i}(1:3),'gam')
+            s.gam.minCF    = varargin{i+1};
+            s.gam.maxCF    = varargin{i+2};
+            s.gam.numChans = varargin{i+3};
         end
-        if isstr(varargin{i}) && strcmpi(varargin{i},'ramp')
+        if strcmpi(varargin{i},'ramp')
             s.sc = varargin{i+1};
             s.sp = varargin{i+2};
-            s.x  = stimulusRamp(s.x,s.sc,s.sp,s.fs);
         end
         
     end

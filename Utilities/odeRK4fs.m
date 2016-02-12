@@ -1,22 +1,17 @@
 %% odeRK4fs
 %   M = odeRK4fs(M)
 %
-%  Fixed-step 4th-order Runge-Kutta ODE numerical integration.
-%  Steps by *direct indexing* of stimulus vector.
+%  Integrates a model, M, using fixed-step 4th-order Runge-Kutta method.
+%  Steps by direct indexing of stimulus vector.
 %
-%  Params
-%   Model
-%
-%  Output
-%   M - Model
 
 %%
-function M = odeRK4fs(M, varargin)
+function M = odeRK4fs(M)
 
 load('MyColormaps', 'IF_colormap');
 circular = IF_colormap;
 
-zfun = M.dotfunc;
+zfun = M.zfun;
 cfun = M.cfun;
 ispan = [1 length(M.t)];
 
@@ -41,7 +36,7 @@ for nx = netList
     if M.n{nx}.dStep
         [M.n{nx}.nH, M.n{nx}.tH] = networkDisplay(M.n{nx}, 0, M.t(1));
     end
-    for cx = M.n{nx}.conLearn
+    for cx = M.n{nx}.learnList
         if M.n{nx}.con{cx}.dStep
             [M.n{nx}.con{cx}.aH, M.n{nx}.con{cx}.atH, M.n{nx}.con{cx}.pH, M.n{nx}.con{cx}.ptH] ...
                 = connectionDisplay(M.n{nx}.con{cx}, 0, M.t(1), circular);
@@ -68,7 +63,7 @@ for ix = ispan(1) : step : ispan(2)-step
             M.n{nx}.k{kx} = h*zfun(M, nx);
 
             %% ... and for each learned connection to the network
-            for cx = M.n{nx}.conLearn
+            for cx = M.n{nx}.learnList
                 M.n{nx}.con{cx}.k{kx} = h*cfun(M, nx, cx);
             end
         end
@@ -79,7 +74,7 @@ for ix = ispan(1) : step : ispan(2)-step
                 for nx = netList
                     M.n{nx}.zPrev = M.n{nx}.z;
                     M.n{nx}.z = M.n{nx}.zPrev + M.n{nx}.k{1}/2;
-                    for cx = M.n{nx}.conLearn
+                    for cx = M.n{nx}.learnList
                         M.n{nx}.con{cx}.CPrev = M.n{nx}.con{cx}.C;
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + M.n{nx}.con{cx}.k{1}/2;
                     end
@@ -88,14 +83,14 @@ for ix = ispan(1) : step : ispan(2)-step
             case 2
                 for nx = netList
                     M.n{nx}.z = M.n{nx}.zPrev + M.n{nx}.k{2}/2;
-                    for cx = M.n{nx}.conLearn
+                    for cx = M.n{nx}.learnList
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + M.n{nx}.con{cx}.k{2}/2;
                     end
                 end
             case 3
                 for nx = netList
                     M.n{nx}.z = M.n{nx}.zPrev + M.n{nx}.k{3};
-                    for cx = M.n{nx}.conLearn
+                    for cx = M.n{nx}.learnList
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + M.n{nx}.con{cx}.k{3};
                     end
                 end
@@ -110,7 +105,7 @@ for ix = ispan(1) : step : ispan(2)-step
                     if M.n{nx}.dStep && ~mod(ix, M.n{nx}.dStep)
                         networkDisplay(M.n{nx}, ix, M.t(ix));
                     end
-                    for cx = M.n{nx}.conLearn
+                    for cx = M.n{nx}.learnList
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + ...
                             (M.n{nx}.con{cx}.k{1} + 2*M.n{nx}.con{cx}.k{2} + 2*M.n{nx}.con{cx}.k{3} + M.n{nx}.con{cx}.k{4})/6;
                         if M.n{nx}.con{cx}.sStep && ~mod(ix, M.n{nx}.con{cx}.sStep)

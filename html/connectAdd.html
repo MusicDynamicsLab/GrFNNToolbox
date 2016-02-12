@@ -1,0 +1,678 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>connectAdd</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="connectAdd.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>connectAdd</h1><!--introduction--><pre>n = connectAdd(n1, n2, C, varargin)</pre><pre>Updates and returns target network n2, with new connectivity from source
+network n1, with connectivity matrix specified by pattern C.</pre><pre>Required input argumenets:
+n1               Source network (network getting the connection input).
+n2               Target network.
+C                Connection pattern, either a scalar or a matrix of N2 by N1
+                 where N1 is the number of oscillators for n1 and N2 for
+                 n2. When learning is on, this is used as initial
+                 conditions (if C is an empty matrix, small random
+                 initial conditions are assigned).</pre><pre>Optional input arguments:
+'type'           Followed by a charater string specifying connection type.
+                 Options are '1freq', '2freq', '3freq', '3freqAll', 'active',
+                 'All2freq', and 'Allfreq' ('Allfreq' is default).
+'learn'          Followed by five parameters for the learning rule:
+                 lambda, mu1, mu2, epsilon, and kappa
+'weight'         Followed by a weight (scalar or column vector) to be multiplied
+                 to the connectivity matrix, after summed across sources.
+'no11'           Subtracts out all 1-to-1 and subsequent n-to-n monomials from
+                 resonant monomials.
+'tol'            Followed by tolerance value for fareyratio function (only for
+                 '2freq' connection type).
+'display'        Followed by the time step interval at which to display the
+                 connectivity matrix during integration. Default is zero.
+'phaseDisp'      Sets connection phases to be displayed during integration.
+                 Phases are not displayed by default.
+'save'           Followed by the time step interval at which to save the
+                 connectivity matrix. Default is zero.</pre><pre>Output:
+n                Target network with the connection added</pre><pre>Example calls:</pre><pre class="language-matlab">n2 = connectAdd(n1, n2, [], <span class="string">'learn'</span>, 0, -100000000, -1, .5, .1, <span class="string">'display'</span>, 20, <span class="string">'phaseDisp'</span>, <span class="string">'type'</span>, <span class="string">'1freq'</span>);
+n2 = connectAdd(n1, n2, ones(n2.N, n1.N), <span class="string">'weight'</span>, .01);
+</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Initialize parameters</a></li><li><a href="#4">Parse input</a></li><li><a href="#5">Connection types</a></li><li><a href="#6">Scaling factors</a></li><li><a href="#7">Scale learning parameters</a></li><li><a href="#8">Connection State and Initial Conditions</a></li><li><a href="#9">Input</a></li><li><a href="#10">Masking</a></li><li><a href="#11">Return network n2</a></li><li><a href="#12">Add index to conLearn if learn</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> n = connectAdd(n1, n2, C, varargin)
+</pre><pre class="codeinput"><span class="comment">% n1 is the source (stimulus or network), n2 is the target network</span>
+con.source = n1.id;
+con.sourceClass = n1.class;
+con.nSourceClass = n1.nClass;   <span class="comment">% numerical class (1: stimulus, 2: network)</span>
+con.sourceAxis = n1.f;
+con.sourceAxisScale = n1.fspac;
+con.sourceAxisTick = n1.tick;
+con.sourceN = n1.N;
+
+con.target = n2.id;
+con.targetClass = n2.class;
+con.nTargetClass = n2.nClass;
+con.targetAxis = n2.f;
+con.targetAxisScale = n2.fspac;
+con.targetAxisTick = n2.tick;
+con.targetN = n2.N;
+</pre><h2>Initialize parameters<a name="3"></a></h2><pre class="codeinput">con.type = <span class="string">'Allfreq'</span>;
+con.dStep = 0;
+con.sStep = 0;
+con.no11 = 0;
+con.tol  = .01;         <span class="comment">% tolerance for fareyratio (used for 2freq)</span>
+con.phaseDisp = 0;
+w = 1;           <span class="comment">% Initialize these in case not specified in varargin</span>
+learn = 0;
+lambda = 0;
+mu1 = 0;
+mu2 = 0;
+epsilon = 0;
+kappa = 0;
+</pre><h2>Parse input<a name="4"></a></h2><pre class="codeinput">types = {<span class="string">'1freq'</span> <span class="string">'2freq'</span> <span class="string">'3freq'</span> <span class="string">'3freqAll'</span> <span class="string">'All2freq'</span> <span class="string">'Allfreq'</span> <span class="string">'active'</span>};         <span class="comment">% Can add to this array later; default to 'Allfreq' for now</span>
+
+<span class="keyword">for</span> i = 1:length(varargin)
+
+    <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'learn'</span>) &amp;&amp; length(varargin) &gt; i + 4 &amp;&amp; ~ischar(varargin{i+1}) &amp;&amp; ~ischar(varargin{i+2}) &amp;&amp; ~ischar(varargin{i+3}) &amp;&amp; ~ischar(varargin{i+4}) &amp;&amp; ~ischar(varargin{i+5})
+        learn = 1;
+        lambda   = varargin{i+1};
+        mu1      = varargin{i+2};
+        mu2      = varargin{i+3};
+        epsilon  = varargin{i+4};
+        kappa    = varargin{i+5};
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'typ'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; ischar(varargin{i+1}) &amp;&amp; any(strcmpi(varargin{i+1},types))
+        con.type = varargin{i+1};
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'2fr'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; isscalar(varargin{i+1})
+        con.tol = varargin{i+1};
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'wei'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; isnumeric(varargin{i+1})
+        w = varargin{i+1};
+    <span class="keyword">end</span>
+
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'dis'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; isscalar(varargin{i+1})
+        con.dStep = varargin{i+1};
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'sav'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; isscalar(varargin{i+1})
+        con.sStep = varargin{i+1};
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i},<span class="string">'no11'</span>)
+        con.no11 = 1;
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i},<span class="string">'phasedisp'</span>)
+        con.phaseDisp = 1;
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; ~strcmpi(varargin{i},<span class="string">'learn'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'typ'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'wei'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'dis'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'sav'</span>) &amp;&amp; ~any(strcmpi(varargin{i},types)) &amp;&amp; ~strcmpi(varargin{i},<span class="string">'no11'</span>) &amp;&amp; ~strcmpi(varargin{i},<span class="string">'phasedisp'</span>)
+        error([<span class="string">'Unrecognized input to connectAdd: '</span> varargin{i}])
+    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+</pre><h2>Connection types<a name="5"></a></h2><pre class="codeinput">F2 = repmat(n2.f, 1, n1.N);
+
+<span class="keyword">if</span> n1.nClass == 1 <span class="comment">% if stimulus source</span>
+    F1 = F2;
+    <span class="keyword">if</span> isempty(n1.f) &amp;&amp; ismember(lower(con.type), {<span class="string">'2freq'</span>, <span class="string">'3freq'</span>, <span class="string">'3freqall'</span>})
+        error([<span class="string">'Connection type '''</span> lower(con.type) <span class="string">''' not available for stimulus source with no frequency gradient'</span>])
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    F1 = repmat(n1.f', n2.N, 1);
+<span class="keyword">end</span>
+
+<span class="keyword">switch</span> lower(con.type)
+
+    <span class="keyword">case</span> <span class="string">'1freq'</span> <span class="comment">% one-frequency monomials</span>
+        F = (F1 + F2)/2;
+        con.nType = 1; <span class="comment">% numerical connection type</span>
+
+    <span class="keyword">case</span> <span class="string">'2freq'</span> <span class="comment">% two-frequency monomials</span>
+        R = F2./F1;
+        sz = size(R);
+        [NUM, DEN] = fareyratio(R(:)', con.tol);
+        NUM = reshape(NUM,sz);
+        DEN = reshape(DEN,sz);
+        con.NUM = NUM;
+        con.DEN = DEN;
+        F = (NUM.*F1 + DEN.*F2)./(NUM + DEN);
+        <span class="keyword">if</span> n1.nClass == 2 <span class="comment">% if network source</span>
+            con.epsn = n1.e.^((NUM+DEN-2)/2); <span class="comment">% used in zdot</span>
+        <span class="keyword">end</span>
+        con.epsc = epsilon.^((NUM+DEN-2)/2);  <span class="comment">% used in cdot</span>
+        con.nType = 2;
+
+    <span class="keyword">case</span> <span class="string">'3freq'</span> <span class="comment">% three-frequency monomials ALL MONONMIALS, UP TO SPECIFIED ORDER</span>
+        <span class="keyword">if</span> n1.id == n2.id &amp;&amp; n1.nClass == 2     <span class="comment">% if internal connection</span>
+            [X1i, X2i, Zi, NUM1, NUM2, DEN, CON1, CON2, mask] = threeFreqMatsAll(n1.f);
+        <span class="keyword">else</span>
+            [X1i, X2i, Zi, NUM1, NUM2, DEN, CON1, CON2, mask] = threeFreqMatsAll(n1.f, n2.f);
+        <span class="keyword">end</span>
+        con.IDX1 = X1i;
+        con.IDX2 = X2i;
+        con.IDXZ  = Zi;
+        con.CON1 = CON1;
+        con.CON2 = CON2;
+        con.NUM1 = NUM1;
+        con.NUM2 = NUM2;
+        con.DEN = DEN;
+        con.mask = mask;
+        <span class="keyword">if</span> n1.nClass == 1 <span class="comment">% if stimulus source</span>
+            F = repmat(n2.f, 1, size(DEN, 2));
+        <span class="keyword">else</span>
+            F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) <span class="keyword">...</span>
+                ./(abs(NUM1) + abs(NUM2) + DEN);
+            con.epsn = n1.e.^((NUM1+NUM2+DEN-2)/2); <span class="comment">% used in zdot</span>
+        <span class="keyword">end</span>
+        con.epsc = epsilon.^((NUM1+NUM2+DEN-2)/2);  <span class="comment">% used in cdot</span>
+        con.nType = 3;
+
+    <span class="keyword">case</span> <span class="string">'3freqall'</span> <span class="comment">% three-frequency monomials ALL FREQUENCIES, LOWEST ORDER MONOMIAL</span>
+        <span class="keyword">if</span> n1.id == n2.id &amp;&amp; n1.nClass == 2     <span class="comment">% if internal connection</span>
+            [X1i, X2i, Zi] = inputShapeInternal(n1.N);
+            [NUM1,  NUM2,  DEN] = inputExponentsInternal(n1.f, X1i, X2i, Zi);
+        <span class="keyword">else</span>
+            [X1i, X2i, Zi] = inputShapeOther(n1.N, n2.N);
+            [NUM1,  NUM2,  DEN] = inputExponentsOther(n1.f, n2.f, X1i, X2i, Zi);
+        <span class="keyword">end</span>
+        con.IDX1 = X1i;
+        con.IDX2 = X2i;
+        con.IDXZ  = Zi;
+        con.CON1 = (NUM1&lt;0);
+        con.CON2 = (NUM2&lt;0);
+        con.NUM1 = abs(NUM1);
+        con.NUM2 = abs(NUM2);
+        con.DEN = DEN;
+        <span class="keyword">if</span> n1.nClass == 1 <span class="comment">% if stimulus source</span>
+            F = repmat(n2.f, 1, size(DEN, 2));
+        <span class="keyword">else</span>
+            F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) <span class="keyword">...</span>
+                ./(abs(NUM1) + abs(NUM2) + DEN);
+            con.epsn = n1.e.^((NUM1+NUM2+DEN-2)/2); <span class="comment">% used in zdot</span>
+        <span class="keyword">end</span>
+        con.epsc = epsilon.^((NUM1+NUM2+DEN-2)/2);  <span class="comment">% used in cdot</span>
+        con.nType = 4;
+
+    <span class="keyword">case</span> <span class="string">'active'</span> <span class="comment">% Full series of active nonlinearities</span>
+        F = (2*F1.*F2)./(F1+F2);
+        con.nType = 5;
+
+    <span class="keyword">case</span> <span class="string">'all2freq'</span> <span class="comment">% Full series of resonant monomials</span>
+        F = (2*F1.*F2)./(F1+F2);
+        con.nType = 6;
+
+    <span class="keyword">case</span> <span class="string">'allfreq'</span> <span class="comment">% Full series of resonant monomials including conjugates</span>
+        F = (2*F1.*F2)./(F1+F2);
+        con.nType = 7;
+
+<span class="keyword">end</span>
+</pre><h2>Scaling factors<a name="6"></a></h2><pre class="codeinput"><span class="keyword">if</span> strcmpi(n2.fspac,<span class="string">'log'</span>)
+    con.w = w.*n2.f;
+<span class="keyword">else</span>
+    F = ones(size(F));
+    con.w = w;
+<span class="keyword">end</span>
+</pre><h2>Scale learning parameters<a name="7"></a></h2><pre class="codeinput"><span class="comment">% if any(kappa) % JCK: replaces if sum(sum(kappa))</span>
+<span class="comment">%     con.learn = 1;</span>
+<span class="comment">% else</span>
+<span class="comment">%     con.learn = 0;</span>
+<span class="comment">% end</span>
+
+con.learn = learn;
+
+<span class="keyword">if</span> strcmpi(n2.fspac,<span class="string">'log'</span>)
+    con.lambda = lambda.*F;
+    con.mu1 = mu1.*F;
+    con.mu2 = mu2.*F;
+    con.kappa = kappa.*F;
+<span class="keyword">else</span>
+    con.lambda = lambda;
+    con.mu1 = mu1;
+    con.mu2 = mu2;
+    con.kappa = kappa;
+<span class="keyword">end</span>
+con.e = epsilon;
+</pre><h2>Connection State and Initial Conditions<a name="8"></a></h2><pre>     C0: initial conditions
+      C: connection matrix (instantaneous)
+      t: times saved in 3D memory matrix
+     C3: state memory (3D matrix: frequency x frequency x time)</pre><pre class="codeinput"><span class="keyword">if</span> isempty(C)
+    <span class="keyword">if</span> ~con.learn
+        error(<span class="string">'Connection values must be specified as C (3rd input argument) if not learning'</span>)
+    <span class="keyword">end</span>
+    A0 = zeros(size(F));
+    A = spontAmp(real(con.lambda(1,1)), real(con.mu1(1,1)), real(con.mu2(1,1)), con.e);
+    A0 = A0+min(A);
+    A0 = A0.*(1 +.01*randn(size(A0)));
+    theta0 = randn(size(A0));
+    con.C0 = A0.*exp(1i*2*pi*theta0);
+<span class="keyword">else</span>
+    <span class="keyword">if</span> isscalar(C)
+        con.C0 = C*ones(size(F));
+    <span class="keyword">elseif</span> ~isequal(size(C), size(F))
+        error(<span class="string">'Incorrect size of C (3rd input argument)'</span>)
+    <span class="keyword">else</span>
+        con.C0 = C;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+con.C = con.C0;
+</pre><h2>Input<a name="9"></a></h2><pre>    n1: index into n1 (the network in the signal is coming from)
+    n2: index into n2 (the network in the signal is going to)</pre><pre class="codeinput">con.n1 = n1.id;
+con.n2 = n2.id;
+</pre><h2>Masking<a name="10"></a></h2><pre>    This process operates on the initial condition and parameter
+    matrices to hange the way things work (i.e.</pre><pre>    mask = ~eye(size(C));          % Don't learn self-connections
+                                     This could be inverted guassian
+                                     too</pre><pre class="codeinput">mask = 1;
+<span class="keyword">if</span> strcmpi(con.type, <span class="string">'2freq'</span>) &amp;&amp; con.no11
+    mask = ~(con.NUM == 1 &amp; con.DEN == 1);
+<span class="keyword">elseif</span> strcmpi(con.type, <span class="string">'3freq'</span>)
+    mask = con.mask;
+<span class="keyword">elseif</span> con.source == con.target &amp;&amp; con.nSourceClass == 2
+    mask = ~eye(size(con.C));          <span class="comment">% ... Won't learn self-connections</span>
+<span class="keyword">end</span>
+
+con.lambda = con.lambda .* mask;
+con.mu1 = con.mu1 .* mask;
+con.mu2 = con.mu2 .* mask;
+con.kappa = con.kappa .* mask;
+con.C0    = con.C0    .* mask;
+con.C     = con.C     .* mask;
+</pre><h2>Return network n2<a name="11"></a></h2><pre class="codeinput">n = n2;
+con.id = length(n.con)+1;
+n.con{con.id} = con;
+</pre><h2>Add index to conLearn if learn<a name="12"></a></h2><pre class="codeinput"><span class="keyword">if</span> con.learn
+    n.conLearn = [n.conLearn con.id];
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% connectAdd
+%  n = connectAdd(n1, n2, C, varargin)
+%
+%  Updates and returns target network n2, with new connectivity from source
+%  network n1, with connectivity matrix specified by pattern C.
+%
+%  Required input argumenets:
+%  n1               Source network (network getting the connection input).
+%  n2               Target network.
+%  C                Connection pattern, either a scalar or a matrix of N2 by N1
+%                   where N1 is the number of oscillators for n1 and N2 for
+%                   n2. When learning is on, this is used as initial
+%                   conditions (if C is an empty matrix, small random
+%                   initial conditions are assigned).
+%
+%  Optional input arguments:
+%  'type'           Followed by a charater string specifying connection type.
+%                   Options are '1freq', '2freq', '3freq', '3freqAll', 'active',
+%                   'All2freq', and 'Allfreq' ('Allfreq' is default).
+%  'learn'          Followed by five parameters for the learning rule:
+%                   lambda, mu1, mu2, epsilon, and kappa
+%  'weight'         Followed by a weight (scalar or column vector) to be multiplied
+%                   to the connectivity matrix, after summed across sources.
+%  'no11'           Subtracts out all 1-to-1 and subsequent n-to-n monomials from
+%                   resonant monomials.
+%  'tol'            Followed by tolerance value for fareyratio function (only for
+%                   '2freq' connection type).
+%  'display'        Followed by the time step interval at which to display the 
+%                   connectivity matrix during integration. Default is zero.
+%  'phaseDisp'      Sets connection phases to be displayed during integration.
+%                   Phases are not displayed by default.
+%  'save'           Followed by the time step interval at which to save the 
+%                   connectivity matrix. Default is zero.
+%
+%  Output:
+%  n                Target network with the connection added
+%
+%  Example calls:
+%
+%   n2 = connectAdd(n1, n2, [], 'learn', 0, -100000000, -1, .5, .1, 'display', 20, 'phaseDisp', 'type', '1freq');
+%   n2 = connectAdd(n1, n2, ones(n2.N, n1.N), 'weight', .01);
+%
+
+%%
+function n = connectAdd(n1, n2, C, varargin)
+% n1 is the source (stimulus or network), n2 is the target network
+con.source = n1.id;
+con.sourceClass = n1.class;
+con.nSourceClass = n1.nClass;   % numerical class (1: stimulus, 2: network)
+con.sourceAxis = n1.f;
+con.sourceAxisScale = n1.fspac;
+con.sourceAxisTick = n1.tick;
+con.sourceN = n1.N;
+
+con.target = n2.id;
+con.targetClass = n2.class;
+con.nTargetClass = n2.nClass;
+con.targetAxis = n2.f;
+con.targetAxisScale = n2.fspac;
+con.targetAxisTick = n2.tick;
+con.targetN = n2.N;
+
+%% Initialize parameters
+
+con.type = 'Allfreq';
+con.dStep = 0;
+con.sStep = 0;
+con.no11 = 0;
+con.tol  = .01;         % tolerance for fareyratio (used for 2freq)
+con.phaseDisp = 0;
+w = 1;           % Initialize these in case not specified in varargin
+learn = 0;
+lambda = 0;
+mu1 = 0;
+mu2 = 0;
+epsilon = 0;
+kappa = 0;
+
+%% Parse input
+types = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq' 'active'};         % Can add to this array later; default to 'Allfreq' for now
+
+for i = 1:length(varargin)
+    
+    if strcmpi(varargin{i},'learn') && length(varargin) > i + 4 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2}) && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4}) && ~ischar(varargin{i+5})
+        learn = 1;
+        lambda   = varargin{i+1};
+        mu1      = varargin{i+2};
+        mu2      = varargin{i+3};
+        epsilon  = varargin{i+4};
+        kappa    = varargin{i+5};
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'typ') && length(varargin) > i && ischar(varargin{i+1}) && any(strcmpi(varargin{i+1},types))
+        con.type = varargin{i+1};
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'2fr') && length(varargin) > i && isscalar(varargin{i+1})
+        con.tol = varargin{i+1};
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'wei') && length(varargin) > i && isnumeric(varargin{i+1})
+        w = varargin{i+1};
+    end
+    
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'dis') && length(varargin) > i && isscalar(varargin{i+1})
+        con.dStep = varargin{i+1};
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'sav') && length(varargin) > i && isscalar(varargin{i+1})
+        con.sStep = varargin{i+1};
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i},'no11')
+        con.no11 = 1;
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i},'phasedisp')
+        con.phaseDisp = 1;
+    end
+    
+    if ischar(varargin{i}) && ~strcmpi(varargin{i},'learn') && ~strcmpi(varargin{i}(1:3),'typ') && ~strcmpi(varargin{i}(1:3),'wei') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~any(strcmpi(varargin{i},types)) && ~strcmpi(varargin{i},'no11') && ~strcmpi(varargin{i},'phasedisp')
+        error(['Unrecognized input to connectAdd: ' varargin{i}])
+    end
+    
+end
+
+%% Connection types
+
+F2 = repmat(n2.f, 1, n1.N);
+
+if n1.nClass == 1 % if stimulus source
+    F1 = F2;
+    if isempty(n1.f) && ismember(lower(con.type), {'2freq', '3freq', '3freqall'})
+        error(['Connection type ''' lower(con.type) ''' not available for stimulus source with no frequency gradient'])
+    end
+else
+    F1 = repmat(n1.f', n2.N, 1);
+end
+
+switch lower(con.type)
+    
+    case '1freq' % one-frequency monomials
+        F = (F1 + F2)/2;
+        con.nType = 1; % numerical connection type
+        
+    case '2freq' % two-frequency monomials
+        R = F2./F1;
+        sz = size(R);
+        [NUM, DEN] = fareyratio(R(:)', con.tol);
+        NUM = reshape(NUM,sz);
+        DEN = reshape(DEN,sz);
+        con.NUM = NUM;
+        con.DEN = DEN;
+        F = (NUM.*F1 + DEN.*F2)./(NUM + DEN);
+        if n1.nClass == 2 % if network source
+            con.epsn = n1.e.^((NUM+DEN-2)/2); % used in zdot
+        end
+        con.epsc = epsilon.^((NUM+DEN-2)/2);  % used in cdot
+        con.nType = 2;
+        
+    case '3freq' % three-frequency monomials ALL MONONMIALS, UP TO SPECIFIED ORDER
+        if n1.id == n2.id && n1.nClass == 2     % if internal connection
+            [X1i, X2i, Zi, NUM1, NUM2, DEN, CON1, CON2, mask] = threeFreqMatsAll(n1.f);
+        else
+            [X1i, X2i, Zi, NUM1, NUM2, DEN, CON1, CON2, mask] = threeFreqMatsAll(n1.f, n2.f);
+        end
+        con.IDX1 = X1i;
+        con.IDX2 = X2i;
+        con.IDXZ  = Zi;
+        con.CON1 = CON1;
+        con.CON2 = CON2;
+        con.NUM1 = NUM1;
+        con.NUM2 = NUM2;
+        con.DEN = DEN;
+        con.mask = mask;
+        if n1.nClass == 1 % if stimulus source
+            F = repmat(n2.f, 1, size(DEN, 2));
+        else
+            F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) ...
+                ./(abs(NUM1) + abs(NUM2) + DEN);
+            con.epsn = n1.e.^((NUM1+NUM2+DEN-2)/2); % used in zdot
+        end
+        con.epsc = epsilon.^((NUM1+NUM2+DEN-2)/2);  % used in cdot
+        con.nType = 3;
+        
+    case '3freqall' % three-frequency monomials ALL FREQUENCIES, LOWEST ORDER MONOMIAL
+        if n1.id == n2.id && n1.nClass == 2     % if internal connection
+            [X1i, X2i, Zi] = inputShapeInternal(n1.N);
+            [NUM1,  NUM2,  DEN] = inputExponentsInternal(n1.f, X1i, X2i, Zi);
+        else
+            [X1i, X2i, Zi] = inputShapeOther(n1.N, n2.N);
+            [NUM1,  NUM2,  DEN] = inputExponentsOther(n1.f, n2.f, X1i, X2i, Zi);
+        end
+        con.IDX1 = X1i;
+        con.IDX2 = X2i;
+        con.IDXZ  = Zi;
+        con.CON1 = (NUM1<0);
+        con.CON2 = (NUM2<0);
+        con.NUM1 = abs(NUM1);
+        con.NUM2 = abs(NUM2);
+        con.DEN = DEN;
+        if n1.nClass == 1 % if stimulus source
+            F = repmat(n2.f, 1, size(DEN, 2));
+        else
+            F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) ...
+                ./(abs(NUM1) + abs(NUM2) + DEN);
+            con.epsn = n1.e.^((NUM1+NUM2+DEN-2)/2); % used in zdot
+        end
+        con.epsc = epsilon.^((NUM1+NUM2+DEN-2)/2);  % used in cdot
+        con.nType = 4;
+        
+    case 'active' % Full series of active nonlinearities
+        F = (2*F1.*F2)./(F1+F2);
+        con.nType = 5;
+        
+    case 'all2freq' % Full series of resonant monomials
+        F = (2*F1.*F2)./(F1+F2);
+        con.nType = 6;
+        
+    case 'allfreq' % Full series of resonant monomials including conjugates
+        F = (2*F1.*F2)./(F1+F2);
+        con.nType = 7;
+        
+end
+
+%% Scaling factors
+
+if strcmpi(n2.fspac,'log')
+    con.w = w.*n2.f;
+else
+    F = ones(size(F));
+    con.w = w;
+end
+
+%% Scale learning parameters
+
+% if any(kappa) % JCK: replaces if sum(sum(kappa))
+%     con.learn = 1;
+% else
+%     con.learn = 0;
+% end
+
+con.learn = learn;
+
+if strcmpi(n2.fspac,'log')
+    con.lambda = lambda.*F;
+    con.mu1 = mu1.*F;
+    con.mu2 = mu2.*F;
+    con.kappa = kappa.*F;
+else
+    con.lambda = lambda;
+    con.mu1 = mu1;
+    con.mu2 = mu2;
+    con.kappa = kappa;
+end
+con.e = epsilon;
+
+%% Connection State and Initial Conditions
+%       C0: initial conditions
+%        C: connection matrix (instantaneous)
+%        t: times saved in 3D memory matrix
+%       C3: state memory (3D matrix: frequency x frequency x time)
+
+if isempty(C)
+    if ~con.learn
+        error('Connection values must be specified as C (3rd input argument) if not learning')
+    end
+    A0 = zeros(size(F));
+    A = spontAmp(real(con.lambda(1,1)), real(con.mu1(1,1)), real(con.mu2(1,1)), con.e);
+    A0 = A0+min(A);
+    A0 = A0.*(1 +.01*randn(size(A0)));
+    theta0 = randn(size(A0));
+    con.C0 = A0.*exp(1i*2*pi*theta0);
+else
+    if isscalar(C)
+        con.C0 = C*ones(size(F));
+    elseif ~isequal(size(C), size(F))
+        error('Incorrect size of C (3rd input argument)')
+    else
+        con.C0 = C;
+    end
+end
+
+con.C = con.C0;
+
+
+%% Input
+%      n1: index into n1 (the network in the signal is coming from)
+%      n2: index into n2 (the network in the signal is going to)
+con.n1 = n1.id;
+con.n2 = n2.id;
+
+
+%% Masking
+%      This process operates on the initial condition and parameter
+%      matrices to hange the way things work (i.e.
+%
+%      mask = ~eye(size(C));          % Don't learn self-connections
+%                                       This could be inverted guassian
+%                                       too
+
+mask = 1;
+if strcmpi(con.type, '2freq') && con.no11
+    mask = ~(con.NUM == 1 & con.DEN == 1);
+elseif strcmpi(con.type, '3freq')
+    mask = con.mask;
+elseif con.source == con.target && con.nSourceClass == 2
+    mask = ~eye(size(con.C));          % ... Won't learn self-connections
+end
+
+con.lambda = con.lambda .* mask;
+con.mu1 = con.mu1 .* mask;
+con.mu2 = con.mu2 .* mask;
+con.kappa = con.kappa .* mask;
+con.C0    = con.C0    .* mask;
+con.C     = con.C     .* mask;
+
+%% Return network n2
+n = n2;
+con.id = length(n.con)+1;
+n.con{con.id} = con;
+
+%% Add index to conLearn if learn
+if con.learn
+    n.conLearn = [n.conLearn con.id];
+end
+
+##### SOURCE END #####
+--></body></html>

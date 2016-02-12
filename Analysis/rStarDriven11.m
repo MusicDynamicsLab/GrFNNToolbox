@@ -1,19 +1,33 @@
 %% rStarDriven11
-%   [rStar, psiStar, stability, stabType] = rStarDriven11(alpha, beta1, beta2, epsilon, forcing amplitude,Omega, All)
-%   
+%  [rStar, psiStar, stability, stabType] = rStarDriven11(alpha, beta1, beta2, epsilon, forcing amplitude, Omega, All)
 %
-%  Finds r*, psi*, stability (1 or 0), and stability type (0-4) numerically
-%  for a canonical oscillator driven by a single sinusoidal input. Omega
-%  refers to the difference between the oscillator's natural frequency
-%  and the input frequency in radian.
-%  Set the optional input argument 'All' to 1 (or any nonzero value)
-%  to get both stable and unstable fixed points. (Default for All is 0,
-%  that is, rStarDriven11 outputs only stable fixed points.)
+%  Finds steady-state amplitude (r*) and relative phase (psi*) along with
+%  their stability and stability type for a canonical oscillator driven by
+%  single sinusoidal forcing via fixed 1:1 coupling.
 %
-%  stability: 1 = stable, 0 = unstable
+%  Input arguments:
+%  alpha, beta1, beta2, epsilon
+%                       Oscillator parameters
+%  forcing amplitude    Amplitude of sinusoidal forcing
+%  Omega                Frequency difference (i.e. oscillator's natural 
+%                       frequency minus forcing frequency) in radian
 %
-%  stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
-%  1 = unstable spiral, 0 = saddle point
+%  Optional input:
+%  All                  Set it to 1 (or any nonzero value) to get both 
+%                       stable and unstable fixed points. (Default is 0,
+%                       i.e., only stable fixed points are output.)
+%
+%  Output:
+%  rStar                Steady-state amplitude(s)
+%  psiStar              Steady-state relative phase(s) (i.e. oscillator
+%                       phase minus forcing phase)
+%  stability            Stability of steady state(s)
+%                       (1 = stable, 0 = unstable)
+%  stabType             Stability type of steady state(s)
+%                       (4 = stable node, 3 = stable spiral,
+%                       2 = unstable node, 1 = unstable spiral,
+%                       0 = saddle point)
+%
 
 %% Equation
 % $$\frac{dz}{dt} = z\left(\alpha + \textrm{i}\omega + 
@@ -23,6 +37,7 @@
 % where $z = re^{\textrm{i}\phi}, \psi = \phi - \theta,
 % \theta = \omega_0t + \theta_0,$ and $\Omega = \omega - \omega_0$
 
+%%
 function [rStar, psiStar, stability, stabType] = ...
   rStarDriven11(a, b1, b2, e, F, W, All)
 

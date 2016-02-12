@@ -1,0 +1,270 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>zdot</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="zdot.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>zdot</h1><!--introduction--><pre>dzdt = zdot(M, nx)</pre><pre>Calculates time derivative for a single network M.n{nx}</pre><pre>Input arguments:
+M        Model
+nx       Network id</pre><pre>Output:
+dzdt     Time derivative of oscillator states (column vector)</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Initialize variables and stimulus</a></li><li><a href="#3">Add input</a></li><li><a href="#4">The differential equation</a></li><li><a href="#5">Nonlinear Function Definitions</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> [dzdt] = zdot(M, nx)
+</pre><h2>Initialize variables and stimulus<a name="2"></a></h2><pre class="codeinput">n   = M.n{nx};
+z   = n.z;
+a   = n.a;
+b1  = n.b1;
+b2  = n.b2;
+e   = n.e;
+</pre><h2>Add input<a name="3"></a></h2><pre class="codeinput">x = 0;
+
+<span class="keyword">for</span> cx = 1:length(n.con)
+    con = n.con{cx};
+    <span class="keyword">if</span> con.nSourceClass == 1
+        y = M.s{con.source}.z;
+    <span class="keyword">else</span>
+        y = M.n{con.source}.z;
+    <span class="keyword">end</span>
+
+    <span class="keyword">switch</span> con.nType    <span class="comment">% cases ordered by frequency of use</span>
+
+        <span class="keyword">case</span> 1  <span class="comment">% 1freq</span>
+            x = x + con.w.*(con.C*y);
+
+        <span class="keyword">case</span> 6  <span class="comment">% all2freq</span>
+            <span class="keyword">if</span> con.no11
+                x = x + con.w .* sum(con.C.*( A(e, z)*P(e, y.') <span class="keyword">...</span>
+                    - P(e^2, conj(z)*y.')./repmat(conj(z), 1, con.sourceN) ), 2);
+            <span class="keyword">else</span>
+                x = x + con.w .* sum(con.C.*( A(e, z)*P(e, y.') ), 2);
+            <span class="keyword">end</span>
+
+        <span class="keyword">case</span> 7  <span class="comment">% allfreq</span>
+            <span class="keyword">if</span> con.no11
+                x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') <span class="keyword">...</span>
+                    - P(e^2, conj(z)*y.').*((1./conj(z))*P(e^2, abs(y.').^2)) ), 2);
+            <span class="keyword">else</span>
+                x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ), 2);
+            <span class="keyword">end</span>
+
+        <span class="keyword">case</span> 2  <span class="comment">% 2freq</span>
+            NUM = con.NUM;
+            DEN = con.DEN;
+            Y = repmat(    y.', con.targetN, 1).^ NUM;
+            Z = repmat(conj(z) , 1, con.sourceN).^(DEN-1);
+            x = x + con.w .* <span class="keyword">...</span>
+                sum(con.C.*con.epsn.*Y.*Z,2);
+
+        <span class="keyword">case</span> 5  <span class="comment">% active</span>
+            <span class="keyword">if</span> con.no11
+                x = x + con.w .* sum(con.C.*( (sqrt(e)*conj(z).*A(e, z))*y.' ), 2);
+            <span class="keyword">else</span>
+                x = x + con.w .* sum(con.C.*( A(e, z)*y.' ), 2);
+            <span class="keyword">end</span>
+
+        <span class="keyword">otherwise</span> <span class="comment">% 3freq and 3freqall</span>
+            Y1 = y(con.IDX1); Y1(con.CON1) = conj(Y1(con.CON1));
+            Y2 = y(con.IDX2); Y2(con.CON2) = conj(Y2(con.CON2));
+            Z  = conj(z(con.IDXZ));
+            NUM1 = con.NUM1;
+            NUM2 = con.NUM2;
+            DEN = con.DEN;
+            x_int = con.C.*con.epsn.*(Y1.^NUM1).*(Y2.^NUM2).*(Z.^(DEN-1));
+            <span class="comment">% had to conjugate to make it work right</span>
+            x = x + con.w .* sum(x_int,2);
+
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>The differential equation<a name="4"></a></h2><p><img src="zdot_eq12160180045654424728.png" alt="$\dot{z} = z \left( \alpha + \beta_1 |z|^2 + \frac{\epsilon \beta_2 |z|^4}{1-\epsilon |z|^2} \right) + x$"></p><pre class="codeinput">dzdt = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-e*abs(z).^2)) + x;
+</pre><h2>Nonlinear Function Definitions<a name="5"></a></h2><pre class="codeinput"><span class="keyword">function</span> y = P(epsilon, x)
+y = ( x ./ (1 - sqrt(epsilon)*x) );
+
+<span class="keyword">function</span> y = P_new(epsilon, x)
+y = ( x ./ (1 - sqrt(epsilon)*x) ) .* ( 1 ./ (1 - sqrt(epsilon)*conj(x) ));
+<span class="comment">%y = y - Pc(epsilon, x);</span>
+
+<span class="keyword">function</span> y = A(epsilon, z)
+y = ( 1 ./ (1 - sqrt(epsilon)*conj(z) ));
+
+<span class="keyword">function</span> y = Pc(epsilon, x)
+y = ( sqrt(epsilon)*x.*conj(x) ./ (1 - epsilon*x.*conj(x)) );
+
+<span class="keyword">function</span> y = Ac(epsilon, x, z)
+y = ( sqrt(epsilon)*x.*conj(z) ./ (1 - epsilon*x.*conj(z)) );
+
+<span class="keyword">function</span> y = H(epsilon, r)
+y = (epsilon * r.^4 ./ (1- epsilon * r.^2) );
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% zdot
+%  dzdt = zdot(M, nx)
+%
+%  Calculates time derivative for a single network M.n{nx}
+%
+%  Input arguments:
+%  M        Model
+%  nx       Network id
+%
+%  Output:
+%  dzdt     Time derivative of oscillator states (column vector)
+%
+
+%%
+function [dzdt] = zdot(M, nx)
+%% Initialize variables and stimulus
+
+n   = M.n{nx};
+z   = n.z;
+a   = n.a;
+b1  = n.b1;
+b2  = n.b2;
+e   = n.e;
+
+%% Add input
+
+x = 0;
+
+for cx = 1:length(n.con)
+    con = n.con{cx};
+    if con.nSourceClass == 1
+        y = M.s{con.source}.z;
+    else
+        y = M.n{con.source}.z;
+    end
+    
+    switch con.nType    % cases ordered by frequency of use
+        
+        case 1  % 1freq
+            x = x + con.w.*(con.C*y);
+            
+        case 6  % all2freq
+            if con.no11
+                x = x + con.w .* sum(con.C.*( A(e, z)*P(e, y.') ...
+                    - P(e^2, conj(z)*y.')./repmat(conj(z), 1, con.sourceN) ), 2);
+            else
+                x = x + con.w .* sum(con.C.*( A(e, z)*P(e, y.') ), 2);
+            end
+            
+        case 7  % allfreq
+            if con.no11
+                x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ...
+                    - P(e^2, conj(z)*y.').*((1./conj(z))*P(e^2, abs(y.').^2)) ), 2);
+            else
+                x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ), 2);
+            end
+            
+        case 2  % 2freq
+            NUM = con.NUM;
+            DEN = con.DEN;
+            Y = repmat(    y.', con.targetN, 1).^ NUM;
+            Z = repmat(conj(z) , 1, con.sourceN).^(DEN-1);
+            x = x + con.w .* ...
+                sum(con.C.*con.epsn.*Y.*Z,2);
+            
+        case 5  % active
+            if con.no11
+                x = x + con.w .* sum(con.C.*( (sqrt(e)*conj(z).*A(e, z))*y.' ), 2);
+            else
+                x = x + con.w .* sum(con.C.*( A(e, z)*y.' ), 2);
+            end
+            
+        otherwise % 3freq and 3freqall
+            Y1 = y(con.IDX1); Y1(con.CON1) = conj(Y1(con.CON1));
+            Y2 = y(con.IDX2); Y2(con.CON2) = conj(Y2(con.CON2));
+            Z  = conj(z(con.IDXZ));
+            NUM1 = con.NUM1;
+            NUM2 = con.NUM2;
+            DEN = con.DEN;
+            x_int = con.C.*con.epsn.*(Y1.^NUM1).*(Y2.^NUM2).*(Z.^(DEN-1));
+            % had to conjugate to make it work right
+            x = x + con.w .* sum(x_int,2);
+            
+    end
+end
+
+%% The differential equation
+% $\dot{z} = z \left( \alpha + \beta_1 |z|^2 + \frac{\epsilon \beta_2 |z|^4}{1-\epsilon |z|^2} \right) + x$
+dzdt = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-e*abs(z).^2)) + x;
+
+%%  Nonlinear Function Definitions
+function y = P(epsilon, x)
+y = ( x ./ (1 - sqrt(epsilon)*x) );
+
+function y = P_new(epsilon, x)
+y = ( x ./ (1 - sqrt(epsilon)*x) ) .* ( 1 ./ (1 - sqrt(epsilon)*conj(x) ));
+%y = y - Pc(epsilon, x);
+
+function y = A(epsilon, z)
+y = ( 1 ./ (1 - sqrt(epsilon)*conj(z) ));
+
+function y = Pc(epsilon, x)
+y = ( sqrt(epsilon)*x.*conj(x) ./ (1 - epsilon*x.*conj(x)) );
+
+function y = Ac(epsilon, x, z)
+y = ( sqrt(epsilon)*x.*conj(z) ./ (1 - epsilon*x.*conj(z)) );
+
+function y = H(epsilon, r)
+y = (epsilon * r.^4 ./ (1- epsilon * r.^2) );
+
+##### SOURCE END #####
+--></body></html>

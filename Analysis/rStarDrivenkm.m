@@ -1,19 +1,38 @@
 %% rStarDrivenkm
-%   [rStar, psiStar, stability, stabType] = rStarDrivenkm(alpha, beta1, beta2, epsilon, forcing amplitude, Omega, k, m, All)
+%  [rStar, psiStar, stability, stabType] = rStarDrivenkm(alpha, beta1, beta2, epsilon, forcing amplitude, Omega, k, m, All)
 %
-%  Finds r*, psi*, stability (1 or 0), and stability type (0-4) numerically
-%  for a canonical oscillator driven by a sinusoidal input via a nonlinear
-%  coupling for k:m mode-locking. Omega = m*omega_osc - k*omega_input
-%  is the deviation from the exact integer relationship (k:m) between
-%  the oscillator and the input.
-%  Set the optional input argument 'All' to 1 (or any nonzero value)
-%  to get both stable and unstable fixed points. (Default for All is 0,
-%  that is, rStarDrivenkm outputs only stable fixed points.)
+%  Finds steady-state amplitude (r*) and relative phase (psi*) along with
+%  their stability and stability type for a canonical oscillator driven by
+%  single sinusoidal forcing via nonlinear coupling for k:m mode-locking.
+%  Mode-locking at k:m means that the oscillator makes k cycles per m
+%  periods of forcing.
 %
-%  stability: 1 = stable, 0 = unstable
+%  Input arguments:
+%  alpha, beta1, beta2, epsilon
+%                       Oscillator parameters
+%  forcing amplitude    Amplitude of sinusoidal forcing
+%  Omega                Frequency deviation (i.e. m times oscillator's 
+%                       natural frequency minus k time forcing frequency)
+%                       in radian
+%  k                    Numerator (integer) of mode-locking ratio
+%  m                    Denominator (integer) of mode-locking ratio
 %
-%  stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
-%  1 = unstable spiral, 0 = saddle point
+%  Optional input:
+%  All                  Set it to 1 (or any nonzero value) to get both 
+%                       stable and unstable fixed points. (Default is 0,
+%                       i.e., only stable fixed points are output.)
+%
+%  Output:
+%  rStar                Steady-state amplitude(s)
+%  psiStar              Steady-state relative phase(s) (i.e. m times
+%                       oscillator phase minus k times forcing phase)
+%  stability            Stability of steady state(s)
+%                       (1 = stable, 0 = unstable)
+%  stabType             Stability type of steady state(s)
+%                       (4 = stable node, 3 = stable spiral,
+%                       2 = unstable node, 1 = unstable spiral,
+%                       0 = saddle point)
+%
 
 %% Equation
 % $$\frac{dz}{dt} = z\left(\alpha + \textrm{i}\omega +
@@ -23,6 +42,8 @@
 %
 % where $z = re^{\textrm{i}\phi}, \psi = m\phi - k\theta,
 % \theta = \omega_0t + \theta_0,$ and $\Omega = m\omega - k\omega_0$
+
+%%
 function [rStar, psiStar, stability, stabType] = ...
   rStarDrivenkm(a, b1, b2, e, F, W, k, m, All)
 
