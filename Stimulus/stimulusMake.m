@@ -1,7 +1,7 @@
 %% stimulusMake
 %  STIMULUSMAKE
 %  Make a stimulus structure, which will include a time vector,
-%  signal vector, and other values for NLTFT toolbox use.
+%  signal vector, and other values for GrFNN toolbox use.
 %
 %  s = stimulusMake(type, varargin)
 %  type      = 'fcn', 'wav', 'mid'
