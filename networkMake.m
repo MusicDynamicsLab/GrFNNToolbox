@@ -73,11 +73,11 @@ for i = 1:length(varargin)
     
     if ischar(varargin{i}) && any(strcmpi(varargin{i}(1:3),{'lin' 'log'})) && length(varargin) > i + 2 && isscalar(varargin{i+1}) && isscalar(varargin{i+2}) && isscalar(varargin{i+3})
         
-        fspac = lower(varargin{i}(1:3));
+        n.fspac = lower(varargin{i}(1:3));
         % Assign nFspac integer value based on fspac string value
-        if strcmpi(fspac, 'lin')
+        if strcmpi(n.fspac, 'lin')
             n.nFspac = 1;
-        elseif strcmpi(fspac, 'log')
+        else
             n.nFspac = 2;
         end
         
@@ -131,7 +131,7 @@ for i = 1:length(varargin)
         
     end
     
-    if ischar(varargin{i}) && ~any(strcmpi(varargin{i},models)) && ~any(strcmpi(varargin{i},{'lin' 'log'})) && ~strcmpi(varargin{i}(1:3),'cha') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~strcmpi(varargin{i}(1:3),'zna') && ~strcmpi(varargin{i}(1:3),'tic')
+    if ischar(varargin{i}) && ~any(strcmpi(varargin{i},models)) && ~any(strcmpi(varargin{i},{'lin' 'log'})) && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~strcmpi(varargin{i}(1:3),'zna') && ~strcmpi(varargin{i}(1:3),'tic')
         
         error(['Unrecognized input to networkMake: ' varargin{i}]);
         
