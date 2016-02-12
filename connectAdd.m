@@ -50,6 +50,7 @@ con.sourceClass = n1.class;
 con.nSourceClass = n1.nClass;   % numerical class (1: stimulus, 2: network)
 con.sourceAxis = n1.f;
 con.sourceAxisScale = n1.fspac;
+con.nSourceAxisScale = n1.nFspac;
 con.sourceAxisTick = n1.tick;
 con.sourceN = n1.N;
 
@@ -58,6 +59,7 @@ con.targetClass = n2.class;
 con.nTargetClass = n2.nClass;
 con.targetAxis = n2.f;
 con.targetAxisScale = n2.fspac;
+con.nTargetAxisScale = n2.nFspac;
 con.targetAxisTick = n2.tick;
 con.targetN = n2.N;
 
