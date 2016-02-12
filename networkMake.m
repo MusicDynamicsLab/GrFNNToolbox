@@ -45,8 +45,9 @@ n.nClass = 2; % numerical class
 models = {'hopf'};              % Can add to this array later
 
 n.model = [];                   % Initialize these to use isempty to error check later
-n.nfspac = [];
+n.fspac = [];
 
+n.nfspac= 0;
 n.dStep = 0;                    % Initialize these to zero/empty in case not specified in varargin
 n.sStep = 0;
 n.ext   = 0;                    % Now obsolete but needed for backward compatibility
