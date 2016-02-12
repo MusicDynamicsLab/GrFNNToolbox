@@ -9,25 +9,26 @@
 %% Choose a parameter set
 
 % alpha =-1; beta1 =  0; beta2 =  0; delta1 = 0; delta2 = 0; neps = 1; % Linear
-  alpha = 0; beta1 = -1; beta2 = -1; delta1 = 0; delta2 = 0; neps = 1; % Critical
+alpha = 0; beta1 = -1; beta2 = -1; delta1 = 0; delta2 = 0; neps = 1; % Critical
 % alpha = 0; beta1 = -1; beta2 = -1; delta1 = 1; delta2 = 0; neps = 1; % Critical with detuning
 % alpha = 1; beta1 = -1; beta2 = -1; delta1 = 0; delta2 = 0; neps = 1; % Limit Cycle
 % alpha =-1; beta1 =  3; beta2 = -1; delta1 = 0; delta2 = 0; neps = 1; % Double limit cycle
 
 %% Make the model
-s = stimulusMake('fcn', [0 50], 40, {'exp'}, [1], .25, 0, ...
+s = stimulusMake(1, 'fcn', [0 50], 40, {'exp'}, [1], .25, 0, ...
     'ramp', 0.02, 1, 'display', 10);
 
 n = networkMake(1, 'hopf', alpha, beta1,  beta2, delta1, delta2, neps, ...
-                   'log', .5, 2, 200, 'channel', 1, 'save', 1, ...
-                   'display', 0, 'Tick', [.5 2/3 3/4 1 4/3 3/2 2]);
+    'log', .5, 2, 200, 'save', 1, 'display', 10, ...
+    'Tick', [.5 2/3 3/4 1 4/3 3/2 2]);
+
+n = connectAdd(s, n, 1); % default connection type for stimulus source is '1freq'
 
 M = modelMake(@zdot, @cdot, s, n);
 
 %% Run the network
 tic
-M = odeRK4fs(M,s);
-drawnow
+M = odeRK4fs(M);
 toc
 
 %% Display the output

@@ -2,21 +2,22 @@
 %  Make a stimulus structure, which will include a time vector,
 %  signal vector, and other values for NLTFT toolbox use.
 %
-%  s = stimulusMake(type, varargin)
-%  type      = 'fcn', 'wav', 'mid'
+%  s = stimulusMake(id, type, varargin)
+%  id        = stimulus id number
+%  type      = 'fcn', 'wav', 'mid', 'rfcn'
 %  Required varargins for type 'fcn':
 %  ts        = time-span [starttime, stoptime]
 %  fs        = sampling rate
 %  carrier   = {'cos'}, {'sin'}, {'exp'}, {'saw'}, {'squ'}, {'noi'}
 %  fc        = frequency of the carrier
 %  ac        = amplitude of the carrier
-%  s = stimulusMake('fcn', ts, fs, carrier, fc, ac)
+%  s = stimulusMake(id, 'fcn', ts, fs, carrier, fc, ac)
 %
 %   Examples:
 %
 %   Type 'fcn'
-%   s = stimulusMake('fcn', ts, fs, carrier, fc, ac)
-%   s = stimulusMake('fcn', ts, fs, carrier, fc, ac, startPhases, 'ramp', 1, 2, 'mask', 0, 'filtmask', {b a})
+%   s = stimulusMake(id, 'fcn', ts, fs, carrier, fc, ac)
+%   s = stimulusMake(id, 'fcn', ts, fs, carrier, fc, ac, startPhases, 'ramp', 1, 2, 'mask', 0, 'filtmask', {b a})
 %
 %   Type 'wav'
 %
@@ -27,14 +28,14 @@
 %    audio formats such as .mp3 and .ogg can be read, but the file extension
 %    must ALWAYS be specified.
 %
-%   s = stimulusMake('wav', filename)
-%   s = stimulusMake('wav', filename, 'ts', newTimeSpan, 'fs', newSamplingFrequency)
-%   s = stimulusMake('wav', filename, 'ramp', 1, 1, 'mask', 10, 'filtstim', {b a})
+%   s = stimulusMake(id, 'wav', filename)
+%   s = stimulusMake(id, 'wav', filename, 'ts', newTimeSpan, 'fs', newSamplingFrequency)
+%   s = stimulusMake(id, 'wav', filename, 'ramp', 1, 1, 'mask', 10, 'filtstim', {b a})
 %
 %   Type 'mid'
-%   s = stimulusMake('mid', filename, ts {optional}, fs {optional})
-%   s = stimulusMake('mid', nmat, ts{optional}, fs {optional}) %where 'nmat'is a valid Midi Toolbox-style midi matrix.
-%   s = stimulusMake('rfcn', ts {optional}, fs {optional}, numer, denom, mType, mCode, 'tempo_mod' {optional}, {optional canonMake params})
+%   s = stimulusMake(id, 'mid', filename, ts {optional}, fs {optional})
+%   s = stimulusMake(id, 'mid', nmat, ts{optional}, fs {optional}) %where 'nmat'is a valid Midi Toolbox-style midi matrix.
+%   s = stimulusMake(id, 'rfcn', ts {optional}, fs {optional}, numer, denom, mType, mCode, 'tempo_mod' {optional}, {optional canonMake params})
 %   %see help for canonMake for a description of numer, denom, mType, and mCode as well as optional params.
 %
 %
@@ -141,19 +142,9 @@
 %%
 function s = stimulusMake(varargin)
 
-if isscalar(varargin{1})
-    
-    id = varargin{1};
-    type = varargin{2};    
-    temp = varargin(3:end);
-        
-else
-    
-    id = 1;
-    type = varargin{1};    
-    temp = varargin(2:end);
-    
-end
+id = varargin{1};
+type = varargin{2};
+temp = varargin(3:end);
 
 %% Call relevant 'make' function
 
@@ -174,11 +165,10 @@ end
 %Fields for all types
 %MS1 - added 12/19/08
 s.id = id;
-s.class = 'stim';
+s.class = 'stimulus';
 s.nClass = 1; % numerical class
 s.lenx = size(s.x, 2);  % stimulus length
 s.N = size(s.x, 1);   % number of stimulus channels
-s.inputType = '1freq';  % this field is now obsolete but kept for backward compatibility
 s.dStep = 0;
 s.dispChan = 1;
 s.useDirectIndex = 0; % used in stimulusRun
