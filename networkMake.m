@@ -45,7 +45,7 @@ models = {'hopf'};              % Can add to this array later
 n.model = [];                   % Initialize these to use isempty to error check later
 n.fspac = [];
 
-n.nfspac= 0;
+n.nFspac= 0;
 n.dStep = 0;                    % Initialize these to zero/empty in case not specified in varargin
 n.sStep = 0;
 overrideInitialConditions = 0;
@@ -74,18 +74,18 @@ for i = 1:length(varargin)
     if ischar(varargin{i}) && any(strcmpi(varargin{i}(1:3),{'lin' 'log'})) && length(varargin) > i + 2 && isscalar(varargin{i+1}) && isscalar(varargin{i+2}) && isscalar(varargin{i+3})
         
         fspac = lower(varargin{i}(1:3));
-        % Assign nfspac integer value based on fspac string value
+        % Assign nFspac integer value based on fspac string value
         if strcmpi(fspac, 'lin')
-            n.nfspac = 1;
+            n.nFspac = 1;
         elseif strcmpi(fspac, 'log')
-            n.nfspac = 2;
+            n.nFspac = 2;
         end
         
         lf   = varargin{i+1};            % min freq
         hf   = varargin{i+2};            % max freq
         N    = varargin{i+3};            % number of frequency steps
         n.N  = N;
-        switch n.nfspac
+        switch n.nFspac
             
             case 1 % linear spacing
                 n.f  = linspace(lf,hf,N)';
@@ -150,7 +150,7 @@ end
 
 
 %% Define oscillator parameters
-switch n.nfspac
+switch n.nFspac
     
     case 1 % linear spacing
         n.a  = single(alpha + 1i*2*pi.*n.f);
@@ -197,7 +197,7 @@ n.z = n.z0;
 %% Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin
 % Define ticks and tick labels to be used for plotting
 % m   = ceil(n.N/2);                  % middle frequency of network
-% switch n.nfspac
+% switch n.nFspac
 %     case 'lin'
 %         n.tck = floor(linspace(1, n.N,5));
 %     case 'log'

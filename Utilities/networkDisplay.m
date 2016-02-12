@@ -15,7 +15,7 @@ if ix == 0
         figure(10000+1000*net.id)
     end
     
-    switch net.nfspac
+    switch net.nFspac
         case 1 % linear spacing
             networkData.nH = semilogx(net.f, abs(net.z), '.-');  % nH: lineseries object handle
             nH = networkData.nH;

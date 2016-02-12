@@ -15,13 +15,13 @@ function axLim = getLim(varargin)
 if isfield(varargin{1}, 'f')
     n = varargin{1};
     f = n.f;
-    nfspac = n.nfspac;
+    nFspac = n.nFspac;
 else
     f = varargin{1};
-    nfspac = varargin{2};
+    nFspac = varargin{2};
 end
     
-if nfspac==2 % log spacing
+if nFspac==2 % log spacing
     f1 = f(1);
     f2 = f(end);
     N = length(f);

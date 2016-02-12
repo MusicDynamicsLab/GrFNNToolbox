@@ -214,7 +214,7 @@ if isempty(handle)
 else
     axes(handle);
 end
-switch n.nfspac
+switch n.nFspac
     case 2 % log spacing
         semilogx(f,amps,'.-');axis tight;grid on;zoom xon;
     case 1 % lin spacing
@@ -265,7 +265,7 @@ else
 end
 imagesc(t,f,Z);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude');
-switch n.nfspac
+switch n.nFspac
     case 2 % log spacing
         if ~isempty(n.tick)
             set(gca,'ydir','normal','yscale','log','ytick',n.tick);
@@ -336,7 +336,7 @@ end
 f = getLim(n);
 imagesc(f,freqs(1:ind),Zfreq(1:ind,:));
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude (dB)');
-switch n.nfspac
+switch n.nFspac
     case 2 % log spacing
         if ~isempty(n.tick)
             set(gca,'ydir','normal','xscale','log','xtick',n.tick);
@@ -377,7 +377,7 @@ else
 end
 imagesc(fFrom,fTo,C);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude');
-switch nFrom.nfspac
+switch nFrom.nFspac
     case 2 % log spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);            
@@ -389,7 +389,7 @@ switch nFrom.nfspac
             set(gca,'xtick',nFrom.tick)
         end
 end
-switch nTo.nfspac
+switch nTo.nFspac
     case 2 % log spacing
         if ~isempty(nTo.tick)
             set(gca,'yscale','log','ytick',nTo.tick);            
@@ -439,7 +439,7 @@ load('MyColormaps', 'IF_colormap');
 circular = IF_colormap;
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Phase');
 colormap(gca,circular);
-switch nFrom.nfspac
+switch nFrom.nFspac
     case 2 % log spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);            
@@ -451,7 +451,7 @@ switch nFrom.nfspac
             set(gca,'xtick',nFrom.tick)
         end
 end
-switch nTo.nfspac
+switch nTo.nFspac
     case 2 % log spacing
         if ~isempty(nTo.tick)
             set(gca,'yscale','log','ytick',nTo.tick);            
@@ -498,7 +498,7 @@ else
 end
 imagesc(fFrom,fTo,C);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Real part');
-switch nFrom.nfspac
+switch nFrom.nFspac
     case 2
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);            
@@ -510,7 +510,7 @@ switch nFrom.nfspac
             set(gca,'xtick',nFrom.tick)
         end
 end
-switch nTo.nfspac
+switch nTo.nFspac
     case 2 % log spacing
         if ~isempty(nTo.tick)
             set(gca,'yscale','log','ytick',nTo.tick);            
@@ -553,7 +553,7 @@ else
 end
 imagesc(fFrom,fTo,C);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Imaginary part');
-switch nFrom.nfspac
+switch nFrom.nFspac
     case 2
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);            
@@ -565,7 +565,7 @@ switch nFrom.nfspac
             set(gca,'xtick',nFrom.tick)
         end
 end
-switch nTo.nfspac
+switch nTo.nFspac
     case 2
         if ~isempty(nTo.tick)
             set(gca,'yscale','log','ytick',nTo.tick);            
@@ -607,7 +607,7 @@ else
     axes(handle);
 end
 plot(f,amps,'.-');axis tight;grid on;zoom xon;
-switch nFrom.nfspac
+switch nFrom.nFspac
     case 2
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);
@@ -649,7 +649,7 @@ else
     axes(handle);
 end
 plot(f,phases,'.-');axis tight;grid on;zoom xon;
-switch nFrom.nfspac
+switch nFrom.nFspac
     case 2 % log spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);
@@ -691,7 +691,7 @@ else
     axes(handle);
 end
 plot(f,realPart,'.-');axis tight;grid on;zoom xon;
-switch nFrom.nfspac
+switch nFrom.nFspac
     case 2 % log spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);
@@ -733,7 +733,7 @@ else
     axes(handle);
 end
 plot(f,imagPart,'.-');axis tight;grid on;zoom xon;
-switch nFrom.nfspac
+switch nFrom.nFspac
     case 2 % log spacing
         if ~isempty(nFrom.tick) && ~is3freq
             set(gca,'xscale','log','xtick',nFrom.tick);
