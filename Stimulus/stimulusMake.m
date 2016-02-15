@@ -173,7 +173,7 @@ s.dStep = 0;
 s.dispChan = 1;
 s.useDirectIndex = 0; % used in stimulusRun
 s.f = [];
-s.fspac = [];
+s.fspac = '';
 s.nFspac = 0;
 s.tick = [];
 
@@ -331,6 +331,7 @@ for i = 1:length(varargin)
             temp(:,index) = env;                       % Take only the Hilbert envelope of each channel
         end
         s.x = temp;
+        s.f = cfs;
     end
     
     if strcmpi(varargin{i},'ts')
