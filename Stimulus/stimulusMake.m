@@ -331,6 +331,7 @@ for i = 1:length(varargin)
             temp(:,index) = env;                       % Take only the Hilbert envelope of each channel
         end
         s.x = temp;
+        s.f = cfs;
     end
     
     if strcmpi(varargin{i},'ts')
