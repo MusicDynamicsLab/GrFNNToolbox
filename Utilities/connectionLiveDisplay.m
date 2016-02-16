@@ -35,9 +35,9 @@ if ix == 0
         if is3freq || con.nSourceClass == 1 % 3freq or stimulus source
             f1 = [1 con.sourceN];
         else
-            f1 = getLim(con.sourceAxis, con.sourceAxisScale);
+            f1 = getLim(con.sourceAxis, con.nSourceAxisScale);
         end
-        f2 = getLim(con.targetAxis, con.targetAxisScale);
+        f2 = getLim(con.targetAxis, con.nTargetAxisScale);
         connectionData.aH = imagesc(f1, f2, abs(con.C));
         colormap(flipud(hot)); colorbar;
         ylabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))
