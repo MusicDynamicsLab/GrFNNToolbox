@@ -24,7 +24,7 @@ if ix == 0
         if abs(con.e)
             set(gca, 'YLim', [0 1/sqrt(con.e)])
         end
-        if strcmp(con.targetAxisScale, 'log')
+        if con.nTargetAxisScale == 2
             set(gca, 'XScale', 'log')
         end
         if ~isempty(con.targetAxisTick)
@@ -44,10 +44,10 @@ if ix == 0
         if abs(con.e)
             set(gca, 'CLim', [.001 1/sqrt(con.e)])
         end
-        if strcmp(con.sourceAxisScale, 'log') && ~is3freq
+        if con.nSourceAxisScale == 2 && ~is3freq
             set(gca, 'XScale', 'log')
         end
-        if strcmp(con.targetAxisScale, 'log')
+        if con.nTargetAxisScale == 2
             set(gca, 'YScale', 'log')
         end
         if ~isempty(con.sourceAxisTick) && ~is3freq
@@ -95,7 +95,7 @@ if ix == 0
             set(gca, 'YLim', [-pi pi])
             set(gca, 'YTick', [-pi, -pi/2, 0, pi/2, pi])
             set(gca, 'YTickLabel', {'-pi  ', '-pi/2', ' 0  ', ' pi/2', ' pi  '})
-            if strcmp(con.targetAxisScale, 'log')
+            if con.nTargetAxisScale == 2
                 set(gca, 'XScale', 'log')
             end
             if ~isempty(con.targetAxisTick)
@@ -110,10 +110,10 @@ if ix == 0
             set(cb, 'YTick',      [-pi, -pi/2, 0, pi/2, pi])
             set(cb, 'YTickLabel', {'-pi  ', '-pi/2', ' 0  ', ' pi/2', ' pi  '})
             set(gca, 'CLim', [-pi pi])
-            if strcmp(con.sourceAxisScale, 'log') && ~is3freq
+            if con.nSourceAxisScale == 2 && ~is3freq
                 set(gca, 'XScale', 'log')
             end
-            if strcmp(con.targetAxisScale, 'log')
+            if con.nTargetAxisScale == 2
                 set(gca, 'YScale', 'log')
             end
             if ~isempty(con.sourceAxisTick) && ~is3freq
