@@ -142,8 +142,18 @@
 %%
 function s = stimulusMake(varargin)
 
-id = varargin{1};
-type = varargin{2};
+if isscalar(varargin{1})
+    id = varargin{1};
+else
+    error('First input argument should be id number (integer)')
+end
+
+if ischar(varargin{2})
+    type = varargin{2};
+else
+    error('Second input argument should be stimulus type (character string)')
+end
+
 temp = varargin(3:end);
 
 %% Call relevant 'make' function
@@ -161,9 +171,7 @@ switch type
         error('unknown stimulus type');
 end
 
-
 %Fields for all types
-%MS1 - added 12/19/08
 s.id = id;
 s.class = 'stimulus';
 s.nClass = 1; % numerical class
@@ -178,9 +186,6 @@ s.nFspac = 0;
 s.tick = [];
 
 for i = 1:length(varargin)
-    if strcmpi(varargin{i},'inputType') %&& length(varargin) > i && ischar(varargin{i+1})
-        s.inputType = varargin{i+1};
-    end
     if strcmpi(varargin{i},'display') %&& length(varargin) > i && ischar(varargin{i+1})
         s.dStep = varargin{i+1};
     end
@@ -280,9 +285,9 @@ if iscell(varargin{1})           % If multiple wavreads
     
     for numRead = 1:length(varargin{1})
         
-        s.fn{numRead} = varargin{1}{numRead};
+        s.fileName{numRead} = varargin{1}{numRead};
         
-        [temp,s.fs] = feval(readFunc, s.fn{numRead});
+        [temp,s.fs] = feval(readFunc, s.fileName{numRead});
         
         temp = mean(temp,2);
         
@@ -292,9 +297,9 @@ if iscell(varargin{1})           % If multiple wavreads
     
 else                             % else one wavread
     
-    s.fn = varargin{1};
+    s.fileName = varargin{1};
     
-    [s.x,s.fs] = feval(readFunc, s.fn);
+    [s.x,s.fs] = feval(readFunc, s.fileName);
     
 end
 
@@ -378,16 +383,15 @@ s.x  = s.x';                     % Transpose because toolbox expects row vector(
 function s = makeMidiInput(varargin)
 
 s.type = 'mid';
-
 s.analytic = 0;
-s.fn   = varargin{1};
 
 %Parse data input type. Filename or nmat matrix
-if ischar(s.fn)
-    N = mdlReadMidi(s.fn);
+if ischar(varargin{1})
+    s.fileName   = varargin{1};
+    N = mdlReadMidi(s.fileName);
 else
     %user passed in a nmat matrix directly
-    N = s.fn;
+    N = varargin{1};
 end
 
 % Set default values for optional arguments
