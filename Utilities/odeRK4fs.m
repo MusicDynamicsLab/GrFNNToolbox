@@ -28,18 +28,17 @@ netList = M.netList;
 %% Display stimulus and initial conditions if dStep > 0
 for sx = stimList
     if M.s{sx}.dStep
-        M.s{sx}.bH = stimulusDisplay(M.s{sx}, 0, M.t(1));
+        stimulusLiveDisplay(M.s{sx}, 0, M.t(1));
     end
 end
 
 for nx = netList
     if M.n{nx}.dStep
-        [M.n{nx}.nH, M.n{nx}.tH] = networkDisplay(M.n{nx}, 0, M.t(1));
+        networkLiveDisplay(M.n{nx}, 0, M.t(1));
     end
     for cx = M.n{nx}.learnList
         if M.n{nx}.con{cx}.dStep
-            [M.n{nx}.con{cx}.aH, M.n{nx}.con{cx}.atH, M.n{nx}.con{cx}.pH, M.n{nx}.con{cx}.ptH] ...
-                = connectionDisplay(M.n{nx}.con{cx}, 0, M.t(1), circular);
+            connectionLiveDisplay(M.n{nx}.con{cx}, 0, M.t(1), circular);
         end
     end
 end
@@ -103,7 +102,7 @@ for ix = ispan(1) : step : ispan(2)-step
                         M.n{nx}.Z(:,ix/M.n{nx}.sStep+1) = M.n{nx}.z;
                     end
                     if M.n{nx}.dStep && ~mod(ix, M.n{nx}.dStep)
-                        networkDisplay(M.n{nx}, ix, M.t(ix));
+                        networkLiveDisplay(M.n{nx}, ix, M.t(ix));
                     end
                     for cx = M.n{nx}.learnList
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + ...
@@ -112,14 +111,14 @@ for ix = ispan(1) : step : ispan(2)-step
                             M.n{nx}.con{cx}.C3(:,:,ix/M.n{nx}.con{cx}.sStep+1) = M.n{nx}.con{cx}.C;
                         end
                         if M.n{nx}.con{cx}.dStep && ~mod(ix, M.n{nx}.con{cx}.dStep)
-                            connectionDisplay(M.n{nx}.con{cx}, ix, M.t(ix), circular);
+                            connectionLiveDisplay(M.n{nx}.con{cx}, ix, M.t(ix), circular);
                         end
                     end
                 end
                 
                 for sx = stimList
                     if M.s{sx}.dStep && ~mod(ix, M.s{sx}.dStep)
-                        stimulusDisplay(M.s{sx}, ix, M.t(ix));
+                        stimulusLiveDisplay(M.s{sx}, ix, M.t(ix));
                     end
                 end
         end

@@ -358,15 +358,13 @@ drawnow;
 
 %% Image of amplitudes of connectivity matrix
 function connectionAmpsAll(M,netTo,conid,handle)
-nTo = M.n{netTo};
-con = nTo.con{conid};
-nFrom = M.n{con.source};
-fTo = getLim(nTo);
+con = M.n{netTo}.con{conid};
+fTo = getLim(con.targetAxis, con.nTargetAxisScale);
 is3freq = strcmpi(con.type(1:5), '3freq');
 if is3freq
     fFrom = [1 size(con.NUM1, 2)];
 else
-    fFrom = getLim(nFrom);
+    fFrom = getLim(con.sourceAxis, con.nSourceAxisScale);
 end
 C = abs(con.C);
 % ticks = tickMake(f,8);
@@ -377,28 +375,28 @@ else
 end
 imagesc(fFrom,fTo,C);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude');
-switch nFrom.nFspac
+switch con.nSourceAxisScale
     case 2 % log spacing
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xscale','log','xtick',nFrom.tick);            
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xscale','log','xtick',con.sourceAxisTick);            
         elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 1 % lin spacing
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xtick',nFrom.tick)
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xtick',con.sourceAxisTick)
         end
 end
-switch nTo.nFspac
+switch con.nTargetAxisScale
     case 2 % log spacing
-        if ~isempty(nTo.tick)
-            set(gca,'yscale','log','ytick',nTo.tick);            
+        if ~isempty(con.targetAxisTick)
+            set(gca,'yscale','log','ytick',con.targetAxisTick);            
         else
             set(gca,'yscale','log');
         end
     case 1 % lin spacing
-        if ~isempty(nTo.tick)
-            set(gca,'ytick',nTo.tick)
+        if ~isempty(con.targetAxisTick)
+            set(gca,'ytick',con.targetAxisTick)
         end
 end
 if isfield(con,'titleA') && ischar(con.titleA)
@@ -407,9 +405,9 @@ else
     title(sprintf('Amplitudes of connection matrix %d to network %d',conid,netTo));
 end
 if is3freq
-    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+    xlabel(sprintf('Oscillator pair: Network %d',con.source))
 else
-    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',con.source));
 end
 ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',netTo));
 grid on
@@ -417,15 +415,13 @@ drawnow;
 
 %% Image of phases of connectivity matrix
 function connectionPhasesAll(M,netTo,conid,handle)
-nTo = M.n{netTo};
-con = nTo.con{conid};
-nFrom = M.n{con.source};
-fTo = getLim(nTo);
+con = M.n{netTo}.con{conid};
+fTo = getLim(con.targetAxis, con.nTargetAxisScale);
 is3freq = strcmpi(con.type(1:5), '3freq');
 if is3freq
     fFrom = [1 size(con.NUM1, 2)];
 else
-    fFrom = getLim(nFrom);
+    fFrom = getLim(con.sourceAxis, con.nSourceAxisScale);
 end
 C = angle(con.C);
 % ticks = tickMake(f,8);
@@ -439,28 +435,28 @@ load('MyColormaps', 'IF_colormap');
 circular = IF_colormap;
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Phase');
 colormap(gca,circular);
-switch nFrom.nFspac
+switch con.nSourceAxisScale
     case 2 % log spacing
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xscale','log','xtick',nFrom.tick);            
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xscale','log','xtick',con.sourceAxisTick);            
         elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 1 % lin spacing
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xtick',nFrom.tick)
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xtick',con.sourceAxisTick)
         end
 end
-switch nTo.nFspac
+switch con.nTargetAxisScale
     case 2 % log spacing
-        if ~isempty(nTo.tick)
-            set(gca,'yscale','log','ytick',nTo.tick);            
+        if ~isempty(con.targetAxisTick)
+            set(gca,'yscale','log','ytick',con.targetAxisTick);            
         else
             set(gca,'yscale','log');
         end
     case 1 % lin spacing
-        if ~isempty(nTo.tick)
-            set(gca,'ytick',nTo.tick)
+        if ~isempty(con.targetAxisTick)
+            set(gca,'ytick',con.targetAxisTick)
         end
 end
 if isfield(con,'titleP') && ischar(con.titleP)
@@ -469,9 +465,9 @@ else
     title(sprintf('Phases of connection matrix %d to network %d',conid,netTo));
 end
 if is3freq
-    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+    xlabel(sprintf('Oscillator pair: Network %d',con.source))
 else
-    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',con.source));
 end
 ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',netTo));
 grid on
@@ -479,15 +475,13 @@ drawnow;
 
 %% Image of real portion of connectivity matrix
 function connectionRealAll(M,netTo,conid,handle)
-nTo = M.n{netTo};
-con = nTo.con{conid};
-nFrom = M.n{con.source};
-fTo = getLim(nTo);
+con = M.n{netTo}.con{conid};
+fTo = getLim(con.targetAxis, con.nTargetAxisScale);
 is3freq = strcmpi(con.type(1:5), '3freq');
 if is3freq
     fFrom = [1 size(con.NUM1, 2)];
 else
-    fFrom = getLim(nFrom);
+    fFrom = getLim(con.sourceAxis, con.nSourceAxisScale);
 end
 C = real(con.C);
 % ticks = tickMake(f,8);
@@ -498,35 +492,35 @@ else
 end
 imagesc(fFrom,fTo,C);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Real part');
-switch nFrom.nFspac
+switch con.nSourceAxisScale
     case 2
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xscale','log','xtick',nFrom.tick);            
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xscale','log','xtick',con.sourceAxisTick);            
         elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 1
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xtick',nFrom.tick)
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xtick',con.sourceAxisTick)
         end
 end
-switch nTo.nFspac
+switch con.nTargetAxisScale
     case 2 % log spacing
-        if ~isempty(nTo.tick)
-            set(gca,'yscale','log','ytick',nTo.tick);            
+        if ~isempty(con.targetAxisTick)
+            set(gca,'yscale','log','ytick',con.targetAxisTick);            
         else
             set(gca,'yscale','log');
         end
     case 1 % lin spacing
-        if ~isempty(nTo.tick)
-            set(gca,'ytick',nTo.tick)
+        if ~isempty(con.targetAxisTick)
+            set(gca,'ytick',con.targetAxisTick)
         end
 end
 title(sprintf('Real part of connection matrix %d to network %d',conid,netTo));
 if is3freq
-    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+    xlabel(sprintf('Oscillator pair: Network %d',con.source))
 else
-    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',con.source));
 end
 ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',netTo));
 grid on
@@ -534,15 +528,13 @@ drawnow;
 
 %% Image of imaginary portion of connectivity matrix
 function connectionImagAll(M,netTo,conid,handle)
-nTo = M.n{netTo};
-con = nTo.con{conid};
-nFrom = M.n{con.source};
-fTo = getLim(nTo);
+con = M.n{netTo}.con{conid};
+fTo = getLim(con.targetAxis, con.nTargetAxisScale);
 is3freq = strcmpi(con.type(1:5), '3freq');
 if is3freq
     fFrom = [1 size(con.NUM1, 2)];
 else
-    fFrom = getLim(nFrom);
+    fFrom = getLim(con.sourceAxis, con.nSourceAxisScale);
 end
 C = imag(con.C);
 % ticks = tickMake(f,8);
@@ -553,35 +545,35 @@ else
 end
 imagesc(fFrom,fTo,C);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Imaginary part');
-switch nFrom.nFspac
+switch con.nSourceAxisScale
     case 2
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xscale','log','xtick',nFrom.tick);            
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xscale','log','xtick',con.sourceAxisTick);            
         elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 1
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xtick',nFrom.tick)
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xtick',con.sourceAxisTick)
         end
 end
-switch nTo.nFspac
+switch con.nTargetAxisScale
     case 2
-        if ~isempty(nTo.tick)
-            set(gca,'yscale','log','ytick',nTo.tick);            
+        if ~isempty(con.targetAxisTick)
+            set(gca,'yscale','log','ytick',con.targetAxisTick);            
         else
             set(gca,'yscale','log');
         end
     case 1
-        if ~isempty(nTo.tick)
-            set(gca,'ytick',nTo.tick)
+        if ~isempty(con.targetAxisTick)
+            set(gca,'ytick',con.targetAxisTick)
         end
 end
 title(sprintf('Imaginary part of connection matrix %d to network %d',conid,netTo));
 if is3freq
-    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+    xlabel(sprintf('Oscillator pair: Network %d',con.source))
 else
-    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',con.source));
 end
 ylabel(sprintf('Oscillator natural frequency (Hz): Network %d',netTo));
 grid on
@@ -589,16 +581,14 @@ drawnow;
 
 %% Connection amplitudes of middle row of connectivity matrix
 function connectionAmps(M,netTo,conid,handle)
-nTo = M.n{netTo};
-con = nTo.con{conid};
-nFrom = M.n{con.source};
+con = M.n{netTo}.con{conid};
 is3freq = strcmpi(con.type(1:5), '3freq');
 if is3freq
     f = 1:size(con.NUM1, 2);
 else
-    f = nFrom.f;
+    f = con.sourceAxis;
 end
-ind = ceil(nTo.N/2);
+ind = ceil(con.targetN/2);
 % ticks = tickMake(f,8);
 amps = abs(con.C(ind,:));
 if isempty(handle)
@@ -607,23 +597,23 @@ else
     axes(handle);
 end
 plot(f,amps,'.-');axis tight;grid on;zoom xon;
-switch nFrom.nFspac
+switch con.nSourceAxisScale
     case 2
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xscale','log','xtick',nFrom.tick);
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xscale','log','xtick',con.sourceAxisTick);
         elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 1
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xtick',nFrom.tick);
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xtick',con.sourceAxisTick);
         end
 end
 title(sprintf('Amplitudes of connections to middle oscillator of network %d in matrix %d',netTo,conid));
 if is3freq
-    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+    xlabel(sprintf('Oscillator pair: Network %d',con.source))
 else
-    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',con.source));
 end
 ylabel('Amplitude');
 grid on
@@ -631,16 +621,14 @@ drawnow;
 
 %% Connection phases of middle row of connectivity matrix
 function connectionPhases(M,netTo,conid,handle)
-nTo = M.n{netTo};
-con = nTo.con{conid};
-nFrom = M.n{con.source};
+con = M.n{netTo}.con{conid};
 is3freq = strcmpi(con.type(1:5), '3freq');
 if is3freq
     f = 1:size(con.NUM1, 2);
 else
-    f = nFrom.f;
+    f = con.sourceAxis;
 end
-ind = ceil(nTo.N/2);
+ind = ceil(con.targetN/2);
 % ticks = tickMake(f,8);
 phases = angle(con.C(ind,:));
 if isempty(handle)
@@ -649,23 +637,23 @@ else
     axes(handle);
 end
 plot(f,phases,'.-');axis tight;grid on;zoom xon;
-switch nFrom.nFspac
+switch con.nSourceAxisScale
     case 2 % log spacing
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xscale','log','xtick',nFrom.tick);
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xscale','log','xtick',con.sourceAxisTick);
         elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 1 % lin spacing
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xtick',nFrom.tick);
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xtick',con.sourceAxisTick);
         end
 end
 title(sprintf('Phases of connections to middle oscillator of network %d in matrix %d',netTo,conid));
 if is3freq
-    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+    xlabel(sprintf('Oscillator pair: Network %d',con.source))
 else
-    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',con.source));
 end
 ylabel('Phase');
 grid on
@@ -673,16 +661,14 @@ drawnow;
 
 %% Real values of middle row of connectivity matrix
 function connectionReal(M,netTo,conid,handle)
-nTo = M.n{netTo};
-con = nTo.con{conid};
-nFrom = M.n{con.source};
+con = M.n{netTo}.con{conid};
 is3freq = strcmpi(con.type(1:5), '3freq');
 if is3freq
     f = 1:size(con.NUM1, 2);
 else
-    f = nFrom.f;
+    f = con.sourceAxis;
 end
-ind = ceil(nTo.N/2);
+ind = ceil(con.targetN/2);
 % ticks = tickMake(f,8);
 realPart = real(con.C(ind,:));
 if isempty(handle)
@@ -691,23 +677,23 @@ else
     axes(handle);
 end
 plot(f,realPart,'.-');axis tight;grid on;zoom xon;
-switch nFrom.nFspac
+switch con.nSourceAxisScale
     case 2 % log spacing
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xscale','log','xtick',nFrom.tick);
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xscale','log','xtick',con.sourceAxisTick);
         elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 1 % lin spacing
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xtick',nFrom.tick);
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xtick',con.sourceAxisTick);
         end
 end
 title(sprintf('Real part of connections to middle oscillator of network %d in matrix %d',netTo,conid));
 if is3freq
-    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+    xlabel(sprintf('Oscillator pair: Network %d',con.source))
 else
-    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',con.source));
 end
 ylabel('Real part');
 grid on
@@ -715,16 +701,14 @@ drawnow;
 
 %% Imaginary values of middle row of connectivity matrix
 function connectionImag(M,netTo,conid,handle)
-nTo = M.n{netTo};
-con = nTo.con{conid};
-nFrom = M.n{con.source};
+con = M.n{netTo}.con{conid};
 is3freq = strcmpi(con.type(1:5), '3freq');
 if is3freq
     f = 1:size(con.NUM1, 2);
 else
-    f = nFrom.f;
+    f = con.sourceAxis;
 end
-ind = ceil(nTo.N/2);
+ind = ceil(con.targetN/2);
 % ticks = tickMake(f,8);
 imagPart = imag(con.C(ind,:));
 if isempty(handle)
@@ -733,23 +717,23 @@ else
     axes(handle);
 end
 plot(f,imagPart,'.-');axis tight;grid on;zoom xon;
-switch nFrom.nFspac
+switch con.nSourceAxisScale
     case 2 % log spacing
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xscale','log','xtick',nFrom.tick);
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xscale','log','xtick',con.sourceAxisTick);
         elseif ~is3freq
             set(gca,'xscale','log');
         end
     case 1 % lin spacing
-        if ~isempty(nFrom.tick) && ~is3freq
-            set(gca,'xtick',nFrom.tick);
+        if ~isempty(con.sourceAxisTick) && ~is3freq
+            set(gca,'xtick',con.sourceAxisTick);
         end
 end
 title(sprintf('Imaginary part of connections to middle oscillator of network %d in matrix %d',netTo,conid));
 if is3freq
-    xlabel(sprintf('Oscillator pair: Network %d',nFrom.id))
+    xlabel(sprintf('Oscillator pair: Network %d',con.source))
 else
-    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',nFrom.id));
+    xlabel(sprintf('Oscillator natural frequency (Hz): Network %d',con.source));
 end
 ylabel('Imaginary part');
 grid on
