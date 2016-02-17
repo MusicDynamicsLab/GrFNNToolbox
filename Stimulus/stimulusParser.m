@@ -400,12 +400,12 @@ elseif strcmpi(s.type,'wav')
     s.ts = [s0 sf]/s.fs;
     
     for i = 1:length(varargin)
-        if strcmpi(varargin{i}(1:3),'ste')
+        if strcmpi(varargin{i},'stereo')
             if size(s.x,2) == 1                            % Expand to stereo if mono
                 s.x = [s.x s.x];
             end
         end
-        if strcmpi(varargin{i}(1:3),'mon')
+        if strcmpi(varargin{i},'mono')
             if size(s.x,2) == 2
                 s.x = sum(s.x,2) / size(s.x,2);            % Contract to mono if stereo
             end
@@ -481,7 +481,7 @@ elseif strcmpi(s.type,'wav')
         if strcmpi(varargin{i},'fs')
             s.newFS = varargin{i+1};
         end
-        if strcmpi(varargin{i}(1:3),'gam')
+        if strcmpi(varargin{i},'gam')
             s.gam.minCF    = varargin{i+1};
             s.gam.maxCF    = varargin{i+2};
             s.gam.numChans = varargin{i+3};
