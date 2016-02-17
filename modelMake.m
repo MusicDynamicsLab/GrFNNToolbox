@@ -70,7 +70,6 @@ end
 
 model.fs           = fs;
 model.dt           = dt;
-model.tspan        = ts;
 model.t            = t;
 
 %% Get networks and set initial conditions
