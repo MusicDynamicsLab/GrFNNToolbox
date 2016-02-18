@@ -12,9 +12,9 @@ if ix == 0
     
     switch net.nFspac
         case 1 % linear spacing
-            networkData.nH = semilogx(net.f, abs(net.z), '.-');  % nH: lineseries object handle
-        case 2 % log spacing
             networkData.nH = plot(net.f, abs(net.z), '.-');  % nH: lineseries object handle
+        case 2 % log spacing
+            networkData.nH = semilogx(net.f, abs(net.z), '.-');  % nH: lineseries object handle
     end
     
     if isfield(net,'title') && ischar(net.title)
