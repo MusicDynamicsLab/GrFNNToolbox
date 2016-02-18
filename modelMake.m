@@ -107,29 +107,31 @@ for v = ind:length(varargin)
     end
 end
 
-model.stimListAll = sort(stimListAll);
-model.netList = sort(netList);
+netList = sort(netList);
+stimListAll = sort(stimListAll);
 
 %% Check if all connections are valid and at least one network gets stimulus
-for j = model.netList
+for j = netList
     for k = 1:length(model.n{j}.con)
         con = model.n{j}.con{k};
         if con.nSourceClass == 1
-            if ~ismember(con.source, model.stimListAll)
+            if ~ismember(con.source, stimListAll)
                 error(['Input to Network ' num2str(j) ' is missing (Stimulus ' num2str(k) ')'])
             else
                 stimList = [stimList con.source];
             end
         end
         if con.nSourceClass == 2
-            if ~ismember(con.source, model.netList)
+            if ~ismember(con.source, netList)
                 error(['Input to Network ' num2str(j) ' is missing (Network ' num2str(k) ')'])
             end
         end
     end
 end
 
+model.stimListAll = stimListAll;
 model.stimList = sort(stimList);
+model.netList = netList;
 
 if isempty(stimList)   % if no network is connected to stimulus
     disp('Warning (modelMake): No network is connected to stimulus.')

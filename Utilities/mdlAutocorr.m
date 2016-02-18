@@ -7,6 +7,7 @@
 %  window length in samples, and windowStep is the desired window step size
 %  in samples.
 
+%%
 function mdlAutocorr(y,fs,varargin)
 
 if nargin<2,error('mdlAutocorr needs at least 2 inputs: signal vector, and samp. freq.');end

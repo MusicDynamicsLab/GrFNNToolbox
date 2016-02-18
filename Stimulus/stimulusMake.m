@@ -156,30 +156,13 @@ end
 
 temp = varargin(3:end);
 
-%% Call relevant 'make' function
+%% Set fields for all types
 
-switch type
-    case 'fcn'
-        s = makeFcnInput(temp{:});
-    case 'wav'
-        s = makeWaveInput(temp{:});
-    case 'mid'
-        s = makeMidiInput(temp{:});
-    case 'rfcn'
-        s = makeRfcnInput(temp{:});
-    otherwise
-        error('unknown stimulus type');
-end
-
-%Fields for all types
 s.id = id;
 s.class = 'stimulus';
 s.nClass = 1; % numerical class
-s.lenx = size(s.x, 2);  % stimulus length
-s.N = size(s.x, 1);   % number of stimulus channels
 s.dStep = 0;
 s.dispChan = 1;
-s.useDirectIndex = 0; % used in stimulusRun
 s.f = [];
 s.fspac = '';
 s.nFspac = 0;
@@ -198,10 +181,28 @@ for i = 1:length(varargin)
     end
 end
 
+%% Call relevant 'make' function
+
+switch type
+    case 'fcn'
+        s = makeFcnInput(s, temp{:});
+    case 'wav'
+        s = makeWaveInput(s, temp{:});
+    case 'mid'
+        s = makeMidiInput(s, temp{:});
+    case 'rfcn'
+        s = makeRfcnInput(s, temp{:});
+    otherwise
+        error('unknown stimulus type');
+end
+
+s.lenx = size(s.x, 2);	% stimulus length
+s.N = size(s.x, 1);     % number of stimulus channels
+
 s.x = castCS(s.x);
 
 %% Make type 'function'
-function s = makeFcnInput(varargin)
+function s = makeFcnInput(s, varargin)
 
 s.type = 'fcn';
 
@@ -209,7 +210,6 @@ if length(varargin) < 5
     error('Need at least 5 inputs for fcns: time spans, sampling freq, carrier waveforms, carrier freqs, and carrier amplitudes')
 end
 
-s.analytic = 1;
 s.ts = varargin{1};         % time spans
 s.fs = varargin{2};         % sampling frequency
 s.dt = 1/s.fs;
@@ -268,11 +268,9 @@ end
 
 %% Make type 'wave'
 
-function s = makeWaveInput(varargin)
+function s = makeWaveInput(s, varargin)
 
 s.type = 'wav';
-
-s.analytic = 0;
 
 mver = version('-release');
 if str2double(mver(1:4)) > 2012 || strcmp(mver,'2012b')
@@ -380,10 +378,9 @@ s.x  = s.x';                     % Transpose because toolbox expects row vector(
 
 %% Make type 'midi'
 
-function s = makeMidiInput(varargin)
+function s = makeMidiInput(s, varargin)
 
 s.type = 'mid';
-s.analytic = 0;
 
 %Parse data input type. Filename or nmat matrix
 if ischar(varargin{1})
@@ -558,10 +555,9 @@ s.x = O;
 %% Make Rhythm Function
 %  Calls canonMake and creates a time series stimulus from the matrix.
 %  For now, cannot enter a sample rate without time span.
-function s = makeRfcnInput(varargin)
+function s = makeRfcnInput(s, varargin)
 
 s.type = 'rfcn';
-s.analytic = 0;
 
 s.ts = [];
 s.fs = 100;

@@ -45,6 +45,10 @@
 %%
 function n = connectAdd(n1, n2, C, varargin)
 % n1 is the source (stimulus or network), n2 is the target network
+con.id = length(n2.con)+1;
+con.class = 'connection';
+con.nClass = 3;
+
 con.source = n1.id;
 con.sourceClass = n1.class;
 con.nSourceClass = n1.nClass;   % numerical class (1: stimulus, 2: network)
@@ -318,7 +322,6 @@ con.C     = con.C     .* mask;
 
 %% Return network n2
 n = n2;
-con.id = length(n.con)+1;
 n.con{con.id} = con;
 
 %% Add index to learnList if learn

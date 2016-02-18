@@ -40,8 +40,10 @@ n.id = id;
 n.class = 'network';
 n.nClass = 2; % numerical class
 
-models = {'hopf'};              % Can add to this array later
+n.con = {}; % cell array containing connections targeting this network
+n.learnList = []; % indices for learned connections (used in integrator)
 
+models = {'hopf'};              % Can add to this array later
 n.model = [];                   % Initialize these to use isempty to error check later
 n.fspac = [];
 
@@ -138,8 +140,6 @@ for i = 1:length(varargin)
     end
     
 end
-n.con = {}; % JCK: got rid of aff/eff/int distinction
-n.learnList = []; % indices for learned connections (used in integrator)
 
 %% Error check for necessary inputs
 if isempty(n.model)
