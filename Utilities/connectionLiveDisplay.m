@@ -7,7 +7,8 @@ persistent connectionDispMap;
 
 if ix == 0
     if isfield(con,'aAx') && ishghandle(con.aAx)
-        connectionData.aAx = axes(con.aAx);
+        connectionData.aAx = con.aAx;
+        axes(con.aAx)
     elseif ~ishghandle(10000+1000*nx+100*cx)
         figure(10000+1000*nx+100*cx)
         set(gcf, 'Position', [2 550 500 400])
@@ -79,7 +80,8 @@ if ix == 0
     
     if con.phaseDisp
         if isfield(con,'pAx') && ishghandle(con.pAx)
-            connectionData.pAx = axes(con.pAx);
+            connectionData.pAx = con.pAx;
+            axes(con.pAx)
         elseif ~ishghandle(10000+1000*nx+100*cx+1)
             figure(10000+1000*nx+100*cx+1);
             set(gcf, 'Position', [500 550 500 400])

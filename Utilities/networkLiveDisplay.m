@@ -5,7 +5,8 @@ persistent networkDispMap;
 
 if ix == 0    
     if isfield(net,'nAx') && ishghandle(net.nAx)
-        networkData.nAx = axes(net.nAx);
+        networkData.nAx = net.nAx;
+        axes(net.nAx)
     else
         figure(10000+1000*net.id)
     end

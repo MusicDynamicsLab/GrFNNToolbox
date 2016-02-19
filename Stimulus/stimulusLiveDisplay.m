@@ -7,7 +7,8 @@ if ix == 0
     
     sx = stim.id;
     if isfield(stim,'sAx') && ishghandle(stim.sAx)
-        stimulusData.sAx = axes(stim.sAx);
+        stimulusData.sAx = stim.sAx;
+        axes(stim.sAx)
     else
         figure(10000+sx)
     end
