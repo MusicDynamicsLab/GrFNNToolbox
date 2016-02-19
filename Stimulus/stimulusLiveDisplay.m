@@ -1,17 +1,14 @@
 %% function: Displays stimulus and progress bar
-function bH = stimulusDisplay(stim, ix, t)
+function stimulusLiveDisplay(stim, ix, t)
 
 persistent stimulusDispMap;
 
-if ix == 0  
-    if (size(stimulusDispMap,2) < stim.id)
-        stimulusData.id = stim.id;
-        stimulusDispMap{stim.id} = stimulusData;
-    end
+if ix == 0
     
     sx = stim.id;
     if isfield(stim,'sAx') && ishghandle(stim.sAx)
-        stimulusData.sAx = axes(stim.sAx);
+        stimulusData.sAx = stim.sAx;
+        axes(stim.sAx)
     else
         figure(10000+sx)
     end
@@ -20,7 +17,6 @@ if ix == 0
     hold on
     ylimit = get(gca,'YLim');
     stimulusData.bH = plot([1 1]*t, ylimit, 'r'); % handle for progress bar
-    bH = stimulusData.bH;
     set(gca,'YLim',ylimit) % need to do this for latest matlab
     set(gca,'XLim',[min(stim.t) max(stim.t)])
     hold off

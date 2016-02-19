@@ -12,6 +12,7 @@
 %  struct.spec (spectrogram matrix), as well as struct.t (time vector) and 
 %  struct.f (frequency vector) for axis labels when plotting the matrix.
 
+%%
 function struct = mdlSpec(y,NFFT,fs,varargin)
 
 if nargin<3,error('mdlSpec needs at least 3 inputs: signal vector, fft size, and samp. freq.');end

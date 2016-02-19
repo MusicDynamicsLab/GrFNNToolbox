@@ -1,11 +1,13 @@
 %% function: Displays instantaneous connection state
-function [aH, atH, pH, ptH] = connectionDisplay(con, ix, t, cmap)
-% global M circular
+function connectionLiveDisplay(con, ix, t, cmap)
+
 nx = con.target;
 cx = con.id;
+persistent connectionDispMap;
 
 if ix == 0
     if isfield(con,'aAx') && ishghandle(con.aAx)
+        connectionData.aAx = con.aAx;
         axes(con.aAx)
     elseif ~ishghandle(10000+1000*nx+100*cx)
         figure(10000+1000*nx+100*cx)
@@ -16,14 +18,14 @@ if ix == 0
     is3freq = con.nType == 3 || con.nType == 4;   % if 3freq or 3freqall
     
     if con.sourceN == 1 % if connection is a column vector
-        aH = plot(con.targetAxis, abs(con.C), '.-');
+        connectionData.aH = plot(con.targetAxis, abs(con.C), '.-');
         xlabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))
         ylabel('Connection amplitude')
         set(gca, 'XLim',[min(con.targetAxis) max(con.targetAxis)])
         if abs(con.e)
             set(gca, 'YLim', [0 1/sqrt(con.e)])
         end
-        if strcmp(con.targetAxisScale, 'log')
+        if con.nTargetAxisScale == 2
             set(gca, 'XScale', 'log')
         end
         if ~isempty(con.targetAxisTick)
@@ -34,19 +36,19 @@ if ix == 0
         if is3freq || con.nSourceClass == 1 % 3freq or stimulus source
             f1 = [1 con.sourceN];
         else
-            f1 = getLim(con.sourceAxis, con.sourceAxisScale);
+            f1 = getLim(con.sourceAxis, con.nSourceAxisScale);
         end
-        f2 = getLim(con.targetAxis, con.targetAxisScale);
-        aH = imagesc(f1, f2, abs(con.C));
+        f2 = getLim(con.targetAxis, con.nTargetAxisScale);
+        connectionData.aH = imagesc(f1, f2, abs(con.C));
         colormap(flipud(hot)); colorbar;
         ylabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))
         if abs(con.e)
             set(gca, 'CLim', [.001 1/sqrt(con.e)])
         end
-        if strcmp(con.sourceAxisScale, 'log') && ~is3freq
+        if con.nSourceAxisScale == 2 && ~is3freq
             set(gca, 'XScale', 'log')
         end
-        if strcmp(con.targetAxisScale, 'log')
+        if con.nTargetAxisScale == 2
             set(gca, 'YScale', 'log')
         end
         if ~isempty(con.sourceAxisTick) && ~is3freq
@@ -70,14 +72,15 @@ if ix == 0
     
     if isfield(con,'titleA')
         title(con.titleA)
-        atH = [];
+        connectionData.atH = [];
     else
-        atH = title(sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t));
+        connectionData.atH = title(sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t));
     end
     grid on
     
     if con.phaseDisp
         if isfield(con,'pAx') && ishghandle(con.pAx)
+            connectionData.pAx = con.pAx;
             axes(con.pAx)
         elseif ~ishghandle(10000+1000*nx+100*cx+1)
             figure(10000+1000*nx+100*cx+1);
@@ -87,14 +90,14 @@ if ix == 0
         end
         
         if con.sourceN == 1
-            pH = plot(con.targetAxis, angle(con.C), '.');
+            connectionData.pH = plot(con.targetAxis, angle(con.C), '.');
             xlabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))
             ylabel('Connection phase')
             set(gca, 'XLim',[min(con.targetAxis) max(con.targetAxis)])
             set(gca, 'YLim', [-pi pi])
             set(gca, 'YTick', [-pi, -pi/2, 0, pi/2, pi])
             set(gca, 'YTickLabel', {'-pi  ', '-pi/2', ' 0  ', ' pi/2', ' pi  '})
-            if strcmp(con.targetAxisScale, 'log')
+            if con.nTargetAxisScale == 2
                 set(gca, 'XScale', 'log')
             end
             if ~isempty(con.targetAxisTick)
@@ -102,17 +105,17 @@ if ix == 0
             end
 
         else
-            pH = imagesc(f1, f2, angle(con.C));
+            connectionData.pH = imagesc(f1, f2, angle(con.C));
             colormap(gca, cmap);
             cb = colorbar;
             ylabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))
             set(cb, 'YTick',      [-pi, -pi/2, 0, pi/2, pi])
             set(cb, 'YTickLabel', {'-pi  ', '-pi/2', ' 0  ', ' pi/2', ' pi  '})
             set(gca, 'CLim', [-pi pi])
-            if strcmp(con.sourceAxisScale, 'log') && ~is3freq
+            if con.nSourceAxisScale == 2 && ~is3freq
                 set(gca, 'XScale', 'log')
             end
-            if strcmp(con.targetAxisScale, 'log')
+            if con.nTargetAxisScale == 2
                 set(gca, 'YScale', 'log')
             end
             if ~isempty(con.sourceAxisTick) && ~is3freq
@@ -137,34 +140,36 @@ if ix == 0
         
         if isfield(con,'titleP') && ischar(con.titleP)
             title(con.titleP)
-            ptH = [];
+            connectionData.ptH = [];
         else
-            ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t));
+            connectionData.ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t));
         end
         grid on
         
     else    % if no phase display
-        pH = [];
-        ptH = [];
+        connectionData.pH = [];
+        connectionData.ptH = [];
     end
+    connectionDispMap{con.id} = connectionData;
 
 else    % nonzero ix
+    connectionData = connectionDispMap{con.id};
     if con.sourceN == 1
-        set(con.aH, 'YData', (abs(con.C)))
+        set(connectionData.aH, 'YData', (abs(con.C)))
     else
-        set(con.aH, 'CData', (abs(con.C)))
+        set(connectionData.aH, 'CData', (abs(con.C)))
     end
-    if ~isempty(con.atH)
-        set(con.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
+    if ~isempty(connectionData.atH)
+        set(connectionData.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
     end
     if con.phaseDisp
         if con.sourceN == 1
-            set(con.pH, 'YData', angle(con.C))
+            set(connectionData.pH, 'YData', angle(con.C))
         else
-            set(con.pH, 'CData', angle(con.C))
+            set(connectionData.pH, 'CData', angle(con.C))
         end
-        if ~isempty(con.ptH)
-            set(con.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
+        if ~isempty(connectionData.ptH)
+            set(connectionData.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
         end
     end
 end

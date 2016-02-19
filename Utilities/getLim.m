@@ -6,7 +6,7 @@
 %
 %  Use it as either
 %   axLim = getLim(network) or
-%   axLim = getLim(network.f, network.fspac)
+%   axLim = getLim(network.f, network.nFspac)
 %
 
 %%
@@ -21,16 +21,17 @@ else
     nFspac = varargin{2};
 end
     
-if nFspac==2 % log spacing
-    f1 = f(1);
-    f2 = f(end);
-    N = length(f);
-    axMin = ((2*N-1)*f1*(f2/f1)^(-1/(2*(N-1))) + f2*(f2/f1)^(1/(2*(N-1))))/(2*N);
-    axMax = (f1*(f2/f1)^(-1/(2*(N-1))) + (2*N-1)*f2*(f2/f1)^(1/(2*(N-1))))/(2*N);
-    % Need to do this due to problems in using imagesc with log axis
-else
-    axMin = f(1);
-    axMax = f(end);
+switch nFspac
+    case 2 % log spacing
+        f1 = f(1);
+        f2 = f(end);
+        N = length(f);
+        axMin = ((2*N-1)*f1*(f2/f1)^(-1/(2*(N-1))) + f2*(f2/f1)^(1/(2*(N-1))))/(2*N);
+        axMax = (f1*(f2/f1)^(-1/(2*(N-1))) + (2*N-1)*f2*(f2/f1)^(1/(2*(N-1))))/(2*N);
+        % Need to do this due to problems in using imagesc with log axis
+    case 1 % lin spacing
+        axMin = f(1);
+        axMax = f(end);
 end
 axLim = [axMin axMax];
 

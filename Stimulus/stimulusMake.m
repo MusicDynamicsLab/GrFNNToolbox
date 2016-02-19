@@ -142,45 +142,33 @@
 %%
 function s = stimulusMake(varargin)
 
-id = varargin{1};
-type = varargin{2};
-temp = varargin(3:end);
-
-%% Call relevant 'make' function
-
-switch type
-    case 'fcn'
-        s = makeFcnInput(temp{:});
-    case 'wav'
-        s = makeWaveInput(temp{:});
-    case 'mid'
-        s = makeMidiInput(temp{:});
-    case 'rfcn'
-        s = makeRfcnInput(temp{:});
-    otherwise
-        error('unknown stimulus type');
+if isscalar(varargin{1})
+    id = varargin{1};
+else
+    error('First input argument should be id number (integer)')
 end
 
+if ischar(varargin{2})
+    type = varargin{2};
+else
+    error('Second input argument should be stimulus type (character string)')
+end
 
-%Fields for all types
-%MS1 - added 12/19/08
+temp = varargin(3:end);
+
+%% Set fields for all types
+
 s.id = id;
 s.class = 'stimulus';
 s.nClass = 1; % numerical class
-s.lenx = size(s.x, 2);  % stimulus length
-s.N = size(s.x, 1);   % number of stimulus channels
 s.dStep = 0;
 s.dispChan = 1;
-s.useDirectIndex = 0; % used in stimulusRun
 s.f = [];
 s.fspac = '';
 s.nFspac = 0;
 s.tick = [];
 
 for i = 1:length(varargin)
-    if strcmpi(varargin{i},'inputType') %&& length(varargin) > i && ischar(varargin{i+1})
-        s.inputType = varargin{i+1};
-    end
     if strcmpi(varargin{i},'display') %&& length(varargin) > i && ischar(varargin{i+1})
         s.dStep = varargin{i+1};
     end
@@ -193,10 +181,28 @@ for i = 1:length(varargin)
     end
 end
 
+%% Call relevant 'make' function
+
+switch type
+    case 'fcn'
+        s = makeFcnInput(s, temp{:});
+    case 'wav'
+        s = makeWaveInput(s, temp{:});
+    case 'mid'
+        s = makeMidiInput(s, temp{:});
+    case 'rfcn'
+        s = makeRfcnInput(s, temp{:});
+    otherwise
+        error('unknown stimulus type');
+end
+
+s.lenx = size(s.x, 2);	% stimulus length
+s.N = size(s.x, 1);     % number of stimulus channels
+
 s.x = castCS(s.x);
 
 %% Make type 'function'
-function s = makeFcnInput(varargin)
+function s = makeFcnInput(s, varargin)
 
 s.type = 'fcn';
 
@@ -204,7 +210,6 @@ if length(varargin) < 5
     error('Need at least 5 inputs for fcns: time spans, sampling freq, carrier waveforms, carrier freqs, and carrier amplitudes')
 end
 
-s.analytic = 1;
 s.ts = varargin{1};         % time spans
 s.fs = varargin{2};         % sampling frequency
 s.dt = 1/s.fs;
@@ -263,11 +268,9 @@ end
 
 %% Make type 'wave'
 
-function s = makeWaveInput(varargin)
+function s = makeWaveInput(s, varargin)
 
 s.type = 'wav';
-
-s.analytic = 0;
 
 mver = version('-release');
 if str2double(mver(1:4)) > 2012 || strcmp(mver,'2012b')
@@ -280,9 +283,9 @@ if iscell(varargin{1})           % If multiple wavreads
     
     for numRead = 1:length(varargin{1})
         
-        s.fn{numRead} = varargin{1}{numRead};
+        s.fileName{numRead} = varargin{1}{numRead};
         
-        [temp,s.fs] = feval(readFunc, s.fn{numRead});
+        [temp,s.fs] = feval(readFunc, s.fileName{numRead});
         
         temp = mean(temp,2);
         
@@ -292,9 +295,9 @@ if iscell(varargin{1})           % If multiple wavreads
     
 else                             % else one wavread
     
-    s.fn = varargin{1};
+    s.fileName = varargin{1};
     
-    [s.x,s.fs] = feval(readFunc, s.fn);
+    [s.x,s.fs] = feval(readFunc, s.fileName);
     
 end
 
@@ -375,19 +378,17 @@ s.x  = s.x';                     % Transpose because toolbox expects row vector(
 
 %% Make type 'midi'
 
-function s = makeMidiInput(varargin)
+function s = makeMidiInput(s, varargin)
 
 s.type = 'mid';
 
-s.analytic = 0;
-s.fn   = varargin{1};
-
 %Parse data input type. Filename or nmat matrix
-if ischar(s.fn)
-    N = mdlReadMidi(s.fn);
+if ischar(varargin{1})
+    s.fileName   = varargin{1};
+    N = mdlReadMidi(s.fileName);
 else
     %user passed in a nmat matrix directly
-    N = s.fn;
+    N = varargin{1};
 end
 
 % Set default values for optional arguments
@@ -554,10 +555,9 @@ s.x = O;
 %% Make Rhythm Function
 %  Calls canonMake and creates a time series stimulus from the matrix.
 %  For now, cannot enter a sample rate without time span.
-function s = makeRfcnInput(varargin)
+function s = makeRfcnInput(s, varargin)
 
 s.type = 'rfcn';
-s.analytic = 0;
 
 s.ts = [];
 s.fs = 100;
