@@ -3,7 +3,7 @@
 %
 %  Finds alpha, beta1 and beta2 for a double limit cycle oscillator whose
 %  autonomous amplitude vector field is defined by three given points
-%  (rstar, peak, threshold) and epsilon.
+%  (rStar, localMax, localMin) and epsilon.
 %
 %  Input arguments:
 %  rStar            Stable nonzero fixed point in autonomous amplitude

@@ -85,7 +85,7 @@ for cx = 1:length(n.con)
 end
 
 %% The differential equation
-% $\dot{z} = z \left( \alpha + \beta_1 |z|^2 + \frac{\epsilon \beta_2 |z|^4}{1-\epsilon |z|^2} \right) + x$
+% $\dot{z} = z \left( \alpha + \textrm{i}\omega + (\beta_1 + \textrm{i}\delta_1) |z|^2 + \frac{\epsilon (\beta_2 + \textrm{i}\delta_2) |z|^4}{1-\epsilon |z|^2} \right) + x$
 dzdt = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-e*abs(z).^2)) + x;
 
 %%  Nonlinear Function Definitions
