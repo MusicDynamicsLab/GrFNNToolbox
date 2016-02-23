@@ -405,7 +405,7 @@ user_fs = 0;
 user_ramp = 0;
 
 % Parse arguments
-for i=2:nargin
+for i=2:length(varargin)
     if ischar(varargin{i})
         switch varargin{i}
             case 'tempo_mod'
@@ -533,9 +533,9 @@ for n = 1:final_note_ind
     note_on = round(N(n,6)*s.fs) - s0;
     
     if user_ramp
-        note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)), 'ramp', ramp_time, ramp_power);
+        note = makeFcnInput(s, [0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)), 'ramp', ramp_time, ramp_power);
     else
-        note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)));
+        note = makeFcnInput(s, [0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)));
     end
     xb = note.x;
     %required because makeFcnInput sometimes returns .x one sample short
@@ -637,7 +637,7 @@ O  = zeros( 1, length(s.t));
 for n = 1:final_note_ind
     note_on = round(N(n,6)*s.fs) - s0;
     
-    note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, {'pls'}, freq, dB2Pa(N(n,5)));
+    note = makeFcnInput(s, [0 (N(n,7)-s.dt)], s.fs, {'pls'}, freq, dB2Pa(N(n,5)));
     xb = note.x;
     %required because makeFcnInput sometimes returns .x one sample short
     note_off = note_on+length(xb);
