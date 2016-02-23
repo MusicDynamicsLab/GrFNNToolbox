@@ -2,7 +2,7 @@
 %
 % A simple afferent chain network with no learning
 %
-% https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki/6.-Example-2
+% https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki/06.-Example-2
 
 %% Explore different parameter sets
 alpha1 = 0.01; beta11 = -1; beta12 =  -10; neps1 = 1; % Layer 1

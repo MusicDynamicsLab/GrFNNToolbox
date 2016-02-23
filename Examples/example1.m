@@ -4,7 +4,7 @@
 % sets are provided for experimentation with different types of intrinsic
 % oscillator dynamics.
 %
-% https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki/4.-Example-1
+% https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki/04.-Example-1
 
 %% Choose a parameter set
 
