@@ -339,7 +339,7 @@ for i = 1:length(varargin)
     
     if strcmpi(varargin{i},'ts')
         s.ts = s.newTS;
-        clear('s.newTS');
+        s = rmfield(s,'newTS');
         s0 = round(s.ts(  1)*s.fs+1); %MGS - 6/28/09 Added round(...) to allow non-integer time spans
         sf = round(s.ts(end)*s.fs);   %MGS - 6/28/09 Added round(...) to allow non-integer time spans
         s.x  = s.x(s0:sf,:);                           % Take only specified time span
@@ -365,6 +365,7 @@ for i = 1:length(varargin)
             s.x = resample(s.x, new, old);
         end
         s.fs = new;                                     % Resample at specified sample rate
+        s.dt = 1/s.fs;
         s = rmfield(s,'newFS');
     end
     
