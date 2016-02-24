@@ -365,7 +365,7 @@ for i = 1:length(varargin)
             s.x = resample(s.x, new, old);
         end
         s.fs = new;                                     % Resample at specified sample rate
-        clear('s.newFS');
+        s = rmfield(s,'newFS');
     end
     
     if strcmpi(varargin{i},'ramp')
