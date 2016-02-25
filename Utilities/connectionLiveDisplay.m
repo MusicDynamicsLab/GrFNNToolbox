@@ -33,7 +33,9 @@ if ix == 0
         end
         
     else    % if connection is a matrix
-        if is3freq || con.nSourceClass == 1 % 3freq or stimulus source
+        if is3freq
+            f1 = [1 size(con.C, 2)];
+        elseif con.nSourceClass == 1 % stimulus source
             f1 = [1 con.sourceN];
         else
             f1 = getLim(con.sourceAxis, con.nSourceAxisScale);

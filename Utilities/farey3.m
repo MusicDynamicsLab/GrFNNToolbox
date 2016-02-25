@@ -1,4 +1,4 @@
-function [n1 n2 m] = farey3(x1, x2, z, tol, nvec, nl, mvec, ml, N1, N2, M)
+function [n1, n2, m] = farey3(x1, x2, z, tol, nvec, nl, mvec, ml, N1, N2, M)
 
 %% Find the sums that equal 0
 % See Hoppenstadt & Izhikevich, 1997, pg 173, 265

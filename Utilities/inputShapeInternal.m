@@ -1,4 +1,4 @@
-function  [X1i X2i Zi] = inputShape(N)
+function  [X1i, X2i, Zi] = inputShapeInternal(N)
 
 % This function returns the proper indices for making the coupling
 % matrices, and their associated exponent matrices

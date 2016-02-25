@@ -164,10 +164,6 @@ switch lower(con.type)
         con.NUM = NUM;
         con.DEN = DEN;
         F = (NUM.*F1 + DEN.*F2)./(NUM + DEN);
-        if n1.nClass == 2 % if network source
-            con.epsn = n1.e.^((NUM+DEN-2)/2); % used in zdot
-        end
-        con.epsc = epsilon.^((NUM+DEN-2)/2);  % used in cdot
         con.nType = 2;
         
     case '3freq' % three-frequency monomials ALL MONONMIALS, UP TO SPECIFIED ORDER
@@ -188,11 +184,9 @@ switch lower(con.type)
         if n1.nClass == 1 % if stimulus source
             F = repmat(n2.f, 1, size(DEN, 2));
         else
-            F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) ...
-                ./(abs(NUM1) + abs(NUM2) + DEN);
-            con.epsn = n1.e.^((NUM1+NUM2+DEN-2)/2); % used in zdot
+            F = (NUM1.*n1.f(X1i) + NUM2.*n1.f(X2i) + DEN.*n2.f(Zi)) ...
+                ./(NUM1 + NUM2 + DEN);
         end
-        con.epsc = epsilon.^((NUM1+NUM2+DEN-2)/2);  % used in cdot
         con.nType = 3;
         
     case '3freqall' % three-frequency monomials ALL FREQUENCIES, LOWEST ORDER MONOMIAL
@@ -216,9 +210,7 @@ switch lower(con.type)
         else
             F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) ...
                 ./(abs(NUM1) + abs(NUM2) + DEN);
-            con.epsn = n1.e.^((NUM1+NUM2+DEN-2)/2); % used in zdot
         end
-        con.epsc = epsilon.^((NUM1+NUM2+DEN-2)/2);  % used in cdot
         con.nType = 4;
         
     case 'active' % Full series of active nonlinearities

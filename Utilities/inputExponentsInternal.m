@@ -1,4 +1,4 @@
-function [N1 N2 M] = inputExponents(f, X1i, X2i, Zi)
+function [N1, N2, M] = inputExponentsInternal(f, X1i, X2i, Zi)
 
 Fn1 = f(X1i);
 Fn2 = f(X2i);
@@ -9,10 +9,6 @@ shape = size(Fn1);
 fn1 = Fn1(:);
 fn2 = Fn2(:);
 fm  = Fm (:);
-
-N1 = zeros(size(fn1));
-N2 = zeros(size(fn2));
-M  = zeros(size(fm ));
 
 %% Set up the the search space for farey3 as a 3D matrix of all possible monomials
 nvec = [(-16:-1), (1:16)]; 
@@ -33,7 +29,7 @@ N1 = zeros(size(fm));
 N2 = zeros(size(fm));
 M  = zeros(size(fm));
 for fi = 1:length(fm)
-    [n1 n2 m] = farey3(fn1(fi), fn2(fi), fm(fi), .02, nvec, nl, mvec, ml, N1in, N2in, Min);
+    [n1, n2, m] = farey3(fn1(fi), fn2(fi), fm(fi), .02, nvec, nl, mvec, ml, N1in, N2in, Min);
     N1(fi) = n1;
     N2(fi) = n2;
     M (fi) = m ;
