@@ -88,11 +88,12 @@ epsilon = 0;
 kappa = 0;
 
 %% Parse input
-types = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq' 'active'};         % Can add to this array later; default to 'Allfreq' for now
+types = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq' 'active'};
 
 for i = 1:length(varargin)
     
-    if strcmpi(varargin{i},'learn') && length(varargin) > i + 4 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2}) && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4}) && ~ischar(varargin{i+5})
+    if strcmpi(varargin{i},'learn') && length(varargin) > i + 4 && ~ischar(varargin{i+1}) ...
+            && ~ischar(varargin{i+2}) && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4}) && ~ischar(varargin{i+5})
         learn = 1;
         lambda   = varargin{i+1};
         mu1      = varargin{i+2};
@@ -130,7 +131,9 @@ for i = 1:length(varargin)
         con.phaseDisp = 1;
     end
     
-    if ischar(varargin{i}) && ~strcmpi(varargin{i},'learn') && ~strcmpi(varargin{i}(1:3),'typ') && ~strcmpi(varargin{i}(1:3),'wei') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~any(strcmpi(varargin{i},types)) && ~strcmpi(varargin{i},'no11') && ~strcmpi(varargin{i},'phasedisp')
+    if ischar(varargin{i}) && ~strcmpi(varargin{i},'learn') && ~strcmpi(varargin{i}(1:3),'typ') ...
+            && ~strcmpi(varargin{i}(1:3),'wei') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') ...
+            && ~any(strcmpi(varargin{i},types)) && ~strcmpi(varargin{i},'no11') && ~strcmpi(varargin{i},'phasedisp')
         error(['Unrecognized input to connectAdd: ' varargin{i}])
     end
     
@@ -202,14 +205,17 @@ switch lower(con.type)
         con.IDXZ  = Zi;
         con.CON1 = (NUM1<0);
         con.CON2 = (NUM2<0);
-        con.NUM1 = abs(NUM1);
-        con.NUM2 = abs(NUM2);
+        NUM1 = abs(NUM1);
+        NUM2 = abs(NUM2);
+        con.NUM1 = NUM1;
+        con.NUM2 = NUM2;
         con.DEN = DEN;
+        con.mask = (NUM1 + NUM2 > 0);   % exclude connections with no resonant monomial within tolerance
         if n1.nClass == 1 % if stimulus source
             F = repmat(n2.f, 1, size(DEN, 2));
         else
-            F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) ...
-                ./(abs(NUM1) + abs(NUM2) + DEN);
+            F = (NUM1.*n1.f(X1i) + NUM2.*n1.f(X2i) + DEN.*n2.f(Zi)) ...
+                ./(NUM1 + NUM2 + DEN);
         end
         con.nType = 4;
         
@@ -229,7 +235,7 @@ end
 
 %% Scaling factors
 
-if n2.nFspac==2 % log spacing
+if n2.nFspac == 2 % log spacing
     con.F = F;
     con.w = w.*n2.f;
 else
@@ -239,15 +245,9 @@ end
 
 %% Scale learning parameters
 
-% if any(kappa) % JCK: replaces if sum(sum(kappa))
-%     con.learn = 1;
-% else
-%     con.learn = 0;
-% end
-
 con.learn = learn;
 
-if n2.nFspac==2 % log spacing
+if n2.nFspac == 2 % log spacing
     con.lambda = lambda.*F;
     con.mu1 = mu1.*F;
     con.mu2 = mu2.*F;
@@ -289,19 +289,13 @@ end
 con.C = con.C0;
 
 %% Masking
-%      This process operates on the initial condition and parameter
-%      matrices to hange the way things work (i.e.
-%
-%      mask = ~eye(size(C));          % Don't learn self-connections
-%                                       This could be inverted guassian
-%                                       too
 
 mask = 1;
-if strcmpi(con.type, '2freq') && con.no11
+if con.nType == 2 && con.no11   % 2freq with no11
     mask = ~(con.NUM == 1 & con.DEN == 1);
-elseif strcmpi(con.type, '3freq')
+elseif con.nType == 3 || con.nType == 4     % 3freq or 3freqAll
     mask = con.mask;
-elseif con.source == con.target && con.nSourceClass == 2
+elseif con.source == con.target && con.nSourceClass == 2    % internal connection
     mask = ~eye(size(con.C));          % ... Won't learn self-connections
 end
 
