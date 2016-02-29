@@ -5,41 +5,43 @@
 %  with connectivity matrix specified by pattern C.
 %
 %  Required input argumenets:
-%  n1               Source (stimulus or network providing connection input)
-%  n2               Target network
-%  C                Connection pattern, either a scalar or a matrix of N2 by N1
-%                   where N1 is the number of oscillators for n1 and N2 for
-%                   n2. When learning is on, this is used as initial
-%                   conditions (if C is an empty matrix, small random
-%                   initial conditions are assigned).
+%  n1                   Source (stimulus or network providing connection input)
+%  n2                   Target network
+%  C                    Connection pattern, either a scalar or a matrix of N2 by N1
+%                       where N1 is the number of oscillators for n1 and N2 for
+%                       n2. When learning is on, this is used as initial
+%                       conditions (if C is an empty matrix, small random
+%                       initial conditions are assigned).
 %
 %  Optional input arguments:
-%  'type'           Followed by a charater string specifying connection type.
-%                   Options are '1freq', '2freq', '3freq', '3freqAll', 'active',
-%                   'All2freq', and 'Allfreq'. '1freq' is default for stimulus
-%                   source and 'Allfreq' is for network source.
-%  'learn'          Followed by five parameters for the learning rule:
-%                   lambda, mu1, mu2, epsilon, and kappa
-%  'weight'         Followed by a weight (scalar or column vector) to be multiplied
-%                   to the connectivity matrix, after summed across sources.
-%  'no11'           Subtracts out all 1-to-1 and subsequent n-to-n monomials from
-%                   resonant monomials.
-%  'tol'            Followed by tolerance value for fareyratio function (only for
-%                   '2freq' connection type).
-%  'display'        Followed by the time step interval at which to display the 
-%                   connectivity matrix during integration. Default is zero.
-%  'phaseDisp'      Sets connection phases to be displayed during integration.
-%                   Phases are not displayed by default.
-%  'save'           Followed by the time step interval at which to save the 
-%                   connectivity matrix. Default is zero.
+%  'type'               Followed by a charater string specifying connection type.
+%                       Options are '1freq', '2freq', '3freq', '3freqAll', 'active',
+%                       'All2freq', and 'Allfreq'. '1freq' is default for stimulus
+%                       source and 'Allfreq' is for network source.
+%  'learn'              Followed by five parameters for the learning rule:
+%                       lambda, mu1, mu2, epsilon, and kappa
+%  'weight'             Followed by a weight (scalar or column vector) to be multiplied
+%                       to the connectivity matrix, after summed across sources.
+%  'no11'               Subtracts out all 1-to-1 and subsequent n-to-n monomials from
+%                       resonant monomials.
+%  'scale', 'noScale'	Use these to specify whether or not to scale connection weights
+%                       and learning parameters by natural frequencies. No additional argument.
+%  'tol'                Followed by tolerance value for fareyratio function (only for
+%                       '2freq' connection type).
+%  'display'            Followed by the time step interval at which to display the 
+%                       connectivity matrix during integration. Default is zero.
+%  'phaseDisp'          Sets connection phases to be displayed during integration.
+%                       Phases are not displayed by default.
+%  'save'               Followed by the time step interval at which to save the 
+%                       connectivity matrix. Default is zero.
 %
 %  Output:
-%  n                Target network with the connection added
+%  n                    Target network with the connection added
 %
 %  Example calls:
 %
 %   n2 = connectAdd(n1, n2, [], 'learn', 0, -100000000, -1, .5, .1, 'display', 20, 'phaseDisp', 'type', '1freq');
-%   n2 = connectAdd(n1, n2, ones(n2.N, n1.N), 'weight', .01);
+%   n2 = connectAdd(n1, n2, ones(n2.N, n1.N), 'weight', .01, 'noScale');
 %
 
 %%
@@ -86,6 +88,7 @@ mu1 = 0;
 mu2 = 0;
 epsilon = 0;
 kappa = 0;
+userScale = [];
 
 %% Parse input
 types = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq' 'active'};
@@ -127,13 +130,22 @@ for i = 1:length(varargin)
         con.no11 = 1;
     end
     
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'sca')
+        userScale = 1;
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'nos')
+        userScale = 0;
+    end
+    
     if ischar(varargin{i}) && strcmpi(varargin{i},'phasedisp')
         con.phaseDisp = 1;
     end
     
     if ischar(varargin{i}) && ~strcmpi(varargin{i},'learn') && ~strcmpi(varargin{i}(1:3),'typ') ...
             && ~strcmpi(varargin{i}(1:3),'wei') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') ...
-            && ~any(strcmpi(varargin{i},types)) && ~strcmpi(varargin{i},'no11') && ~strcmpi(varargin{i},'phasedisp')
+            && ~any(strcmpi(varargin{i},types)) && ~strcmpi(varargin{i},'no11') && ~strcmpi(varargin{i},'phasedisp') ...
+            && ~any(strcmpi(varargin{i}(1:3),{'sca' 'nos'}))
         error(['Unrecognized input to connectAdd: ' varargin{i}])
     end
     
@@ -233,32 +245,36 @@ switch lower(con.type)
         
 end
 
-%% Scaling factors
+%% Scaling weights and learning parameters
 
-if n2.nFspac == 2 % log spacing
-    con.F = F;
-    con.w = w.*n2.f;
+if ~isempty(userScale)
+    con.scale = userScale;    % use user-specified scale flag if any
+elseif n2.nFspac == 2 % log spacing
+    con.scale = 1;
 else
-    F = ones(size(F));
-    con.w = w;
+    con.scale = 0;
 end
 
-%% Scale learning parameters
-
-con.learn = learn;
-
-if n2.nFspac == 2 % log spacing
-    con.lambda = lambda.*F;
-    con.mu1 = mu1.*F;
-    con.mu2 = mu2.*F;
-    con.kappa = kappa.*F;
-else
-    con.lambda = lambda;
-    con.mu1 = mu1;
-    con.mu2 = mu2;
-    con.kappa = kappa;
+switch con.scale
+    case 0      % no frequency scaling
+        con.F = ones(size(F));
+        con.w = w;
+        con.lambda = lambda;
+        con.mu1 = mu1;
+        con.mu2 = mu2;
+        con.kappa = kappa;
+        
+    case 1      % frequency scaling
+        con.F = F;
+        con.w = w.*n2.f;
+        con.lambda = lambda.*F;
+        con.mu1 = mu1.*F;
+        con.mu2 = mu2.*F;
+        con.kappa = kappa.*F;
 end
+
 con.e = epsilon;
+con.learn = learn;
 
 %% Connection State and Initial Conditions
 %       C0: initial conditions
