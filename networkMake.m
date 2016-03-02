@@ -105,7 +105,6 @@ for i = 1:length(varargin)
                 n.df = 1;
             end
         end
-        n.f   = single(n.f);
     end
     
     if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'sca')
@@ -171,17 +170,17 @@ end
 switch n.scale
     
     case 0 % no frequency scaling
-        n.a  = single(alpha + 1i*2*pi.*n.f);
-        n.b1 = single(beta1 + 1i*delta1);
-        n.b2 = single(beta2 + 1i*delta2);
+        n.a  = alpha + 1i*2*pi.*n.f;
+        n.b1 = beta1 + 1i*delta1;
+        n.b2 = beta2 + 1i*delta2;
         
     case 1 % frequency scaling
-        n.a  = single(alpha + 1i*2*pi  ).*n.f;  % Redefinition of a, b1 & b2
-        n.b1 = single(beta1 + 1i*delta1).*n.f;
-        n.b2 = single(beta2 + 1i*delta2).*n.f;
+        n.a  = (alpha + 1i*2*pi  ).*n.f;  % Redefinition of a, b1 & b2
+        n.b1 = (beta1 + 1i*delta1).*n.f;
+        n.b2 = (beta2 + 1i*delta2).*n.f;
 end
 
-n.e = single(epsilon);
+n.e = epsilon;
 
 
 switch n.model

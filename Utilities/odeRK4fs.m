@@ -20,8 +20,8 @@ if( ~isa(zfun,'function_handle') )
     error('odeRK4fs: odefun param must be a function handle');
 end
 
-step = single(1);
-h = single(M.dt);                   % step size
+istep = 1;
+h = M.dt;                   % step size
 stimList = M.stimList;
 netList = M.netList;
 
@@ -44,7 +44,7 @@ for nx = netList
 end
 
 %% Integration loop
-for ix = ispan(1) : step : ispan(2)-step
+for ix = ispan(1) : istep : ispan(2)-istep
     ind = ix; % time step for which to calculate k1
     
     %% Get Runge-Kutta k-values
@@ -78,7 +78,7 @@ for ix = ispan(1) : step : ispan(2)-step
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + M.n{nx}.con{cx}.k{1}/2;
                     end
                 end
-                ind = ix + step/2; % time step for k2 and k3
+                ind = ix + istep/2; % time step for k2 and k3
             case 2
                 for nx = netList
                     M.n{nx}.z = M.n{nx}.zPrev + M.n{nx}.k{2}/2;
@@ -93,7 +93,7 @@ for ix = ispan(1) : step : ispan(2)-step
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + M.n{nx}.con{cx}.k{3};
                     end
                 end
-                ind = ix + step; % time step for k4
+                ind = ix + istep; % time step for k4
             case 4
                 for nx = netList
                     M.n{nx}.z = M.n{nx}.zPrev + ...

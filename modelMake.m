@@ -84,7 +84,7 @@ for v = ind:length(varargin)
         if temp.sStep > 0
             Nt = ceil(length(t)/temp.sStep);
             model.n{nid}.t = t(1:temp.sStep:length(t));
-            model.n{nid}.Z = single(zeros(length(temp.z), Nt));
+            model.n{nid}.Z = zeros(length(temp.z), Nt);
             model.n{nid}.Z(:,1) = temp.z0;
         else
             model.n{nid}.t = [];
@@ -96,7 +96,7 @@ for v = ind:length(varargin)
             if con.sStep > 0
                 Nt = ceil(length(t)/con.sStep);
                 model.n{nid}.con{cx}.t = t(1:con.sStep:length(t));
-                model.n{nid}.con{cx}.C3 = single(zeros(size(con.C,1), size(con.C,2), Nt));
+                model.n{nid}.con{cx}.C3 = zeros(size(con.C,1), size(con.C,2), Nt);
                 model.n{nid}.con{cx}.C3(:,:,1) = con.C0;
             else
                 model.n{nid}.con{cx}.t  = [];
@@ -140,6 +140,7 @@ end
 %% Cast everything as complex and single
 
 for nx = model.netList
+    model.dt       = castCS(model.dt);
     model.n{nx}.z0 = castCS(model.n{nx}.z0);
     model.n{nx}.z  = castCS(model.n{nx}.z);
     model.n{nx}.Z  = castCS(model.n{nx}.Z);

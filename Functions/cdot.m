@@ -82,7 +82,6 @@ switch nType    % cases ordered by frequency of use
         
 end
 
-X = single(X);
 
 %% The differential equation
 % $\dot{C} = C \left( \lambda + \mu_1 |C|^2+ \frac{\epsilon \mu_2 |C|^4}{1-\epsilon |C|^2} \right) + X$
