@@ -199,8 +199,6 @@ end
 s.lenx = size(s.x, 2);	% stimulus length
 s.N = size(s.x, 1);     % number of stimulus channels
 
-s.x = castCS(s.x);
-
 %% Make type 'function'
 function s = makeFcnInput(s, varargin)
 
