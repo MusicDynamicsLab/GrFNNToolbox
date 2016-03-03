@@ -1,9 +1,10 @@
-%% unitTest1p.m
+%% unitTest2p.m
 %
-% A one layer network with no driving input. 
-% 
+% Unit test script for two layer network configurations with learning.
+%
 
-connectionTypes = {'1freq', 'all2freq', 'allfreq', 'active'};
+%% Parameters
+connectionTypes = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq' 'active'};
 
 aLin  = -1; aCrit  = 0; aCritDetune =  0; aLC = 1; aDLC = -1;
 b1Lin =  0; b1Crit =-1; b1CritDetune= -1; b1LC=-1; b1DLC = 3;
@@ -30,16 +31,12 @@ learningParams = struct('lambda', [lambdaLin, lambdaC, lambdaSC],...
     'ceps', [cepsLin, cepsC, cepsSC],...
     'kappa', [kappaLin, kappaC, kappaSC]);
 
-
+Fs = 160;
+count = 0;
+dispRate = 10;
 w = 0.05; % Connection weight
 
-fs = 40;
-dispRate = 10;
-
-numConnectionTypes = length(connectionTypes);
-count = 0;
-
-for ct = 1:numConnectionTypes      % loop over connection types
+for ct = 1:length(connectionTypes)
     disp(['---Connection type: ' connectionTypes{ct} '---']);
     for oto = 0:1 % run with and without one to one connections
         switch oto
@@ -49,8 +46,6 @@ for ct = 1:numConnectionTypes      % loop over connection types
                 disp('including 1to1 connections')
         end
         for lr = 1:3 % loop over learning regimes
-            count = count + 1;
-            
             switch lr
                 case 1
                     fprintf('- Linear learning regime running...')
@@ -60,40 +55,46 @@ for ct = 1:numConnectionTypes      % loop over connection types
                     fprintf('- Supercritical learning regime running...')
             end
             
-            %% Make the model
-            s = stimulusMake(1, 'fcn', [0 10], fs, {'exp'}, [1], 0, 0, ...
-                'ramp', 0.02, 1, 'display', dispRate);
+            count = count+1;
             
-            n = networkMake(1, 'hopf', params.alpha(pr), params.beta1(pr), params.beta2(pr),...
+            %% Make the model
+            s = stimulusMake(1, 'fcn', [0 10], Fs, {'exp'}, [2], .025, 0,...
+                'ramp', 0.01, 1, 'display', dispRate);
+            
+            n1 = networkMake(1, 'hopf', params.alpha(pr), params.beta1(pr), params.beta2(pr),...
                 params.delta1(pr), params.delta2(pr), params.eps(pr),...
-                'log', .5, 2, 200, 'save', 1, ...
-                'display', dispRate, 'Tick', [.5 2/3 3/4 1 4/3 3/2 2]);
+                'log', .5, 4, 200, 'save', 1, ...
+                'display', dispRate);
+            n2 = networkMake(2, 'hopf', params.alpha(pr), params.beta1(pr), params.beta2(pr),...
+                params.delta1(pr), params.delta2(pr), params.eps(pr),...
+                'log', .5, 8, 100, 'save', 1, ...
+                'display', dispRate);
+            
+            C = connectMake(n1, n2, 'one', 1, 1);
             
             if oto
-                n = connectAdd(n, n, [], 'type', connectionTypes{ct},...
+                n1 = connectAdd(s, n1, 1);
+                n2 = connectAdd(n2, n2, [], 'weight', w, 'type', '2freq', ...
                     'learn', learningParams.lambda(lr), learningParams.mu1(lr),...
                     learningParams.mu2(lr), learningParams.ceps(lr),...
-                    learningParams.kappa(lr), 'weight', w, 'display', dispRate*10);                
+                    learningParams.kappa(lr), ...
+                    'display', dispRate, 'phasedisp', 'save', 1000);
             else
-                n = connectAdd(n, n, [], 'type', connectionTypes{ct}, 'no11',...
+                n1 = connectAdd(s, n1, 1, 'no11');
+                n2 = connectAdd(n2, n2, [], 'weight', w, 'type', '2freq', 'no11', ...
                     'learn', learningParams.lambda(lr), learningParams.mu1(lr),...
                     learningParams.mu2(lr), learningParams.ceps(lr),...
-                    learningParams.kappa(lr), 'weight', w, 'display', dispRate*10);
-                
+                    learningParams.kappa(lr), ...
+                    'display', dispRate, 'phasedisp', 'save', 1000);
             end
             
-            %
-            % Run the integrator
-            %
+            M = modelMake(@zdot, @cdot, s, n1, n2);
             
-            M = modelMake(@zdot, @cdot, s, n);
-            
+            %% Run the network
             tic
             M = odeRK4fs(M);
             runTimes(count) = toc;
-            
             Z = M.n{1}.Z;
-            
             
             if oto
                 nansPresent1to1(ct) = any(isnan(Z(:)));
@@ -108,9 +109,8 @@ for ct = 1:numConnectionTypes      % loop over connection types
                     disp('Warning, NaNs present');
                 else
                     disp('OK, no NaNs');
-                end            
+                end
             end
-            
         end
     end
 end
