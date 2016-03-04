@@ -2,17 +2,15 @@
 %
 % A simple afferent chain network with fixed connections
 %
-%
 
-%% Explore different parameter sets
 connectionTypes = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq' 'active'};
 
-aLin  = -1; aCrit  = 0; aCritDetune =  0; aLC = 1; aDLC = -1;
-b1Lin =  0; b1Crit =-1; b1CritDetune= -1; b1LC=-1; b1DLC = 3;
+aLin  = -1; aCrit  = 0; aCritDetune =  0; aLC = 1;   aDLC = -1;
+b1Lin =  0; b1Crit =-1; b1CritDetune= -1; b1LC=-1;   b1DLC = 3;
 b2Lin =  0; b2Crit =-1; b2CritDetune= -1; b2LC=-1e3; b2DLC =-1;
-d1Lin =  0; d1Crit = 0; d1CritDetune=  1; d1LC= 0; d1DLC = 0;
+d1Lin =  0; d1Crit = 0; d1CritDetune=  1; d1LC= 0;   d1DLC = 0;
 d2 = 0;
-eLin  =  1; eCrit  = 1; eCritDetune =  1; eLC = 1; eDLC  = 1;
+eLin  =  1; eCrit  = 1; eCritDetune =  1; eLC = 1;   eDLC  = 1;
 
 params = struct('alpha', [aLin, aCrit, aCritDetune, aLC, aDLC],...
     'beta1', [b1Lin, b1Crit, b1CritDetune, b1LC, b1DLC],...
@@ -22,6 +20,7 @@ params = struct('alpha', [aLin, aCrit, aCritDetune, aLC, aDLC],...
     'eps', [eLin, eCrit, eCritDetune, eLC, eDLC]);
 
 Fs = 160;
+w = 1;
 count = 0;
 dispRate = 10;
 runTimes = zeros(70,1);
@@ -29,14 +28,20 @@ nansPresent1to1 = zeros(70,1);
 nansPresentno11 = zeros(70,1);
 
 %% Make the model
-for ct = 1:length(connectionTypes)
+for ct = 3:4%1:length(connectionTypes)
+    disp(' ')
     disp(['---Connection type: ' connectionTypes{ct} '---']);
-    for oto = 0:1 % run with and without one to one connections
-        switch oto
-            case 0
-                disp('no 1to1 connections')
-            case 1
-                disp('including 1to1 connections')
+    for oto = 1:-1:0 % run with and without one to one connections
+        if oto==1
+            disp(' ')
+            disp('including 1to1 connections')
+        elseif ~oto && (ct==1 || ct==3)
+            disp(' ')
+            disp('testing no11 not necessary for this connection type')
+            continue;
+        else
+            disp(' ')
+            disp('no 1to1 connections')
         end
         for pr = 1:5
             switch pr
@@ -53,27 +58,35 @@ for ct = 1:length(connectionTypes)
             end
             
             count = count+1;
+            Nosc = 200;
+            if ct==4 % if 3freqall
+                Nosc = Nosc/4;
+            end
             
-            s = stimulusMake(1, 'fcn', [0 10], Fs, {'exp'}, [2], .025, 0, 'ramp', 0.01, 1, ...
+            s = stimulusMake(1, 'fcn', [0 10], Fs, {'exp'}, [2], .25, 0, 'ramp', 0.01, 1, ...
                 'display', dispRate);
             n1 = networkMake(1, 'hopf', params.alpha(pr), params.beta1(pr), params.beta2(pr),...
                 params.delta1(pr), params.delta2(pr), params.eps(pr),...
-                'log', .5, 4, 200, 'save', 1, ...
+                'log', .5, 8, Nosc+1, 'save', 1, 'Tick', [.5 1 2 4 8],...
                 'display', dispRate);
             
             n2 = networkMake(2, 'hopf', params.alpha(pr), params.beta1(pr), params.beta2(pr),...
                 params.delta1(pr), params.delta2(pr), params.eps(pr),...
-                'log', .5, 8, 100, 'save', 1, ...
+                'log', .5, 8, Nosc/2+1, 'save', 1, 'Tick', [.5 1 2 4 8],...
                 'display', dispRate);
             
-            C     = connectMake(n1, n2, 'one', 1, 1);
+            if ct==3 || ct==4 % if 3freq or 3freqall
+                C = .005;
+            else
+                C = connectMake(n1, n2, 'full', 0.005);
+            end
+            
+            n1 = connectAdd(s, n1, 1); % '1freq' connection type by default
             
             if oto
-                n1 = connectAdd(s, n1, 1); % '1freq' connection type by default
-                n2 = connectAdd(n1, n2,  C, 'weight', 1, 'type', connectionTypes(ct));
+                n2 = connectAdd(n1, n2,  C, 'weight', w, 'type', connectionTypes{ct});
             else
-                n1 = connectAdd(s, n1, 1, 'no11'); % '1freq' connection type by default
-                n2 = connectAdd(n1, n2,  C, 'weight', 1, 'type', connectionTypes(ct), 'no11');
+                n2 = connectAdd(n1, n2,  C, 'weight', w, 'type', connectionTypes{ct}, 'no11');
             end
             
             M = modelMake(@zdot, @cdot, s, n1, n2);
@@ -83,7 +96,7 @@ for ct = 1:length(connectionTypes)
             M = odeRK4fs(M);
             runTimes(count,1) = toc;
             
-            Z = M.n{1}.Z;
+            Z = [M.n{1}.Z; M.n{2}.Z];
             
             if oto
                 nansPresent1to1(ct) = any(isnan(Z(:)));
