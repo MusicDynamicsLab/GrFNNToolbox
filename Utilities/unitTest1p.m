@@ -68,6 +68,8 @@ for ct = 1:numConnectionTypes      % loop over connection types
             end
             
             %% Make the model
+            s = stimulusMake(1, 'fcn', [0 10], fs, {'exp'}, [1], 0, 0, ...
+                'ramp', 0.02, 1, 'display', dispRate);
             Nosc = 200;
             if ct==4 % if 3freqall
                 Nosc = Nosc/4;
