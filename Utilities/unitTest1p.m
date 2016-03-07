@@ -33,8 +33,8 @@ learningParams = struct('lambda', [lambdaLin, lambdaC, lambdaSC],...
 
 w = 0.01; % Connection weight
 
-fs = 160;
-dispRate = 10;
+fs = 80;
+dispRate = 100;
 
 
 numConnectionTypes = length(connectionTypes);
@@ -46,14 +46,14 @@ for ct = 1:numConnectionTypes      % loop over connection types
     for oto = 1:-1:0 % run with and without one to one connections
         if oto==1
             disp(' ')
-            disp('including 1to1 connections')
+            disp('including 1:1 connections')
         elseif ~oto && (ct==1 || ct==3)
             disp(' ')
-            disp('testing no11 not necessary for this connection type')
+            disp('testing no 1:1 not necessary for this connection type')
             continue;
         else
             disp(' ')
-            disp('no 1to1 connections')
+            disp('no 1:1 connections')
         end
         for lr = 1:3 % loop over learning regimes
             count = count + 1;
@@ -68,28 +68,28 @@ for ct = 1:numConnectionTypes      % loop over connection types
             end
             
             %% Make the model
-            s = stimulusMake(1, 'fcn', [0 10], fs, {'exp'}, [1], 0, 0, ...
+            s = stimulusMake(1, 'fcn', [0 20], fs, {'exp'}, [1], 0, 0, ...
                 'ramp', 0.02, 1, 'display', dispRate);
-            Nosc = 200;
+            Nosc = 201;
             if ct==4 % if 3freqall
-                Nosc = Nosc/4;
+                Nosc = (Nosc-1)/4 + 1;
             end
             
             n = networkMake(1, 'hopf', params.alpha(pr), params.beta1(pr), params.beta2(pr),...
                 params.delta1(pr), params.delta2(pr), params.eps(pr),...
-                'log', .5, 8, Nosc+1, 'save', 1, ...
-                'display', dispRate, 'Tick', [.5 1 2 4 8]);
+                'log', .5, 2, Nosc, 'save', 1, ...
+                'display', 0, 'Tick', [.5 1 2 4 8]);
             
             if oto
                 n = connectAdd(n, n, [], 'type', connectionTypes{ct},...
                     'learn', learningParams.lambda(lr), learningParams.mu1(lr),...
                     learningParams.mu2(lr), learningParams.ceps(lr),...
-                    learningParams.kappa(lr), 'weight', w, 'display', dispRate*10);                
+                    learningParams.kappa(lr), 'weight', w, 'display', dispRate);                
             else
                 n = connectAdd(n, n, [], 'type', connectionTypes{ct}, 'no11',...
                     'learn', learningParams.lambda(lr), learningParams.mu1(lr),...
                     learningParams.mu2(lr), learningParams.ceps(lr),...
-                    learningParams.kappa(lr), 'weight', w, 'display', dispRate*10);
+                    learningParams.kappa(lr), 'weight', w, 'display', dispRate);
                 
             end
             
@@ -97,7 +97,7 @@ for ct = 1:numConnectionTypes      % loop over connection types
             % Run the integrator
             %
             
-            M = modelMake(@zdot, @cdot, s, n);
+            evalc('M = modelMake(@zdot, @cdot, s, n);');  % to silence warning message from modelMake
             
             tic
             M = odeRK4fs(M);
@@ -107,14 +107,14 @@ for ct = 1:numConnectionTypes      % loop over connection types
             
             
             if oto
-                nansPresent1to1(lr,ct) = any(isnan(Z(:)));
+                nansPresent1to1(ct,lr) = any(isnan(Z(:)));
                 if (any(isnan(Z(:))))
                     disp('Warning, NaNs present');
                 else
                     disp('OK, no NaNs');
                 end
             else
-                nansPresentno11(lr,ct) = any(isnan(Z(:)));
+                nansPresentno11(ct,lr) = any(isnan(Z(:)));
                 if (any(isnan(Z(:))))
                     disp('Warning, NaNs present');
                 else
@@ -130,7 +130,7 @@ end
 % Display results
 %
 
-if sum(nansPresentno11)>0 || sum(nansPresent1to1)>0
+if sum(nansPresentno11(:))>0 || sum(nansPresent1to1(:))>0
     disp(' ')
     disp('NaNs present - check above output results')
 else

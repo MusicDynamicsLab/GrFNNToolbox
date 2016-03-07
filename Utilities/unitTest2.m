@@ -21,27 +21,23 @@ params = struct('alpha', [aLin, aCrit, aCritDetune, aLC, aDLC],...
 
 Fs = 160;
 w = 1;
-count = 0;
-dispRate = 10;
-runTimes = zeros(70,1);
-nansPresent1to1 = zeros(70,1);
-nansPresentno11 = zeros(70,1);
+dispRate = 100;
 
 %% Make the model
-for ct = 3:4%1:length(connectionTypes)
+for ct = 1:length(connectionTypes)
     disp(' ')
     disp(['---Connection type: ' connectionTypes{ct} '---']);
     for oto = 1:-1:0 % run with and without one to one connections
         if oto==1
             disp(' ')
-            disp('including 1to1 connections')
+            disp('including 1:1 connections')
         elseif ~oto && (ct==1 || ct==3)
             disp(' ')
-            disp('testing no11 not necessary for this connection type')
+            disp('testing no 1:1 not necessary for this connection type')
             continue;
         else
             disp(' ')
-            disp('no 1to1 connections')
+            disp('no 1:1 connections')
         end
         for pr = 1:5
             switch pr
@@ -57,22 +53,21 @@ for ct = 3:4%1:length(connectionTypes)
                     fprintf('- Double limit cycle regime running...')
             end
             
-            count = count+1;
-            Nosc = 200;
+            Nosc = 201;
             if ct==4 % if 3freqall
-                Nosc = Nosc/4;
+                Nosc = (Nosc-1)/4 + 1;
             end
             
-            s = stimulusMake(1, 'fcn', [0 10], Fs, {'exp'}, [2], .25, 0, 'ramp', 0.01, 1, ...
+            s = stimulusMake(1, 'fcn', [0 10], Fs, {'exp'}, [1 4], .25, 0, 'ramp', 0.01, 1, ...
                 'display', dispRate);
-            n1 = networkMake(1, 'hopf', params.alpha(pr), params.beta1(pr), params.beta2(pr),...
-                params.delta1(pr), params.delta2(pr), params.eps(pr),...
-                'log', .5, 8, Nosc+1, 'save', 1, 'Tick', [.5 1 2 4 8],...
+            n1 = networkMake(1, 'hopf', params.alpha(2), params.beta1(2), params.beta2(2),...
+                params.delta1(2), params.delta2(2), params.eps(2),...
+                'log', .5, 8, Nosc, 'save', 1, 'Tick', [.5 1 2 4 8],...
                 'display', dispRate);
             
             n2 = networkMake(2, 'hopf', params.alpha(pr), params.beta1(pr), params.beta2(pr),...
                 params.delta1(pr), params.delta2(pr), params.eps(pr),...
-                'log', .5, 8, Nosc/2+1, 'save', 1, 'Tick', [.5 1 2 4 8],...
+                'log', .5, 8, (Nosc-1)/2+1, 'save', 1, 'Tick', [.5 1 2 4 8],...
                 'display', dispRate);
             
             if ct==3 || ct==4 % if 3freq or 3freqall
@@ -94,19 +89,19 @@ for ct = 3:4%1:length(connectionTypes)
             %% Run the network
             tic
             M = odeRK4fs(M);
-            runTimes(count,1) = toc;
+            runTimes(ct,pr) = toc;
             
             Z = [M.n{1}.Z; M.n{2}.Z];
             
             if oto
-                nansPresent1to1(ct) = any(isnan(Z(:)));
+                nansPresent1to1(ct,pr) = any(isnan(Z(:)));
                 if (any(isnan(Z(:))))
                     disp('Warning, NaNs present');
                 else
                     disp('OK, no NaNs');
                 end
             else
-                nansPresentno11(ct) = any(isnan(Z(:)));
+                nansPresentno11(ct,pr) = any(isnan(Z(:)));
                 if (any(isnan(Z(:))))
                     disp('Warning, NaNs present');
                 else
@@ -121,7 +116,7 @@ end
 % Display results
 %
 
-if sum(nansPresentno11)>0 || sum(nansPresent1to1)>0
+if sum(nansPresentno11(:))>0 || sum(nansPresent1to1(:))>0
     disp(' ')
     disp('NaNs present - check above output results')
 else

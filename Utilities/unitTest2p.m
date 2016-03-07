@@ -31,26 +31,25 @@ learningParams = struct('lambda', [lambdaLin, lambdaC, lambdaSC],...
     'kappa', [kappaLin, kappaC, kappaSC]);
 
 Fs = 160;
-count = 0;
 dispRate = 10;
 w = 0.05; % Connection weight
 
-for ct = 1:length(connectionTypes)
+for ct = 5%1:length(connectionTypes)
     disp(' ');
     disp(['---Connection type: ' connectionTypes{ct} '---']);
     for oto = 1:-1:0 % run with and without one to one connections
         if oto==1
             disp(' ')
-            disp('including 1to1 connections')
+            disp('including 1:1 connections')
         elseif ~oto && (ct==1 || ct==3)
             disp(' ')
             disp('testing no11 not necessary for this connection type')
             continue;
         else
             disp(' ')
-            disp('no 1to1 connections')
+            disp('no 1:1 connections')
         end
-        for lr = 1:3 % loop over learning regimes
+        for lr = 3%1:3 % loop over learning regimes
             switch lr
                 case 1
                     fprintf('- Linear learning regime running...')
@@ -60,10 +59,9 @@ for ct = 1:length(connectionTypes)
                     fprintf('- Supercritical learning regime running...')
             end
             
-            count = count+1;
-            Nosc = 200;
+            Nosc = 201;
             if ct==4 % if 3freqall
-                Nosc = Nosc/4;
+                Nosc = (Nosc-1)/4 + 1;
             end
             
             %% Make the model
@@ -72,11 +70,11 @@ for ct = 1:length(connectionTypes)
             
             n1 = networkMake(1, 'hopf', params.alpha(pr), params.beta1(pr), params.beta2(pr),...
                 params.delta1(pr), params.delta2(pr), params.eps(pr),...
-                'log', .5, 8, Nosc+1, 'save', 1, 'Tick', [.5 1 2 4 8],...
+                'log', .5, 8, Nosc, 'save', 1, 'Tick', [.5 1 2 4 8],...
                 'display', dispRate);
             n2 = networkMake(2, 'hopf', params.alpha(pr), params.beta1(pr), params.beta2(pr),...
                 params.delta1(pr), params.delta2(pr), params.eps(pr),...
-                'log', .5, 8, Nosc/2+1, 'save', 1, 'Tick', [.5 1 2 4 8], ...
+                'log', .5, 8, (Nosc-1)/2+1, 'save', 1, 'Tick', [.5 1 2 4 8], ...
                 'display', dispRate);
             n1 = connectAdd(s, n1, 1);
 
@@ -87,7 +85,7 @@ for ct = 1:length(connectionTypes)
                     learningParams.kappa(lr), ...
                     'display', dispRate, 'phasedisp', 'save', 1000);
             else
-                n2 = connectAdd(n, n2, [], 'weight', w, 'type', connectionTypes{ct}, 'no11', ...
+                n2 = connectAdd(n1, n2, [], 'weight', w, 'type', connectionTypes{ct}, 'no11', ...
                     'learn', learningParams.lambda(lr), learningParams.mu1(lr),...
                     learningParams.mu2(lr), learningParams.ceps(lr),...
                     learningParams.kappa(lr), ...
@@ -99,18 +97,18 @@ for ct = 1:length(connectionTypes)
             %% Run the network
             tic
             M = odeRK4fs(M);
-            runTimes(count) = toc;
+            runTimes(ct,lr) = toc;
             Z = M.n{1}.Z;
             
             if oto
-                nansPresent1to1(ct) = any(isnan(Z(:)));
+                nansPresent1to1(ct,lr) = any(isnan(Z(:)));
                 if (any(isnan(Z(:))))
                     disp('Warning, NaNs present');
                 else
                     disp('OK, no NaNs');
                 end
             else
-                nansPresentno11(ct) = any(isnan(Z(:)));
+                nansPresentno11(ct,lr) = any(isnan(Z(:)));
                 if (any(isnan(Z(:))))
                     disp('Warning, NaNs present');
                 else
@@ -125,7 +123,7 @@ end
 % Display results
 %
 
-if sum(nansPresentno11)>0 || sum(nansPresent1to1)>0
+if sum(nansPresentno11(:))>0 || sum(nansPresent1to1(:))>0
     disp(' ')
     disp('NaNs present - check above output results')
 else
