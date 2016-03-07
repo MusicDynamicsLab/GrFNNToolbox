@@ -71,6 +71,8 @@ end
 model.fs           = fs;
 model.dt           = dt;
 model.t            = t;
+model.iSpan        = [1 length(t)];
+model.iStep        = 1;
 
 %% Get networks and set initial conditions
 
@@ -84,7 +86,7 @@ for v = ind:length(varargin)
         if temp.sStep > 0
             Nt = ceil(length(t)/temp.sStep);
             model.n{nid}.t = t(1:temp.sStep:length(t));
-            model.n{nid}.Z = single(zeros(length(temp.z), Nt));
+            model.n{nid}.Z = zeros(length(temp.z), Nt);
             model.n{nid}.Z(:,1) = temp.z0;
         else
             model.n{nid}.t = [];
@@ -96,7 +98,7 @@ for v = ind:length(varargin)
             if con.sStep > 0
                 Nt = ceil(length(t)/con.sStep);
                 model.n{nid}.con{cx}.t = t(1:con.sStep:length(t));
-                model.n{nid}.con{cx}.C3 = single(zeros(size(con.C,1), size(con.C,2), Nt));
+                model.n{nid}.con{cx}.C3 = zeros(size(con.C,1), size(con.C,2), Nt);
                 model.n{nid}.con{cx}.C3(:,:,1) = con.C0;
             else
                 model.n{nid}.con{cx}.t  = [];
@@ -138,7 +140,12 @@ if isempty(stimList)   % if no network is connected to stimulus
 end
 
 %% Cast everything as complex and single
-
+model.iSpan    = single(model.iSpan);
+model.iStep    = single(model.iStep);
+model.dt       = single(model.dt);
+for sx = model.stimList
+    model.s{sx}.x = castCS(model.s{sx}.x);
+end
 for nx = model.netList
     model.n{nx}.z0 = castCS(model.n{nx}.z0);
     model.n{nx}.z  = castCS(model.n{nx}.z);
@@ -148,11 +155,20 @@ for nx = model.netList
     model.n{nx}.b2 = castCS(model.n{nx}.b2);
     model.n{nx}.e  = castCS(model.n{nx}.e);
     for cx = 1:length(model.n{nx}.con)
-        if any(model.n{nx}.learnList) && any(model.n{nx}.learnList == cx)
-            model.n{nx}.con{cx}.C0 = castCS(model.n{nx}.con{cx}.C0);
-            model.n{nx}.con{cx}.C  = castCS(model.n{nx}.con{cx}.C);
+        if model.n{nx}.con{cx}.learn
             model.n{nx}.con{cx}.C3 = castCS(model.n{nx}.con{cx}.C3);
         end
+        if isfield(model.n{nx}.con{cx},'NUM')
+            model.n{nx}.con{cx}.NUM = castCS(model.n{nx}.con{cx}.NUM);
+            model.n{nx}.con{cx}.DEN = castCS(model.n{nx}.con{cx}.DEN);
+        end
+        if isfield(model.n{nx}.con{cx},'NUM1')
+            model.n{nx}.con{cx}.NUM1 = castCS(model.n{nx}.con{cx}.NUM1);
+            model.n{nx}.con{cx}.NUM2 = castCS(model.n{nx}.con{cx}.NUM2);
+            model.n{nx}.con{cx}.DEN  = castCS(model.n{nx}.con{cx}.DEN);
+        end
+        model.n{nx}.con{cx}.C      = castCS(model.n{nx}.con{cx}.C);
+        model.n{nx}.con{cx}.C0     = castCS(model.n{nx}.con{cx}.C0);
         model.n{nx}.con{cx}.w      = castCS(model.n{nx}.con{cx}.w);
         model.n{nx}.con{cx}.lambda = castCS(model.n{nx}.con{cx}.lambda);
         model.n{nx}.con{cx}.mu1    = castCS(model.n{nx}.con{cx}.mu1);

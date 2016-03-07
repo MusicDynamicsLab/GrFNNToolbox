@@ -199,8 +199,6 @@ end
 s.lenx = size(s.x, 2);	% stimulus length
 s.N = size(s.x, 1);     % number of stimulus channels
 
-s.x = castCS(s.x);
-
 %% Make type 'function'
 function s = makeFcnInput(s, varargin)
 
@@ -339,7 +337,7 @@ for i = 1:length(varargin)
     
     if strcmpi(varargin{i},'ts')
         s.ts = s.newTS;
-        clear('s.newTS');
+        s = rmfield(s,'newTS');
         s0 = round(s.ts(  1)*s.fs+1); %MGS - 6/28/09 Added round(...) to allow non-integer time spans
         sf = round(s.ts(end)*s.fs);   %MGS - 6/28/09 Added round(...) to allow non-integer time spans
         s.x  = s.x(s0:sf,:);                           % Take only specified time span
@@ -365,7 +363,8 @@ for i = 1:length(varargin)
             s.x = resample(s.x, new, old);
         end
         s.fs = new;                                     % Resample at specified sample rate
-        clear('s.newFS');
+        s.dt = 1/s.fs;
+        s = rmfield(s,'newFS');
     end
     
     if strcmpi(varargin{i},'ramp')
@@ -405,7 +404,7 @@ user_fs = 0;
 user_ramp = 0;
 
 % Parse arguments
-for i=2:nargin
+for i=2:length(varargin)
     if ischar(varargin{i})
         switch varargin{i}
             case 'tempo_mod'
@@ -533,9 +532,9 @@ for n = 1:final_note_ind
     note_on = round(N(n,6)*s.fs) - s0;
     
     if user_ramp
-        note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)), 'ramp', ramp_time, ramp_power);
+        note = makeFcnInput(s, [0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)), 'ramp', ramp_time, ramp_power);
     else
-        note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)));
+        note = makeFcnInput(s, [0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)));
     end
     xb = note.x;
     %required because makeFcnInput sometimes returns .x one sample short
@@ -637,7 +636,7 @@ O  = zeros( 1, length(s.t));
 for n = 1:final_note_ind
     note_on = round(N(n,6)*s.fs) - s0;
     
-    note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, {'pls'}, freq, dB2Pa(N(n,5)));
+    note = makeFcnInput(s, [0 (N(n,7)-s.dt)], s.fs, {'pls'}, freq, dB2Pa(N(n,5)));
     xb = note.x;
     %required because makeFcnInput sometimes returns .x one sample short
     note_off = note_on+length(xb);

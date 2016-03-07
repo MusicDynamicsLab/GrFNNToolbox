@@ -6,13 +6,15 @@
 %  
 %  Attributes can come in any order.
 % 
-%  Necessary attributes 
+%  Necessary attributes:
 %  Model, such as 'hopf'                Next 6 inputs are necessary, parameters of the network: 
 %                                       alpha, beta1, beta2, delta1, delta2, epsilon
 %  Frequency spacing, 'lin' or 'log'    Next 3 inputs are necessary, min freq of network, 
 %                                       max freq of network, and number of oscillators
 % 
 %  Optional attributes:
+%  'scale', 'noScale'                   Use these to specify whether or not to scale parameters
+%                                       by natural frequencies. No additional argument.
 %  'display'                            Next input is scalar which is the time step interval in 
 %                                       between display steps as the network integrates. Default
 %                                       is zero.
@@ -30,7 +32,7 @@
 %  Example calls:
 % 
 %   n  = networkMake(3, 'hopf', .1, -10, -1, 0, 0, 1, 'log', 100, 1300, 400, 'display', 20, 'save', 1, 'znaught', z0{3});
-%   n  = networkMake(1, 'hopf', 0, -100, -1, 0, 0, .0025, 'log', 20, 20000, 800, 'save', 1, 'channel', 1);
+%   n  = networkMake(1, 'hopf', 0, -100, -1, 0, 0, .0025, 'log', 20, 20000, 800, 'noScale', 'save', 1, 'channel', 1);
 %
 
 %%
@@ -50,13 +52,15 @@ n.fspac = [];
 n.nFspac= 0;
 n.dStep = 0;                    % Initialize these to zero/empty in case not specified in varargin
 n.sStep = 0;
-overrideInitialConditions = 0;
 n.tick  = [];
+overrideInitialConditions = 0;
+userScale = [];
 
 %% Parse input
 for i = 1:length(varargin)
     
-    if any(strcmpi(varargin{i},models)) && length(varargin) > i + 5 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2}) && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4}) && ~ischar(varargin{i+5}) && ~ischar(varargin{i+6})
+    if any(strcmpi(varargin{i},models)) && length(varargin) > i + 5 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2}) ...
+            && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4}) && ~ischar(varargin{i+5}) && ~ischar(varargin{i+6})
         
         n.model = lower(varargin{i});
         
@@ -73,41 +77,48 @@ for i = 1:length(varargin)
         end
     end
     
-    if ischar(varargin{i}) && any(strcmpi(varargin{i}(1:3),{'lin' 'log'})) && length(varargin) > i + 2 && isscalar(varargin{i+1}) && isscalar(varargin{i+2}) && isscalar(varargin{i+3})
+    if ischar(varargin{i}) && any(strcmpi(varargin{i}(1:3),{'lin' 'log'})) && length(varargin) > i + 2 ...
+            && isscalar(varargin{i+1}) && isscalar(varargin{i+2}) && isscalar(varargin{i+3})
         
         n.fspac = lower(varargin{i}(1:3));
-        % Assign nFspac integer value based on fspac string value
-        if strcmpi(n.fspac, 'lin')
-            n.nFspac = 1;
-        else
-            n.nFspac = 2;
-        end
-        
         lf   = varargin{i+1};            % min freq
         hf   = varargin{i+2};            % max freq
         N    = varargin{i+3};            % number of frequency steps
         n.N  = N;
-        switch n.nFspac
-            
-            case 1 % linear spacing
-                n.f  = linspace(lf,hf,N)';
-                if N > 1
-                    n.df = abs(n.f(2)-n.f(1)); % to scale for frequency density
-                else
-                    n.df = 1;
-                end
-                
-            case 2 % log spacing
-                n.f  = logspace(log10(lf),log10(hf),N)';
-                if N > 1
-                    n.df = abs(log2(n.f(2)/n.f(1)));          % to scale for frequency density
-                else
-                    n.df = 1;
-                end
+        
+        if strcmpi(n.fspac, 'lin')
+            n.nFspac = 1;       % numerical frequency spacing type
+            n.scale = 0;
+            n.f  = linspace(lf,hf,N)';
+            if N > 1
+                n.df = abs(n.f(2)-n.f(1)); % to scale for frequency density
+            else
+                n.df = 1;
+            end
+        else
+            n.nFspac = 2;
+            n.scale = 1;
+            n.f  = logspace(log10(lf),log10(hf),N)';
+            if N > 1
+                n.df = abs(log2(n.f(2)/n.f(1)));          % to scale for frequency density
+            else
+                n.df = 1;
+            end
         end
-        n.f   = single(n.f);
     end
-     
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'sca')
+        
+        userScale = 1;
+        
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'nos')
+        
+        userScale = 0;
+        
+    end
+    
     if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'dis') && length(varargin) > i && isscalar(varargin{i+1})
         
         n.dStep = varargin{i+1};
@@ -133,7 +144,9 @@ for i = 1:length(varargin)
         
     end
     
-    if ischar(varargin{i}) && ~any(strcmpi(varargin{i},models)) && ~any(strcmpi(varargin{i},{'lin' 'log'})) && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~strcmpi(varargin{i}(1:3),'zna') && ~strcmpi(varargin{i}(1:3),'tic')
+    if ischar(varargin{i}) && ~any(strcmpi(varargin{i},models)) && ~any(strcmpi(varargin{i}(1:3),{'lin' 'log'})) ...
+            && ~any(strcmpi(varargin{i}(1:3),{'sca' 'nos'})) && ~strcmpi(varargin{i}(1:3),'dis') ...
+            && ~strcmpi(varargin{i}(1:3),'sav') && ~strcmpi(varargin{i}(1:3),'zna') && ~strcmpi(varargin{i}(1:3),'tic')
         
         error(['Unrecognized input to networkMake: ' varargin{i}]);
         
@@ -150,20 +163,24 @@ end
 
 
 %% Define oscillator parameters
-switch n.nFspac
-    
-    case 1 % linear spacing
-        n.a  = single(alpha + 1i*2*pi.*n.f);
-        n.b1 = single(beta1 + 1i*delta1);
-        n.b2 = single(beta2 + 1i*delta2);
-        
-    case 2 % log spacing
-        n.a  = single(alpha + 1i*2*pi  ).*n.f;  % Redefinition of a, b1 & b2
-        n.b1 = single(beta1 + 1i*delta1).*n.f;
-        n.b2 = single(beta2 + 1i*delta2).*n.f;
+if ~isempty(userScale)
+    n.scale = userScale;    % use user-specified scale flag if any
 end
 
-n.e = single(epsilon);
+switch n.scale
+    
+    case 0 % no frequency scaling
+        n.a  = alpha + 1i*2*pi.*n.f;
+        n.b1 = beta1 + 1i*delta1;
+        n.b2 = beta2 + 1i*delta2;
+        
+    case 1 % frequency scaling
+        n.a  = (alpha + 1i*2*pi  ).*n.f;  % Redefinition of a, b1 & b2
+        n.b1 = (beta1 + 1i*delta1).*n.f;
+        n.b2 = (beta2 + 1i*delta2).*n.f;
+end
+
+n.e = epsilon;
 
 
 switch n.model
@@ -194,7 +211,8 @@ end
 
 n.z = n.z0;
 
-%% Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin
+% Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin
+%
 % Define ticks and tick labels to be used for plotting
 % m   = ceil(n.N/2);                  % middle frequency of network
 % switch n.nFspac
@@ -216,7 +234,7 @@ n.z = n.z0;
 %     end
 % end
 
-%% Older things not to throw away
+% Older things not to throw away
 
 % model is oscillator-level model-type {'vrd', 'wils', 'hopf'} + model
 % parameters

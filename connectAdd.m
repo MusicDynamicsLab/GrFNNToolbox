@@ -5,41 +5,43 @@
 %  with connectivity matrix specified by pattern C.
 %
 %  Required input argumenets:
-%  n1               Source (stimulus or network providing connection input)
-%  n2               Target network
-%  C                Connection pattern, either a scalar or a matrix of N2 by N1
-%                   where N1 is the number of oscillators for n1 and N2 for
-%                   n2. When learning is on, this is used as initial
-%                   conditions (if C is an empty matrix, small random
-%                   initial conditions are assigned).
+%  n1                   Source (stimulus or network providing connection input)
+%  n2                   Target network
+%  C                    Connection pattern, either a scalar or a matrix of N2 by N1
+%                       where N1 is the number of oscillators for n1 and N2 for
+%                       n2. When learning is on, this is used as initial
+%                       conditions (if C is an empty matrix, small random
+%                       initial conditions are assigned).
 %
 %  Optional input arguments:
-%  'type'           Followed by a charater string specifying connection type.
-%                   Options are '1freq', '2freq', '3freq', '3freqAll', 'active',
-%                   'All2freq', and 'Allfreq'. '1freq' is default for stimulus
-%                   source and 'Allfreq' is for network source.
-%  'learn'          Followed by five parameters for the learning rule:
-%                   lambda, mu1, mu2, epsilon, and kappa
-%  'weight'         Followed by a weight (scalar or column vector) to be multiplied
-%                   to the connectivity matrix, after summed across sources.
-%  'no11'           Subtracts out all 1-to-1 and subsequent n-to-n monomials from
-%                   resonant monomials.
-%  'tol'            Followed by tolerance value for fareyratio function (only for
-%                   '2freq' connection type).
-%  'display'        Followed by the time step interval at which to display the 
-%                   connectivity matrix during integration. Default is zero.
-%  'phaseDisp'      Sets connection phases to be displayed during integration.
-%                   Phases are not displayed by default.
-%  'save'           Followed by the time step interval at which to save the 
-%                   connectivity matrix. Default is zero.
+%  'type'               Followed by a charater string specifying connection type.
+%                       Options are '1freq', '2freq', '3freq', '3freqAll', 'active',
+%                       'All2freq', and 'Allfreq'. '1freq' is default for stimulus
+%                       source and 'Allfreq' is for network source.
+%  'learn'              Followed by five parameters for the learning rule:
+%                       lambda, mu1, mu2, epsilon, and kappa
+%  'weight'             Followed by a weight (scalar or column vector) to be multiplied
+%                       to the connectivity matrix, after summed across sources.
+%  'no11'               Subtracts out all 1-to-1 and subsequent n-to-n monomials from
+%                       resonant monomials.
+%  'scale', 'noScale'	Use these to specify whether or not to scale connection weights
+%                       and learning parameters by natural frequencies. No additional argument.
+%  'tol'                Followed by tolerance value for fareyratio function (only for
+%                       '2freq' connection type).
+%  'display'            Followed by the time step interval at which to display the 
+%                       connectivity matrix during integration. Default is zero.
+%  'phaseDisp'          Sets connection phases to be displayed during integration.
+%                       Phases are not displayed by default.
+%  'save'               Followed by the time step interval at which to save the 
+%                       connectivity matrix. Default is zero.
 %
 %  Output:
-%  n                Target network with the connection added
+%  n                    Target network with the connection added
 %
 %  Example calls:
 %
 %   n2 = connectAdd(n1, n2, [], 'learn', 0, -100000000, -1, .5, .1, 'display', 20, 'phaseDisp', 'type', '1freq');
-%   n2 = connectAdd(n1, n2, ones(n2.N, n1.N), 'weight', .01);
+%   n2 = connectAdd(n1, n2, ones(n2.N, n1.N), 'weight', .01, 'noScale');
 %
 
 %%
@@ -86,13 +88,15 @@ mu1 = 0;
 mu2 = 0;
 epsilon = 0;
 kappa = 0;
+userScale = [];
 
 %% Parse input
-types = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq' 'active'};         % Can add to this array later; default to 'Allfreq' for now
+types = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq' 'active'};
 
 for i = 1:length(varargin)
     
-    if strcmpi(varargin{i},'learn') && length(varargin) > i + 4 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2}) && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4}) && ~ischar(varargin{i+5})
+    if strcmpi(varargin{i},'learn') && length(varargin) > i + 4 && ~ischar(varargin{i+1}) ...
+            && ~ischar(varargin{i+2}) && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4}) && ~ischar(varargin{i+5})
         learn = 1;
         lambda   = varargin{i+1};
         mu1      = varargin{i+2};
@@ -126,11 +130,22 @@ for i = 1:length(varargin)
         con.no11 = 1;
     end
     
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'sca')
+        userScale = 1;
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'nos')
+        userScale = 0;
+    end
+    
     if ischar(varargin{i}) && strcmpi(varargin{i},'phasedisp')
         con.phaseDisp = 1;
     end
     
-    if ischar(varargin{i}) && ~strcmpi(varargin{i},'learn') && ~strcmpi(varargin{i}(1:3),'typ') && ~strcmpi(varargin{i}(1:3),'wei') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~any(strcmpi(varargin{i},types)) && ~strcmpi(varargin{i},'no11') && ~strcmpi(varargin{i},'phasedisp')
+    if ischar(varargin{i}) && ~strcmpi(varargin{i},'learn') && ~strcmpi(varargin{i}(1:3),'typ') ...
+            && ~strcmpi(varargin{i}(1:3),'wei') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') ...
+            && ~any(strcmpi(varargin{i},types)) && ~strcmpi(varargin{i},'no11') && ~strcmpi(varargin{i},'phasedisp') ...
+            && ~any(strcmpi(varargin{i}(1:3),{'sca' 'nos'}))
         error(['Unrecognized input to connectAdd: ' varargin{i}])
     end
     
@@ -164,10 +179,6 @@ switch lower(con.type)
         con.NUM = NUM;
         con.DEN = DEN;
         F = (NUM.*F1 + DEN.*F2)./(NUM + DEN);
-        if n1.nClass == 2 % if network source
-            con.epsn = n1.e.^((NUM+DEN-2)/2); % used in zdot
-        end
-        con.epsc = epsilon.^((NUM+DEN-2)/2);  % used in cdot
         con.nType = 2;
         
     case '3freq' % three-frequency monomials ALL MONONMIALS, UP TO SPECIFIED ORDER
@@ -188,11 +199,9 @@ switch lower(con.type)
         if n1.nClass == 1 % if stimulus source
             F = repmat(n2.f, 1, size(DEN, 2));
         else
-            F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) ...
-                ./(abs(NUM1) + abs(NUM2) + DEN);
-            con.epsn = n1.e.^((NUM1+NUM2+DEN-2)/2); % used in zdot
+            F = (NUM1.*n1.f(X1i) + NUM2.*n1.f(X2i) + DEN.*n2.f(Zi)) ...
+                ./(NUM1 + NUM2 + DEN);
         end
-        con.epsc = epsilon.^((NUM1+NUM2+DEN-2)/2);  % used in cdot
         con.nType = 3;
         
     case '3freqall' % three-frequency monomials ALL FREQUENCIES, LOWEST ORDER MONOMIAL
@@ -208,17 +217,18 @@ switch lower(con.type)
         con.IDXZ  = Zi;
         con.CON1 = (NUM1<0);
         con.CON2 = (NUM2<0);
-        con.NUM1 = abs(NUM1);
-        con.NUM2 = abs(NUM2);
+        NUM1 = abs(NUM1);
+        NUM2 = abs(NUM2);
+        con.NUM1 = NUM1;
+        con.NUM2 = NUM2;
         con.DEN = DEN;
+        con.mask = (NUM1 + NUM2 > 0);   % exclude connections with no resonant monomial within tolerance
         if n1.nClass == 1 % if stimulus source
             F = repmat(n2.f, 1, size(DEN, 2));
         else
-            F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) ...
-                ./(abs(NUM1) + abs(NUM2) + DEN);
-            con.epsn = n1.e.^((NUM1+NUM2+DEN-2)/2); % used in zdot
+            F = (NUM1.*n1.f(X1i) + NUM2.*n1.f(X2i) + DEN.*n2.f(Zi)) ...
+                ./(NUM1 + NUM2 + DEN);
         end
-        con.epsc = epsilon.^((NUM1+NUM2+DEN-2)/2);  % used in cdot
         con.nType = 4;
         
     case 'active' % Full series of active nonlinearities
@@ -235,38 +245,36 @@ switch lower(con.type)
         
 end
 
-%% Scaling factors
+%% Scaling weights and learning parameters
 
-if n2.nFspac==2 % log spacing
-    con.F = F;
-    con.w = w.*n2.f;
+if ~isempty(userScale)
+    con.scale = userScale;    % use user-specified scale flag if any
+elseif n2.nFspac == 2 % log spacing
+    con.scale = 1;
 else
-    F = ones(size(F));
-    con.w = w;
+    con.scale = 0;
 end
 
-%% Scale learning parameters
-
-% if any(kappa) % JCK: replaces if sum(sum(kappa))
-%     con.learn = 1;
-% else
-%     con.learn = 0;
-% end
-
-con.learn = learn;
-
-if n2.nFspac==2 % log spacing
-    con.lambda = lambda.*F;
-    con.mu1 = mu1.*F;
-    con.mu2 = mu2.*F;
-    con.kappa = kappa.*F;
-else
-    con.lambda = lambda;
-    con.mu1 = mu1;
-    con.mu2 = mu2;
-    con.kappa = kappa;
+switch con.scale
+    case 0      % no frequency scaling
+        con.F = ones(size(F));
+        con.w = w;
+        con.lambda = lambda;
+        con.mu1 = mu1;
+        con.mu2 = mu2;
+        con.kappa = kappa;
+        
+    case 1      % frequency scaling
+        con.F = F;
+        con.w = w.*n2.f;
+        con.lambda = lambda.*F;
+        con.mu1 = mu1.*F;
+        con.mu2 = mu2.*F;
+        con.kappa = kappa.*F;
 end
+
 con.e = epsilon;
+con.learn = learn;
 
 %% Connection State and Initial Conditions
 %       C0: initial conditions
@@ -297,19 +305,13 @@ end
 con.C = con.C0;
 
 %% Masking
-%      This process operates on the initial condition and parameter
-%      matrices to hange the way things work (i.e.
-%
-%      mask = ~eye(size(C));          % Don't learn self-connections
-%                                       This could be inverted guassian
-%                                       too
 
 mask = 1;
-if strcmpi(con.type, '2freq') && con.no11
+if con.nType == 2 && con.no11   % 2freq with no11
     mask = ~(con.NUM == 1 & con.DEN == 1);
-elseif strcmpi(con.type, '3freq')
+elseif con.nType == 3 || con.nType == 4     % 3freq or 3freqAll
     mask = con.mask;
-elseif con.source == con.target && con.nSourceClass == 2
+elseif con.source == con.target && con.nSourceClass == 2    % internal connection
     mask = ~eye(size(con.C));          % ... Won't learn self-connections
 end
 

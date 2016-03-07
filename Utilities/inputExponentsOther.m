@@ -1,4 +1,4 @@
-function [N1 N2 M] = inputExponents(f1, f2, X1i, X2i, Zi)
+function [N1, N2, M] = inputExponentsOther(f1, f2, X1i, X2i, Zi)
 
 Fn1 = f1(X1i);
 Fn2 = f1(X2i);
@@ -33,7 +33,7 @@ N1 = zeros(size(fm));
 N2 = zeros(size(fm));
 M  = zeros(size(fm));
 for fi = 1:length(fm)
-    [n1 n2 m] = farey3(fn1(fi), fn2(fi), fm(fi), .02, nvec, nl, mvec, ml, N1in, N2in, Min);
+    [n1, n2, m] = farey3(fn1(fi), fn2(fi), fm(fi), .02, nvec, nl, mvec, ml, N1in, N2in, Min);
     N1(fi) = n1;
     N2(fi) = n2;
     M (fi) = m ;

@@ -58,10 +58,9 @@ for cx = 1:length(n.con)
         case 2  % 2freq
             NUM = con.NUM;
             DEN = con.DEN;
-            Y = repmat(    y.', con.targetN, 1).^ NUM;
-            Z = repmat(conj(z) , 1, con.sourceN).^(DEN-1);
-            x = x + con.w .* ...
-                sum(con.C.*con.epsn.*Y.*Z,2);
+            Y = repmat(sqrt(e)*y.', con.targetN, 1).^ NUM;
+            Z = repmat(sqrt(e)*conj(z) , 1, con.sourceN).^(DEN-1);
+            x = x + con.w .* sum(con.C.*Y.*Z,2)/sqrt(e);
             
         case 5  % active
             if con.no11
@@ -71,21 +70,20 @@ for cx = 1:length(n.con)
             end
             
         otherwise % 3freq and 3freqall
-            Y1 = y(con.IDX1); Y1(con.CON1) = conj(Y1(con.CON1));
-            Y2 = y(con.IDX2); Y2(con.CON2) = conj(Y2(con.CON2));
-            Z  = conj(z(con.IDXZ));
+            Y1 = sqrt(e)*y(con.IDX1); Y1(con.CON1) = conj(Y1(con.CON1));
+            Y2 = sqrt(e)*y(con.IDX2); Y2(con.CON2) = conj(Y2(con.CON2));
+            Z  = sqrt(e)*conj(z(con.IDXZ));
             NUM1 = con.NUM1;
             NUM2 = con.NUM2;
             DEN = con.DEN;
-            x_int = con.C.*con.epsn.*(Y1.^NUM1).*(Y2.^NUM2).*(Z.^(DEN-1));
-            % had to conjugate to make it work right
+            x_int = con.C.*(Y1.^NUM1).*(Y2.^NUM2).*(Z.^(DEN-1))/sqrt(e);
             x = x + con.w .* sum(x_int,2);
             
     end
 end
 
 %% The differential equation
-% $\dot{z} = z \left( \alpha + \beta_1 |z|^2 + \frac{\epsilon \beta_2 |z|^4}{1-\epsilon |z|^2} \right) + x$
+% $\dot{z} = z \left( \alpha + \textrm{i}\omega + (\beta_1 + \textrm{i}\delta_1) |z|^2 + \frac{\epsilon (\beta_2 + \textrm{i}\delta_2) |z|^4}{1-\epsilon |z|^2} \right) + x$
 dzdt = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-e*abs(z).^2)) + x;
 
 %%  Nonlinear Function Definitions

@@ -60,7 +60,8 @@ switch nType    % cases ordered by frequency of use
         Y = repmat(y', con.targetN, 1); % conjugate transpose is what we want
         Z = repmat(z , 1, con.sourceN);
         NUM = con.NUM; DEN = con.DEN;
-        X  = kappa.*con.epsc.*((Z.^DEN) .* (Y.^NUM));
+        X  = kappa.* ((sqrt(e)*Z).^DEN .* (sqrt(e)*Y).^NUM) /e;
+
         
     case 5  % active
         if no11
@@ -74,14 +75,13 @@ switch nType    % cases ordered by frequency of use
         Y2 = y(con.IDX2); Y2(~con.CON2) = conj(Y2(~con.CON2));
         Z  = z(con.IDXZ);
         NUM1 = con.NUM1; NUM2 = con.NUM2; DEN = con.DEN;
-        Y1NUM1 = (Y1.^NUM1);
-        Y2NUM2 = (Y2.^NUM2);
-        ZDEN  = (Z .^DEN);
-        X = kappa.*con.epsc.*ZDEN.*Y1NUM1.*Y2NUM2;
+        Y1NUM1 = (sqrt(e).*Y1).^NUM1;
+        Y2NUM2 = (sqrt(e).*Y2).^NUM2;
+        ZDEN  = (sqrt(e).*Z).^DEN;
+        X = kappa.*ZDEN.*Y1NUM1.*Y2NUM2/e;
         
 end
 
-X = single(X);
 
 %% The differential equation
 % $\dot{C} = C \left( \lambda + \mu_1 |C|^2+ \frac{\epsilon \mu_2 |C|^4}{1-\epsilon |C|^2} \right) + X$
