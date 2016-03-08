@@ -25,8 +25,7 @@ n = connectAdd(n, n, [], 'weight', w, 'type', 'all2freq', ...
     'learn', lambda, mu1, mu2, ceps, kappa, ...
     'display', 10,'phasedisp', 'save', 500);
 
-% M = modelMake(@zdot, @cdot, s, n);
-evalc('M = modelMake(@zdot, @cdot, s, n);');
+M = modelMake(@zdot, @cdot, s, n);
         % The network is not connected to the stimulus, but the model needs
         % a stimulus to get a time vector
 

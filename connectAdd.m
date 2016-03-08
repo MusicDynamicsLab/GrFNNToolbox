@@ -24,7 +24,7 @@
 %                       to the connectivity matrix, after summed across sources.
 %  'no11'               Subtracts out all 1-to-1 and subsequent n-to-n monomials from
 %                       resonant monomials.
-%  'scale', 'noScale'	Use these to specify whether or not to scale connection weights
+%  'scale', 'noScale'   Use these to specify whether or not to scale connection weights
 %                       and learning parameters by natural frequencies. No additional argument.
 %  'tol'                Followed by tolerance value for fareyratio function (only for
 %                       '2freq' connection type).
