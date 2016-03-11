@@ -53,7 +53,7 @@ for v = ind:length(varargin)
         model.cfun = @cdot_gpu;
     end
     
-    if temp.nClass == 1
+    if ~ischar(temp) && temp.nClass == 1
         sid = temp.id;
         temp.N = size(temp.x, 1);   % in case extra channel was added
         temp.z = temp.x(:,1);   % initialize current state z
@@ -87,7 +87,7 @@ model.iStep        = 1;
 
 for v = ind:length(varargin)
     temp = varargin{v};
-    if temp.nClass == 2
+    if ~ischar(temp) && temp.nClass == 2
         nid = temp.id;
         model.n{nid} = temp;
         netList = [netList nid];
