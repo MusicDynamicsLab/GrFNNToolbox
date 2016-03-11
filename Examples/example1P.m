@@ -25,12 +25,47 @@ n = connectAdd(n, n, [], 'weight', w, 'type', 'all2freq', ...
     'learn', lambda, mu1, mu2, ceps, kappa, ...
     'display', 10,'phasedisp', 'save', 500);
 
-% M = modelMake(@zdot, @cdot, s, n);
-evalc('M = modelMake(@zdot, @cdot, s, n);');
-        % The network is not connected to the stimulus, but the model needs
-        % a stimulus to get a time vector
+M = modelMake(@zdot, @cdot, s, n);
+% M = modelMake(@zdot_gpu, @cdot_gpu, s, n_; % uncomment to use gpu
 
-%% Run the network
-tic
-M = odeRK4fs(M);
-toc
+M.odefun = @odeRK4fs;
+% M.odefun = @odeRK4fs_gpu; % uncomment to use gpu
+
+tic;
+M = M.odefun(M);
+toc;
+
+% <<<<<<< HEAD
+% % M = modelMake(@zdot, @cdot, s, n);
+% evalc('M = modelMake(@zdot, @cdot, s, n);');
+% =======
+% if usegpu
+%     
+%     M = modelMake(@zdot_gpu, @cdot_gpu, s, n);
+% >>>>>>> gpu
+%         % The network is not connected to the stimulus, but the model needs
+%         % a stimulus to get a time vector
+%         
+%     %% Run the network
+%     
+%     tic
+%     Mtemp = odeRK4fs_gpu(M);
+%     toc
+%     
+%     for i = 1:numel(M.n)
+%         M.n{i}.Z = Mtemp.n{i}.Z;
+%     end
+%     
+% else
+%     
+%     M = modelMake(@zdot, @cdot, s, n);
+%     
+%     %% Run the network
+%     
+%     tic
+%     M = odeRK4fs(M);
+%     toc
+%     
+% end
+
+% outputDisplay(M, 'net', 1, a1, 'ampx', a2, 'fft', a3, 'oscfft')

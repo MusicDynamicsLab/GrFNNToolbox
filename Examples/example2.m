@@ -1,3 +1,5 @@
+usegpu=1;
+
 %% example2.m
 %
 % A simple afferent chain network with no learning
@@ -25,12 +27,32 @@ n1 = connectAdd(s, n1, 1); % '1freq' connection type by default
 C     = connectMake(n1, n2, 'one', 1, 1);
 n2    = connectAdd(n1, n2,  C, 'weight', 1, 'type', '1freq');
 
-M = modelMake(@zdot, @cdot, s, n1, n2);
 
-%% Run the network
-tic
-M = odeRK4fs(M);
-toc
+if usegpu
+    
+    M = modelMake(@zdot_gpu, @cdot_gpu, s, n1, n2);
+    
+    %% Run the network
+    
+    tic
+    Mtemp = odeRK4fs_gpu(M);
+    toc
+    
+    for i = 1:numel(M.n)
+        M.n{i}.Z = Mtemp.n{i}.Z;
+    end
+    
+else
+    
+    M = modelMake(@zdot, @cdot, s, n1, n2);
+    
+    %% Run the network
+    
+    tic
+    M = odeRK4fs(M);
+    toc
+    
+end
 
 %% Display the output
 figure(11); clf;

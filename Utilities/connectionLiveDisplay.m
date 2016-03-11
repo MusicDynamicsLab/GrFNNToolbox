@@ -1,11 +1,21 @@
 %% function: Displays instantaneous connection state
-function connectionLiveDisplay(con, ix, t, cmap)
+% Display the initial state of connections 
+% 
 
-nx = con.target;
-cx = con.id;
+function connectionLiveDisplay(M, nx, cx, ix, t)
+
 persistent connectionDispMap;
 
+% Initial setup of display
 if ix == 0
+    con = M.n{nx}.con{cx};
+    if con.nSourceClass == 1
+        sourceObject = M.s{con.source};
+    else
+        sourceObject = M.n{con.source};
+    end
+    targetObject = M.n{nx};
+    
     if isfield(con,'aAx') && ishghandle(con.aAx)
         connectionData.aAx = con.aAx;
         axes(con.aAx)
@@ -16,6 +26,26 @@ if ix == 0
         figure(10000+1000*nx+100*cx)
     end
     is3freq = con.nType == 3 || con.nType == 4;   % if 3freq or 3freqall
+    
+    % Fill source related fields if they are not already 
+    if isfield(sourceObject, 'f')
+        con.sourceAxis = sourceObject.f;
+    end
+    if con.nSourceClass~=1 && isfield(sourceObject, 'nFspac')
+        con.nSourceAxisScale = sourceObject.nFspac;
+    end
+    if isfield(sourceObject, 'tick')
+        con.sourceAxisTick = sourceObject.tick;
+    end
+    
+    % Fill target related fields if they are not already   
+    con.targetAxis = targetObject.f;
+    con.nTargetAxisScale = targetObject.nFspac;
+    if isfield(targetObject, 'tick')
+        con.targetAxisTick = targetObject.tick;
+    end
+    
+    con.sourceN = size(con.C,2);
     
     if con.sourceN == 1 % if connection is a column vector
         connectionData.aH = plot(con.targetAxis, abs(con.C), '.-');
@@ -47,16 +77,16 @@ if ix == 0
         if abs(con.e)
             set(gca, 'CLim', [.001 1/sqrt(con.e)])
         end
-        if con.nSourceAxisScale == 2 && ~is3freq
+        if con.nSourceClass~=1 && con.nSourceAxisScale == 2 && ~is3freq
             set(gca, 'XScale', 'log')
         end
         if con.nTargetAxisScale == 2
             set(gca, 'YScale', 'log')
         end
-        if ~isempty(con.sourceAxisTick) && ~is3freq
+        if isfield(con, 'sourceAxisTick') && ~is3freq
             set(gca, 'XTick', con.sourceAxisTick);
         end
-        if ~isempty(con.targetAxisTick)
+        if isfield(con, 'targetAxisTick')
             set(gca, 'YTick', con.targetAxisTick);
         end
         if is3freq
@@ -76,11 +106,11 @@ if ix == 0
         title(con.titleA)
         connectionData.atH = [];
     else
-        connectionData.atH = title(sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t));
+        connectionData.atH = title(sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, 0));
     end
     grid on
     
-    if con.phaseDisp
+    if isfield(con, 'phaseDisp') && con.phaseDisp
         if isfield(con,'pAx') && ishghandle(con.pAx)
             connectionData.pAx = con.pAx;
             axes(con.pAx)
@@ -105,25 +135,27 @@ if ix == 0
             if ~isempty(con.targetAxisTick)
                 set(gca, 'XTick', con.targetAxisTick);
             end
-
+            
         else
             connectionData.pH = imagesc(f1, f2, angle(con.C));
-            colormap(gca, cmap);
+            
+            colormap(gca, 'default');
+            
             cb = colorbar;
             ylabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))
             set(cb, 'YTick',      [-pi, -pi/2, 0, pi/2, pi])
             set(cb, 'YTickLabel', {'-pi  ', '-pi/2', ' 0  ', ' pi/2', ' pi  '})
             set(gca, 'CLim', [-pi pi])
-            if con.nSourceAxisScale == 2 && ~is3freq
+            if con.nSourceClass~=1 && con.nSourceAxisScale == 2 && ~is3freq
                 set(gca, 'XScale', 'log')
             end
             if con.nTargetAxisScale == 2
                 set(gca, 'YScale', 'log')
             end
-            if ~isempty(con.sourceAxisTick) && ~is3freq
+            if isfield(con, 'sourceAxisTick') && ~is3freq
                 set(gca, 'XTick', con.sourceAxisTick);
             end
-            if ~isempty(con.targetAxisTick)
+            if isfield(con, 'targetAxisTick')
                 set(gca, 'YTick', con.targetAxisTick);
             end
             
@@ -144,7 +176,7 @@ if ix == 0
             title(con.titleP)
             connectionData.ptH = [];
         else
-            connectionData.ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t));
+            connectionData.ptH = title(sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, 0));
         end
         grid on
         
@@ -152,26 +184,26 @@ if ix == 0
         connectionData.pH = [];
         connectionData.ptH = [];
     end
-    connectionDispMap{con.id} = connectionData;
-
-else    % nonzero ix
-    connectionData = connectionDispMap{con.id};
-    if con.sourceN == 1
-        set(connectionData.aH, 'YData', (abs(con.C)))
+    connectionDispMap = connectionData;
+    
+else % Subsequent continual updates of display
+    C = M.n{nx}.con{cx}.C;
+    if size(C,2) == 1
+        set(connectionDispMap.aH, 'YData', (abs(C)))
     else
-        set(connectionData.aH, 'CData', (abs(con.C)))
+        set(connectionDispMap.aH, 'CData', (abs(C)))
     end
-    if ~isempty(connectionData.atH)
-        set(connectionData.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
+    if ~isempty(connectionDispMap.atH)
+        set(connectionDispMap.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
     end
-    if con.phaseDisp
-        if con.sourceN == 1
-            set(connectionData.pH, 'YData', angle(con.C))
+    if ~isempty(connectionDispMap.pH)
+        if size(C,2) == 1
+            set(connectionDispMap.pH, 'YData', angle(C))
         else
-            set(connectionData.pH, 'CData', angle(con.C))
+            set(connectionDispMap.pH, 'CData', angle(C))
         end
-        if ~isempty(connectionData.ptH)
-            set(connectionData.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
+        if ~isempty(connectionDispMap.ptH)
+            set(connectionDispMap.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
         end
     end
 end

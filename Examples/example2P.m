@@ -1,3 +1,5 @@
+usegpu=1;
+
 %% example2P.m
 %
 % A simple afferent chain network with plastic internal connections
@@ -31,12 +33,32 @@ n2 = connectAdd(n2, n2, [], 'weight', w, 'type', '2freq', 'no11', ...
     'learn', lambda, mu1, mu2, ceps, kappa, ...
     'display', 20,'phasedisp', 'save', 1000);
 
-M = modelMake(@zdot, @cdot, s, n1, n2);
 
-%% Run the network
-tic
-M = odeRK4fs(M);
-toc
+if usegpu
+    
+    M = modelMake(@zdot_gpu, @cdot_gpu, s, n1, n2);
+    
+    %% Run the network
+    
+    tic
+    Mtemp = odeRK4fs_gpu(M);
+    toc
+    
+    for i = 1:numel(M.n)
+        M.n{i}.Z = Mtemp.n{i}.Z;
+    end
+    
+else
+    
+    M = modelMake(@zdot, @cdot, s, n1, n2);
+    
+    %% Run the network
+    
+    tic
+    M = odeRK4fs(M);
+    toc
+    
+end
 
 %% Display the output
 figure(11);
