@@ -33,6 +33,8 @@ else
     ind = 1;
 end
 
+model.odefun = @odeRK4fs;   % default ode function
+
 %% Get stimuli first to get time info
 stimListAll = []; % list of all stimulus id's
 stimList = []; % list of stimulus id's, only those used as source
@@ -44,6 +46,13 @@ t = [];
 
 for v = ind:length(varargin)
     temp = varargin{v};
+    
+    if ischar(temp) && strcmpi(temp, 'usegpu')
+        model.odefun = @odeRK4fs_gpu;
+        model.zfun = @zdot_gpu;
+        model.cfun = @cdot_gpu;
+    end
+    
     if temp.nClass == 1
         sid = temp.id;
         temp.N = size(temp.x, 1);   % in case extra channel was added
