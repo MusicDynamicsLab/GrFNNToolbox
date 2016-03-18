@@ -138,8 +138,9 @@ if ix == 0
             
         else
             connectionData.pH = imagesc(f1, f2, angle(con.C));
-            
-            colormap(gca, 'default');
+            load('MyColormaps', 'IF_colormap');
+            circular = IF_colormap;
+            colormap(gca, circular);
             
             cb = colorbar;
             ylabel(sprintf('Oscillator natural frequency (Hz): Network %d', con.target))

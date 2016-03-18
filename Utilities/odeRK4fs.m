@@ -8,9 +8,6 @@
 %%
 function M = odeRK4fs(M)
 
-load('MyColormaps', 'IF_colormap');
-circular = IF_colormap;
-
 zfun = M.zfun;
 cfun = M.cfun;
 iSpan = M.iSpan;

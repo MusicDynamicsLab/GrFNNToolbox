@@ -25,8 +25,7 @@ n = connectAdd(n, n, [], 'weight', w, 'type', 'all2freq', ...
     'learn', lambda, mu1, mu2, ceps, kappa, ...
     'display', 10,'phasedisp', 'save', 500);
 
-M = modelMake(s, n);
-% M = modelMake(s, n, 'usegpu');
+M = modelMake(s, n, 'usegpu');
 
 tic
 M = M.odefun(M);

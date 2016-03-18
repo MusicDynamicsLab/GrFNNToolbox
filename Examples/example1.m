@@ -1,5 +1,3 @@
-usegpu=1;
-
 %% example1.m
 %
 % A one layer network driven with a sinusoidal input. Several parameter
@@ -26,36 +24,16 @@ n = networkMake(1, 'hopf', alpha, beta1,  beta2, delta1, delta2, neps, ...
 
 n = connectAdd(s, n, 1); % default connection type for stimulus source is '1freq'
 
-if usegpu
-    
-    M = modelMake(@zdot_gpu, @cdot_gpu, s, n);
-    
-    %% Run the network
-    
-    tic
-    Mtemp = odeRK4fs_gpu(M);
-    toc
-    
-    for i = 1:numel(M.n)
-        M.n{i}.Z = Mtemp.n{i}.Z;
-    end
-    
-else
-    
-    M = modelMake(@zdot, @cdot, s, n);
-    
-    %% Run the network
-    
-    tic
-    M = odeRK4fs(M);
-    toc
-    
-end
+M = modelMake(s, n);
+
+tic
+M = M.odefun(M);
+toc
 
 %% Display the output
-figure(11); clf; a1 = gca;
-figure(12); clf;
-a2 = subplot('Position', [0.08  0.72  0.78 0.22]);
-a3 = subplot('Position', [0.08  0.10  0.88 0.50]);
+% figure(11); clf; a1 = gca;
+% figure(12); clf;
+% a2 = subplot('Position', [0.08  0.72  0.78 0.22]);
+% a3 = subplot('Position', [0.08  0.10  0.88 0.50]);
 
-outputDisplay(M, 'net', 1, a1, 'ampx', a2, 'fft', a3, 'oscfft')
+% outputDisplay(M, 'net', 1, a1, 'ampx', a2, 'fft', a3, 'oscfft')
