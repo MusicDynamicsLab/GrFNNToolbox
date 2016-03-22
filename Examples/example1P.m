@@ -25,10 +25,11 @@ n = connectAdd(n, n, [], 'weight', w, 'type', 'all2freq', ...
     'learn', lambda, mu1, mu2, ceps, kappa, ...
     'display', 10,'phasedisp', 'save', 500);
 
-M = modelMake(s, n, 'usegpu');
+M = modelMake(s, n);
 
 tic
 M = M.odefun(M);
 toc
 
-% outputDisplay(M, 'net', 1, a1, 'ampx', a2, 'fft', a3, 'oscfft')
+%% Display the output
+outputDisplay(M, 'net', 1, a1, 'ampx', a2, 'fft', a3, 'oscfft')

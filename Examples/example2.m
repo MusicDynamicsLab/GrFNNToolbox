@@ -32,14 +32,14 @@ M = M.odefun(M);
 toc
 
 % %% Display the output
-% figure(11); clf;
-% a1 = subplot(2,1,1);
-% a2 = subplot(2,1,2);
-% 
-% outputDisplay(M,'net',1,a1,'ampx','net',2,a2,'ampx')
-% 
-% figure(12); clf;
-% a3 = subplot(2,1,1);
-% a4 = subplot(2,1,2);
-% 
-% outputDisplay(M,'net',1,a3,'fft','net',2,a4,'fft')
+figure(11); clf;
+a1 = subplot(2,1,1);
+a2 = subplot(2,1,2);
+
+outputDisplay(M,'net',1,a1,'ampx','net',2,a2,'ampx')
+
+figure(12); clf;
+a3 = subplot(2,1,1);
+a4 = subplot(2,1,2);
+
+outputDisplay(M,'net',1,a3,'fft','net',2,a4,'fft')
