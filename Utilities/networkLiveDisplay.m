@@ -1,7 +1,8 @@
 %% function: Displays instantaneous network state
-function networkLiveDisplay(net, ix, t)
+function networkLiveDisplay(M, nx, ix, t)
 
 persistent networkDispMap;
+net = M.n{nx};
 
 if ix == 0    
     if isfield(net,'nAx') && ishghandle(net.nAx)
@@ -29,7 +30,7 @@ if ix == 0
     ylabel('Amplitude')
     set(gca, 'XLim',[min(net.f) max(net.f)])
     set(gca, 'YLim', [0 1/sqrt(net.e)])
-    if ~isempty(net.tick)
+    if isfield(net,'tick') && ~isempty(net.tick)
         set(gca, 'XTick', net.tick)
     end
     

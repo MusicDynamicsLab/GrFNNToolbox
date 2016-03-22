@@ -1,7 +1,8 @@
 %% function: Displays stimulus and progress bar
-function stimulusLiveDisplay(stim, ix, t)
+function stimulusLiveDisplay(M, sx, ix, t)
 
 persistent stimulusDispMap;
+stim = M.s{sx};
 
 if ix == 0
     

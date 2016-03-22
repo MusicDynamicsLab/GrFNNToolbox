@@ -8,9 +8,6 @@
 %%
 function M = odeRK4fs(M)
 
-load('MyColormaps', 'IF_colormap');
-circular = IF_colormap;
-
 zfun = M.zfun;
 cfun = M.cfun;
 iSpan = M.iSpan;
@@ -22,17 +19,17 @@ netList = M.netList;
 %% Display stimulus and initial conditions if dStep > 0
 for sx = stimList
     if M.s{sx}.dStep
-        stimulusLiveDisplay(M.s{sx}, 0, M.t(1));
+        stimulusLiveDisplay(M, sx, 0, M.t(1));
     end
 end
 
 for nx = netList
     if M.n{nx}.dStep
-        networkLiveDisplay(M.n{nx}, 0, M.t(1));
+        networkLiveDisplay(M, nx, 0, M.t(1));
     end
     for cx = M.n{nx}.learnList
         if M.n{nx}.con{cx}.dStep
-            connectionLiveDisplay(M.n{nx}.con{cx}, 0, M.t(1), circular);
+            connectionLiveDisplay(M, nx, cx, 0, M.t(1));
         end
     end
 end
@@ -96,7 +93,7 @@ for ix = iSpan(1) : iStep : iSpan(2)-iStep
                         M.n{nx}.Z(:,ix/M.n{nx}.sStep+1) = M.n{nx}.z;
                     end
                     if M.n{nx}.dStep && ~mod(ix, M.n{nx}.dStep)
-                        networkLiveDisplay(M.n{nx}, ix, M.t(ix));
+                        networkLiveDisplay(M, nx, ix, M.t(ix));
                     end
                     for cx = M.n{nx}.learnList
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + ...
@@ -105,14 +102,14 @@ for ix = iSpan(1) : iStep : iSpan(2)-iStep
                             M.n{nx}.con{cx}.C3(:,:,ix/M.n{nx}.con{cx}.sStep+1) = M.n{nx}.con{cx}.C;
                         end
                         if M.n{nx}.con{cx}.dStep && ~mod(ix, M.n{nx}.con{cx}.dStep)
-                            connectionLiveDisplay(M.n{nx}.con{cx}, ix, M.t(ix), circular);
+                            connectionLiveDisplay(M, nx, cx, ix, M.t(ix));
                         end
                     end
                 end
                 
                 for sx = stimList
                     if M.s{sx}.dStep && ~mod(ix, M.s{sx}.dStep)
-                        stimulusLiveDisplay(M.s{sx}, ix, M.t(ix));
+                        stimulusLiveDisplay(M, sx, ix, M.t(ix));
                     end
                 end
         end

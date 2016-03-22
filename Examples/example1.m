@@ -24,11 +24,10 @@ n = networkMake(1, 'hopf', alpha, beta1,  beta2, delta1, delta2, neps, ...
 
 n = connectAdd(s, n, 1); % default connection type for stimulus source is '1freq'
 
-M = modelMake(@zdot, @cdot, s, n);
+M = modelMake(s, n);
 
-%% Run the network
 tic
-M = odeRK4fs(M);
+M = M.odefun(M);
 toc
 
 %% Display the output

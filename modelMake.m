@@ -33,6 +33,8 @@ else
     ind = 1;
 end
 
+model.odefun = @odeRK4fs;   % default ode function
+
 %% Get stimuli first to get time info
 stimListAll = []; % list of all stimulus id's
 stimList = []; % list of stimulus id's, only those used as source
@@ -44,7 +46,14 @@ t = [];
 
 for v = ind:length(varargin)
     temp = varargin{v};
-    if temp.nClass == 1
+    
+    if ischar(temp) && strcmpi(temp, 'usegpu')
+        model.odefun = @odeRK4fs_gpu;
+        model.zfun = @zdot_gpu;
+        model.cfun = @cdot_gpu;
+    end
+    
+    if ~ischar(temp) && temp.nClass == 1
         sid = temp.id;
         temp.N = size(temp.x, 1);   % in case extra channel was added
         temp.z = temp.x(:,1);   % initialize current state z
@@ -78,7 +87,7 @@ model.iStep        = 1;
 
 for v = ind:length(varargin)
     temp = varargin{v};
-    if temp.nClass == 2
+    if ~ischar(temp) && temp.nClass == 2
         nid = temp.id;
         model.n{nid} = temp;
         netList = [netList nid];
@@ -157,15 +166,17 @@ for nx = model.netList
     for cx = 1:length(model.n{nx}.con)
         if model.n{nx}.con{cx}.learn
             model.n{nx}.con{cx}.C3 = castCS(model.n{nx}.con{cx}.C3);
-        end
+		end
+		% DMR Do not castCS on NUM, NUM1, NUM2, and DEN. This will crash the C code (mex).
+		% But we _do_ want singles.
         if isfield(model.n{nx}.con{cx},'NUM')
-            model.n{nx}.con{cx}.NUM = castCS(model.n{nx}.con{cx}.NUM);
-            model.n{nx}.con{cx}.DEN = castCS(model.n{nx}.con{cx}.DEN);
+            model.n{nx}.con{cx}.NUM = single(model.n{nx}.con{cx}.NUM);
+            model.n{nx}.con{cx}.DEN = single(model.n{nx}.con{cx}.DEN);
         end
         if isfield(model.n{nx}.con{cx},'NUM1')
-            model.n{nx}.con{cx}.NUM1 = castCS(model.n{nx}.con{cx}.NUM1);
-            model.n{nx}.con{cx}.NUM2 = castCS(model.n{nx}.con{cx}.NUM2);
-            model.n{nx}.con{cx}.DEN  = castCS(model.n{nx}.con{cx}.DEN);
+            model.n{nx}.con{cx}.NUM1 = single(model.n{nx}.con{cx}.NUM1);
+            model.n{nx}.con{cx}.NUM2 = single(model.n{nx}.con{cx}.NUM2);
+            model.n{nx}.con{cx}.DEN  = single(model.n{nx}.con{cx}.DEN);
         end
         model.n{nx}.con{cx}.C      = castCS(model.n{nx}.con{cx}.C);
         model.n{nx}.con{cx}.C0     = castCS(model.n{nx}.con{cx}.C0);
