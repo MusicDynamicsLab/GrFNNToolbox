@@ -29,7 +29,9 @@ M = modelMake(@zdot, @cdot, s, n);
         % The network is not connected to the stimulus, but the model needs
         % a stimulus to get a time vector
 
-%% Run the network
 tic
-M = odeRK4fs(M);
+M = M.odefun(M);
 toc
+
+%% Display the output
+outputDisplay(M, 'net', 1, a1, 'ampx', a2, 'fft', a3, 'oscfft')

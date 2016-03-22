@@ -25,14 +25,13 @@ n1 = connectAdd(s, n1, 1); % '1freq' connection type by default
 C     = connectMake(n1, n2, 'one', 1, 1);
 n2    = connectAdd(n1, n2,  C, 'weight', 1, 'type', '1freq');
 
-M = modelMake(@zdot, @cdot, s, n1, n2);
+M = modelMake(s, n1, n2);
 
-%% Run the network
 tic
-M = odeRK4fs(M);
+M = M.odefun(M);
 toc
 
-%% Display the output
+% %% Display the output
 figure(11); clf;
 a1 = subplot(2,1,1);
 a2 = subplot(2,1,2);
