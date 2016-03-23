@@ -185,26 +185,27 @@ if ix == 0
         connectionData.pH = [];
         connectionData.ptH = [];
     end
-    connectionDispMap = connectionData;
+    connectionDispMap{nx,cx} = connectionData;
     
 else % Subsequent continual updates of display
     C = M.n{nx}.con{cx}.C;
+    connectionData = connectionDispMap{nx,cx};
     if size(C,2) == 1
-        set(connectionDispMap.aH, 'YData', (abs(C)))
+        set(connectionData.aH, 'YData', (abs(C)))
     else
-        set(connectionDispMap.aH, 'CData', (abs(C)))
+        set(connectionData.aH, 'CData', (abs(C)))
     end
-    if ~isempty(connectionDispMap.atH)
-        set(connectionDispMap.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
+    if ~isempty(connectionData.atH)
+        set(connectionData.atH, 'String', sprintf('Amplitudes of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
     end
-    if ~isempty(connectionDispMap.pH)
+    if ~isempty(connectionData.pH)
         if size(C,2) == 1
-            set(connectionDispMap.pH, 'YData', angle(C))
+            set(connectionData.pH, 'YData', angle(C))
         else
-            set(connectionDispMap.pH, 'CData', angle(C))
+            set(connectionData.pH, 'CData', angle(C))
         end
-        if ~isempty(connectionDispMap.ptH)
-            set(connectionDispMap.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
+        if ~isempty(connectionData.ptH)
+            set(connectionData.ptH, 'String', sprintf('Phases of connection matrix %d to network %d (t = %.1fs)', cx, nx, t))
         end
     end
 end
