@@ -32,6 +32,3 @@ M = modelMake(@zdot, @cdot, s, n);
 tic
 M = M.odefun(M);
 toc
-
-%% Display the output
-outputDisplay(M, 'net', 1, a1, 'ampx', a2, 'fft', a3, 'oscfft')
