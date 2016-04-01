@@ -34,6 +34,7 @@ else
 end
 
 model.odefun = @odeRK4fs;   % default ode function
+model.usingGpu = 0;
 
 %% Get stimuli first to get time info
 stimListAll = []; % list of all stimulus id's
@@ -49,8 +50,7 @@ for v = ind:length(varargin)
     
     if ischar(temp) && strcmpi(temp, 'usegpu')
         model.odefun = @odeRK4fs_gpu;
-        model.zfun = @zdot_gpu;
-        model.cfun = @cdot_gpu;
+		model.usingGpu = 1;
     end
     
     if ~ischar(temp) && temp.nClass == 1

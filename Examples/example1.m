@@ -31,9 +31,12 @@ M = M.odefun(M);
 toc
 
 %% Display the output
-figure(11); clf; a1 = gca;
-figure(12); clf;
-a2 = subplot('Position', [0.08  0.72  0.78 0.22]);
-a3 = subplot('Position', [0.08  0.10  0.88 0.50]);
-
-outputDisplay(M, 'net', 1, a1, 'ampx', a2, 'fft', a3, 'oscfft')
+%% outputDisplay function currently not supported when running on GPU.
+if isfield(M, 'usingGpu') && ~M.usingGpu
+	figure(11); clf; a1 = gca;
+	figure(12); clf;
+	a2 = subplot('Position', [0.08  0.72  0.78 0.22]);
+	a3 = subplot('Position', [0.08  0.10  0.88 0.50]);
+	
+	outputDisplay(M, 'net', 1, a1, 'ampx', a2, 'fft', a3, 'oscfft')
+end
