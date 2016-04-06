@@ -220,7 +220,7 @@ switch n.nFspac
     case 1 % lin spacing
         plot(f,amps,'.-');axis tight;grid on;zoom xon;
 end
-if ~isempty(n.tick)
+if isfield(n, 'tick') && ~isempty(n.tick)
     set(gca,'xtick',n.tick);
 end
 title(sprintf('Averaged amplitudes of oscillators in network %d',id));
@@ -267,13 +267,13 @@ imagesc(t,f,Z);
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude');
 switch n.nFspac
     case 2 % log spacing
-        if ~isempty(n.tick)
+        if isfield(n, 'tick') && ~isempty(n.tick)
             set(gca,'ydir','normal','yscale','log','ytick',n.tick);
         else
             set(gca,'ydir','normal','yscale','log');
         end
     case 1 % lin spacing
-        if ~isempty(n.tick)
+        if isfield(n, 'tick') && ~isempty(n.tick)
             set(gca,'ydir','normal','ytick',n.tick);
         else
             set(gca,'ydir','normal');
@@ -338,13 +338,13 @@ imagesc(f,freqs(1:ind),Zfreq(1:ind,:));
 cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude (dB)');
 switch n.nFspac
     case 2 % log spacing
-        if ~isempty(n.tick)
+        if isfield(n, 'tick') && ~isempty(n.tick)
             set(gca,'ydir','normal','xscale','log','xtick',n.tick);
         else
             set(gca,'ydir','normal','xscale','log');
         end
     case 1 % lin spacing
-        if ~isempty(n.tick)
+        if isfield(n, 'tick') && ~isempty(n.tick)
             set(gca,'ydir','normal','xtick',n.tick);
         else
             set(gca,'ydir','normal');

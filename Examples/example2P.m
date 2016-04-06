@@ -38,11 +38,8 @@ M = M.odefun(M);
 toc
 
 %% Display the output
-%% outputDisplay function currently not supported when running on GPU.
-if isfield(M, 'usingGpu') && ~M.usingGpu
-	figure(11);
-	a1 = subplot(2,1,1);
-	a2 = subplot(2,1,2);
+figure(11);
+a1 = subplot(2,1,1);
+a2 = subplot(2,1,2);
 
-	outputDisplay(M,'net',1,a1,'ampx','net',2,a2,'ampx')
-end
+outputDisplay(M,'net',1,a1,'ampx','net',2,a2,'ampx')
