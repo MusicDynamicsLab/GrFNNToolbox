@@ -4,7 +4,7 @@
 %  Updates and returns target network, with new connectivity from source,
 %  with connectivity matrix specified by pattern C.
 %
-%  Required input argumenets:
+%  Required input arguments:
 %  n1                   Source (stimulus or network providing connection input)
 %  n2                   Target network
 %  C                    Connection pattern, either a scalar or a matrix of N2 by N1
