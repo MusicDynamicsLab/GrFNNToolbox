@@ -42,7 +42,7 @@ for cx = 1:length(n.con)
         case 6  % all2freq
             if con.no11
                 x = x + con.w .* sum(con.C.*( A(e, z)*P(e, y.') ...
-                    - P(e^2, conj(z)*y.')./repmat(conj(z), 1, con.sourceN) ), 2);
+                    - A(e^2, z*y').*repmat(y.', con.targetN, 1) ), 2);
             else
                 x = x + con.w .* sum(con.C.*( A(e, z)*P(e, y.') ), 2);
             end
@@ -50,7 +50,7 @@ for cx = 1:length(n.con)
         case 7  % allfreq
             if con.no11
                 x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ...
-                    - P(e^2, conj(z)*y.').*((1./conj(z))*A(e^2, abs(y.').^2)) ), 2);
+                    - A(e^2, z*y').*repmat(y.'.*A(e^2, abs(y.').^2), con.targetN, 1) ), 2);
             else
                 x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ), 2);
             end
