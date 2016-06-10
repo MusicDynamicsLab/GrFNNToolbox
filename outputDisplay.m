@@ -206,7 +206,7 @@ drawnow;
 %% Network averaged amplitudes plot
 function averagedAmps(M,id,handle)
 n = M.n{id};
-f = n.f;
+f = real(n.f);
 amps = mean(abs(n.Z),2);
 % ticks = tickMake(f,8);
 if isempty(handle)
@@ -322,7 +322,7 @@ function allFFT(M,id,handle)
 n = M.n{id};
 Z = real(n.Z)';
 NFFT = 16384;
-freqLim = max(n.f)*2;
+freqLim = max(real(n.f))*2;
 fs = M.fs/n.sStep;
 freqs = fs/2*linspace(0,1,NFFT/2);
 ind = floor(length(freqs)*freqLim/(fs/2));
