@@ -12,12 +12,12 @@ if ix == 0
         figure(10000+1000*net.id)
 	end
     
-	networkData.nH = plot(real(net.f), abs(net.z), '.-');  % nH: lineseries object handle
+	networkData.nH = plot(net.f, abs(net.z), '.-');  % nH: lineseries object handle
     switch net.nFspac
         case 1 % linear spacing
-            networkData.nH = plot(real(net.f), abs(net.z), '.-');  % nH: lineseries object handle
+            networkData.nH = plot(net.f, abs(net.z), '.-');  % nH: lineseries object handle
         case 2 % log spacing
-            networkData.nH = semilogx(real(net.f), abs(net.z), '.-');  % nH: lineseries object handle
+            networkData.nH = semilogx(net.f, abs(net.z), '.-');  % nH: lineseries object handle
     end
     
     if isfield(net,'title') && ischar(net.title)
