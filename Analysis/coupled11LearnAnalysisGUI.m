@@ -146,7 +146,7 @@ ka = str2double(get(handles.kappa,'String'));
 W = str2double(get(handles.df,'String'))*2*pi;
 lcolor = jet(5);
 
-KA = (.005:.005:1)*ceil(2.5*ka)/2;
+KA = sign(ka)*(.005:.005:1)*ceil(2.5*abs(ka))/2;
 WW = (-1:.01:1)*ceil(2.5*abs(W+eps)/(2*pi))*pi;
 
 %% Constant Omega plot

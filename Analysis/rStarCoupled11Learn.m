@@ -90,9 +90,11 @@ ind = find(imag(r)==0);
 r = r(ind); A = A(ind);
 
 %% Get relative phases
-psi = -sign(W)*acos(-(a+b1*r.^2)./A);
+signPsi = (-W*(ka*r.^2+2*A.^2) >= 0)*2 - 1;
+psi = signPsi.*acos(-(a+b1*r.^2)./A);
 ind = find(~isnan(psi));
 r = r(ind); A = A(ind); psi = psi(ind);
+psi = real(psi);
 
 %% Eliminate extraneous solutions
 ind = find(abs(a*r+b1*r.^3+A.*r.*cos(psi)) < eps('single'));
