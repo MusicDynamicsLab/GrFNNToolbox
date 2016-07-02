@@ -340,7 +340,11 @@ for i = 1:length(varargin)
         s = rmfield(s,'newTS');
         s0 = round(s.ts(  1)*s.fs+1); %MGS - 6/28/09 Added round(...) to allow non-integer time spans
         sf = round(s.ts(end)*s.fs);   %MGS - 6/28/09 Added round(...) to allow non-integer time spans
-        s.x  = s.x(s0:sf,:);                           % Take only specified time span
+        if sf > length(s.x)  % If specified ts is greater than length of file, just read up to the end of the file
+            sf = length(s.x);
+            s.ts(end) = sf/s.fs;
+        end
+        s.x  = s.x(s0:sf,:);  % Take only specified time span
     end
     
     if strcmpi(varargin{i},'fs')
