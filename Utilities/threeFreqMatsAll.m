@@ -1,7 +1,10 @@
 function [X1i, X2i, Zi, NUM1, NUM2, DEN, CON1, CON2, mask] = threeFreqMatsAll(fromFreqs, toFreqs)
 
 if nargin < 2
-    toFreqs = fromFreqs; 
+    toFreqs = fromFreqs;
+    internal = 1;
+else
+    internal = 0;
 end
 
 N1 = length(fromFreqs);
@@ -20,9 +23,15 @@ m  = [ 1,  1]'; %,  2,  2,  1,  1,  1 % ,  1,  1,  1,  1,  1,  1
 IDX = []; K1 = []; K2 = []; M = [];
 for nn = 1:length(k1)
     % Test for the resonant relations
-    idx = find( (F1 ~= F2) & (F1 ~= Ft) & (F2 ~= Ft) & ...
-        (abs(k1(nn)*F1) >= abs(k2(nn)*F2)) & ...
-        (abs(k1(nn)*F1 + k2(nn)*F2 - m(nn)*Ft) < m(nn)*Ft*tol) );
+    if internal     % exclude source frequencies matching target frequency
+        idx = find( (F1 ~= F2) & (F1 ~= Ft) & (F2 ~= Ft) & ...
+            (abs(k1(nn)*F1) >= abs(k2(nn)*F2)) & ...
+            (abs(k1(nn)*F1 + k2(nn)*F2 - m(nn)*Ft) < m(nn)*Ft*tol) );
+    else
+        idx = find( (F1 ~= F2) & ...
+            (abs(k1(nn)*F1) >= abs(k2(nn)*F2)) & ...
+            (abs(k1(nn)*F1 + k2(nn)*F2 - m(nn)*Ft) < m(nn)*Ft*tol) );
+    end
     
     % These are the indices
     IDX = [IDX; idx];
@@ -33,7 +42,7 @@ for nn = 1:length(k1)
     M   = [M ;  m(nn) *ones(size(idx))];
 end
 
-% Now we decode the indices into vectors 
+% Now we decode the indices into vectors
 [f1, f2, ft] = ind2sub([N1,N1,N2], IDX);
 
 % Sort to make the next step easier
@@ -52,9 +61,9 @@ nn = 0;
 for ii = ft'
     ii;
     nn = nn + 1;
-    if ii == iiprev 
+    if ii == iiprev
         jj = jj + 1;
-    else 
+    else
         jj = 1;
     end
     X1i(ii,jj) = f1(nn);
@@ -71,7 +80,7 @@ mask = X1i>0;
 
 % Now these are indices into the state vectors
 % zeros are not allowed, so we replace them with
-% ones. They remain zeroed out in the exponent 
+% ones. They remain zeroed out in the exponent
 % matrices. And we have a mask.
 X1i(X1i==0)=1;
 X2i(X2i==0)=1;
