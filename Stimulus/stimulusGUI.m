@@ -85,7 +85,7 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % Ths=edit5_Callback(hObject, eventdata, handles);
 % rTime=edit6_Callback(hObject, eventdata, handles);
 % rExp=edit7_Callback(hObject, eventdata, handles);
-% s=stimulusMake('fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp);
+% s=stimulusMake(1,'fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp);
 s=makeEverything(hObject,eventdata,handles);
 range=edit9_Callback(hObject, eventdata, handles);
 ind=round(s.fs*range(1))+1:round(s.fs*range(2));
@@ -107,7 +107,7 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % rTime=edit6_Callback(hObject, eventdata, handles);
 % rExp=edit7_Callback(hObject, eventdata, handles);
 perc=edit8_Callback(hObject, eventdata, handles);
-% s=stimulusMake('fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp);
+% s=stimulusMake(1,'fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp);
 s=makeEverything(hObject,eventdata,handles);
 specAndAutocorr(s.x,8192,s.fs,perc);
 
@@ -128,7 +128,7 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % rTime=mat2str(edit6_Callback(hObject, eventdata, handles));
 % rExp=mat2str(edit7_Callback(hObject, eventdata, handles));
 str=getEverything(hObject, eventdata, handles);
-% str=['s=stimulusMake(''fcn''' ',' tspan ',' fs ',' '{''' wave '''}' ','...
+% str=['s=stimulusMake(1,''fcn''' ',' tspan ',' fs ',' '{''' wave '''}' ','...
 %     freqs ',' amps ',' Ths ',' '''ramp'',' rTime ',' rExp ')'];
 callStr=edit10_Callback(hObject, eventdata, handles);
 disp(str);
@@ -148,7 +148,7 @@ function pushbutton4_Callback(hObject, eventdata, handles)
 % Ths=edit5_Callback(hObject, eventdata, handles);
 % rTime=edit6_Callback(hObject, eventdata, handles);
 % rExp=edit7_Callback(hObject, eventdata, handles);
-% s=stimulusMake('fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp);
+% s=stimulusMake(1,'fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp);
 s=makeEverything(hObject,eventdata,handles);
 structStr=edit11_Callback(hObject, eventdata, handles);
 assignin('base',structStr,s);
@@ -168,7 +168,7 @@ global playingCurrently
 % Ths=edit5_Callback(hObject, eventdata, handles);
 % rTime=edit6_Callback(hObject, eventdata, handles);
 % rExp=edit7_Callback(hObject, eventdata, handles);
-% s=stimulusMake('fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp);
+% s=stimulusMake(1,'fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp);
 s=makeEverything(hObject,eventdata,handles);
 % soundsc(s.x,s.fs);
 playingCurrently=audioplayer(real(s.x*.999/max(abs(s.x))),s.fs);
@@ -951,7 +951,7 @@ if isempty(filtmask)
     filtmask={[] []};
 end
 
-s=stimulusMake('fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp,...
+s=stimulusMake(1,'fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp,...
     'am',waveAM,fAM,aAM,1,'fm',waveFM,fFM,aFM,'iter',iterDelay,iterNum,...
     'mask',maskSNR,'filtstim',filtstim,'filtmask',filtmask);
 
@@ -977,7 +977,7 @@ temp=edit4_Callback(hObject, eventdata, handles);
 amps=temp.str;
 
 
-str=['s=stimulusMake(''fcn''' ',' tspan ',' fs ',' '{''' wave '''}' ','...
+str=['s=stimulusMake(1,''fcn''' ',' tspan ',' fs ',' '{''' wave '''}' ','...
     freqs ',' amps];
 
 
