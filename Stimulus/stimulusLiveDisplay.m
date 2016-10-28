@@ -14,7 +14,7 @@ if ix == 0
         figure(10000+sx)
     end
     
-    plot(real(stim.t), stim.x(stim.dispChan,:), 'k')
+    plot(real(stim.t), real(stim.x(stim.dispChan,:)), 'k')
     hold on
     ylimit = get(gca,'YLim');
     stimulusData.bH = plot([1 1]*t, ylimit, 'r'); % handle for progress bar
