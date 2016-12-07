@@ -16,23 +16,33 @@ alpha = 0; beta1 = -1; beta2 = -1; delta1 = 0; delta2 = 0; neps = 1; % Critical
 
 %% Make the model
 s = stimulusMake(1, 'fcn', [0 50], 40, {'exp'}, [1], .25, 0, ...
-    'ramp', 0.02, 1, 'display', 10);
+    'ramp', 0.02, 1, 'display', 0);
 
 n = networkMake(1, 'hopf', alpha, beta1,  beta2, delta1, delta2, neps, ...
-    'log', .5, 2, 201, 'save', 1, 'display', 10, ...
-    'Tick', [.5 2/3 3/4 1 4/3 3/2 2]);
+    'log', .125, 8, 601, 'save', 1, 'display', 0, ...
+    'Tick', [.5 2/3 3/4 1 4/3 3/2 2], 'zna',.0001);
 
+% n = connectAdd(s, n, 1, 'type', 'allfreq'); % default connection type for stimulus source is '1freq'
 n = connectAdd(s, n, 1); % default connection type for stimulus source is '1freq'
 
 M = modelMake(s, n);
 
+options=odeset('RelTol',1e-2);
 tic
-M = M.odefun(M);
+
+M.odefun = @ode45;
+[T,Z] = M.odefun(@zdotAdaptive,s.ts,n.z,options,M);
+
+% M = M.odefun(M);
+
 toc
 
+M.n{1}.t=T;
+M.n{1}.Z=Z.';
+
 %% Display the output
-figure(11); clf; a1 = gca;
-figure(12); clf;
+figure; clf; a1 = gca;
+figure; clf;
 a2 = subplot('Position', [0.08  0.72  0.78 0.22]);
 a3 = subplot('Position', [0.08  0.10  0.88 0.50]);
 
