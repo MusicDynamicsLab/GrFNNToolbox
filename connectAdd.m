@@ -293,13 +293,13 @@ if isempty(C)
     theta0 = randn(size(A0));
     con.C0 = A0.*exp(1i*2*pi*theta0);
 else
-    if isscalar(C)
-        con.C0 = C*ones(size(F));
-    elseif ~isequal(size(C), size(F))
-        error('Incorrect size of C (3rd input argument)')
-    else
+%     if isscalar(C)
+%         con.C0 = C*ones(size(F));
+%     elseif ~isequal(size(C), size(F))
+%         error('Incorrect size of C (3rd input argument)')
+%     else
         con.C0 = C;
-    end
+%     end
 end
 
 con.C = con.C0;

@@ -52,7 +52,8 @@ for cx = 1:length(n.con)
                 x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ...
                     - A(e^2, z*y').*repmat(y.'.*A(e^2, abs(y.').^2), con.targetN, 1) ), 2);
             else
-                x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ), 2);
+%                 x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ), 2);
+                x =  x + con.w .* (con.C*( sum(A(e, z)*P_new(e, y.'),2) ));
             end
             
         case 2  % 2freq

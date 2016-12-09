@@ -46,7 +46,7 @@ for nx = 1:numberNetworks
         con = n.con{cx};
         if con.nSourceClass == 1
             %         y = M.s{con.source}.z;
-            y = stimulusRun(M.s{1}.x,t,M.fs);
+            y = stimulusRun(M.s{1}.x,t*M.fs+1);
         else
 %             y = M.n{con.source}.z;
             y = zMat{con.source};
@@ -70,7 +70,8 @@ for nx = 1:numberNetworks
                     x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ...
                         - A(e^2, z*y').*repmat(y.'.*A(e^2, abs(y.').^2), con.targetN, 1) ), 2);
                 else
-                    x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ), 2);
+%                     x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ), 2);
+                    x =  x + con.w .* (con.C*( sum(A(e, z)*P_new(e, y.'),2) ));
                 end
                 
             case 2  % 2freq
@@ -114,13 +115,22 @@ for i = 1:numberNetworks
 end
 
 %%
-function s = stimulusRun(s, t, fs)
+function s = stimulusRun(s, tx)
 
-ratio = (t * fs) - round(t * fs);
-if floor(t * fs) < length(s)
-    s = s(:,floor(t * fs) + 1) + ratio * (s(:,ceil(t * fs) + 1) - s(:,floor(t * fs) + 1));
-else
-    s = s(:,floor(t * fs) + 1);
+% ratio = (tx) - round(tx);
+% if floor(tx) < length(s)
+%     disp(floor(tx));disp(tx);disp(ceil(tx))
+%     s = s(:,floor(tx) + 1) + ratio * (s(:,ceil(tx) + 1) - s(:,floor(tx) + 1));
+% else
+%     s = s(:,floor(tx) + 1);
+% end
+
+
+rm = tx - floor(tx); 
+if rm == 0  % integer, so valid index
+    s = s(:,tx);
+else        % We're between indices, so linear interpolation
+    s = s(:,round(tx-rm)) * (1-rm) + s(:,round(tx+1-rm)) * rm;
 end
 
 
