@@ -115,7 +115,7 @@ for i = 1:numberNetworks
 end
 
 %%
-function s = stimulusRun(s, tx)
+function s = stimulusRun(s, time)
 
 % ratio = (tx) - round(tx);
 % if floor(tx) < length(s)
@@ -126,12 +126,18 @@ function s = stimulusRun(s, tx)
 % end
 
 
-rm = tx - floor(tx); 
-if rm == 0  % integer, so valid index
-    s = s(:,tx);
-else        % We're between indices, so linear interpolation
-    s = s(:,round(tx-rm)) * (1-rm) + s(:,round(tx+1-rm)) * rm;
-end
+% rm = tx - floor(tx); 
+% if rm == 0  % integer, so valid index
+%     s = s(:,tx);
+% else        % We're between indices, so linear interpolation
+%     s = s(:,round(tx-rm)) * (1-rm) + s(:,round(tx+1-rm)) * rm;
+% end
+disp(time)
+disp(ceil(time))
+leftInd = floor(time);
+here    = s(:,leftInd);
+there   = s(:,ceil(time));
+s = here + ((time - leftInd) * (there-here));
 
 
 %%  Nonlinear Function Definitions
