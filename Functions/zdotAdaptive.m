@@ -132,8 +132,7 @@ function s = stimulusRun(s, time)
 % else        % We're between indices, so linear interpolation
 %     s = s(:,round(tx-rm)) * (1-rm) + s(:,round(tx+1-rm)) * rm;
 % end
-disp(time)
-disp(ceil(time))
+
 leftInd = floor(time);
 here    = s(:,leftInd);
 there   = s(:,ceil(time));
