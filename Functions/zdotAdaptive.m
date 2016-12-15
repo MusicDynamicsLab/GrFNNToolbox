@@ -66,13 +66,16 @@ for nx = 1:numberNetworks
                 end
                 
             case 7  % allfreq
-                if con.no11
-                    x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ...
-                        - A(e^2, z*y').*repmat(y.'.*A(e^2, abs(y.').^2), con.targetN, 1) ), 2);
-                else
-%                     x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ), 2);
+%                 if con.no11
+%                     x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ...
+%                         - A(e^2, z*y').*repmat(y.'.*A(e^2, abs(y.').^2), con.targetN, 1) ), 2);
+%                 else
+% %                     x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ), 2);
                     x =  x + con.w .* (con.C*( sum(A(e, z)*P_new(e, y.'),2) ));
-                end
+%                 end
+%                 x = x + con.w .* (con.C*sum(y+sqrt(e)*y.*conj(y)));
+%                 x = x + con.w .* (con.C*sum(y));
+
                 
             case 2  % 2freq
                 NUM = con.NUM;
