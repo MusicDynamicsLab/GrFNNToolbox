@@ -31,28 +31,28 @@ nOsc = length(zColumn)/2;
 
 % for nx = 1:numberNetworks
     
-    z = zColumn(1:nOsc);
+    zOC = zColumn(1:nOsc);
     
     n   = M.n{1};
     % z   = n.z;
-    a   = n.a;
-    b1  = n.b1;
-    b2  = n.b2;
-    e   = n.e;
+    aOC   = n.a;
+    b1OC  = n.b1;
+    b2OC  = n.b2;
+    eOC   = n.e;
     
     %% Add input
     
-    x = 0;
+%     x = 0;
     
-    for cx = 1:length(n.con)
-        con = n.con{cx};
+%     for cx = 1:length(n.con)
+        con = n.con{1};
         y = stimulusRun(M.s{1}.x,t*M.fs+1);
-        x = x + con.w.*(con.C*y);
-    end
+        xOC = con.w.*(con.C*y);
+%     end
     
     %% The differential equation
     % $\dot{z} = z \left( \alpha + \textrm{i}\omega + (\beta_1 + \textrm{i}\delta_1) |z|^2 + \frac{\epsilon (\beta_2 + \textrm{i}\delta_2) |z|^4}{1-\epsilon |z|^2} \right) + x$
-    dzdt1 = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-e*abs(z).^2)) + x;
+%     dzdt1 = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-e*abs(z).^2)) + x;
     
 % end
 
@@ -66,21 +66,21 @@ nOsc = length(zColumn)/2;
 
 % for nx = 1:numberNetworks
     
-    z = zColumn(nOsc+1:end);
+    zCN = zColumn(nOsc+1:end);
     
     n   = M.n{2};
     % z   = n.z;
-    a   = n.a;
-    b1  = n.b1;
-    b2  = n.b2;
-    e   = n.e;
+    aCN   = n.a;
+    b1CN  = n.b1;
+    b2CN  = n.b2;
+    eCN   = n.e;
     
     %% Add input
     
-    x = 0;
+%     x = 0;
     
-    for cx = 1:length(n.con)
-        con = n.con{cx};
+%     for cx = 1:length(n.con)
+        con = n.con{1};
        
         y = zColumn(1:nOsc);
         
@@ -89,18 +89,18 @@ nOsc = length(zColumn)/2;
 %                         - A(e^2, z*y').*repmat(y.'.*A(e^2, abs(y.').^2), con.targetN, 1) ), 2);
 %                 else
 % %                     x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ), 2);
-                    x =  x + con.w .* (con.C*( sum(A(e, z)*P_new(e, y.'),2) ));
+                    xCN =  con.w .* (con.C*( sum(A(eCN, zCN)*P_new(eCN, y.'),2) ));
 %                 end
 %                 x = x + con.w .* (con.C*sum(y+sqrt(e)*y.*conj(y)));
 %                 x = x + con.w .* (con.C*sum(y));
 
              
-    end
+%     end
     
     %% The differential equation
     % $\dot{z} = z \left( \alpha + \textrm{i}\omega + (\beta_1 + \textrm{i}\delta_1) |z|^2 + \frac{\epsilon (\beta_2 + \textrm{i}\delta_2) |z|^4}{1-\epsilon |z|^2} \right) + x$
-    dzdt2 = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-e*abs(z).^2)) + x;
-    dzdt=[dzdt1;dzdt2];
+    dzdt = [zOC.*(aOC + b1OC.*abs(zOC).^2 + eOC*b2OC.*(abs(zOC).^4)./(1-eOC*abs(zOC).^2)) + xOC ; zCN.*(aCN + b1CN.*abs(zCN).^2 + eCN*b2CN.*(abs(zCN).^4)./(1-eCN*abs(zCN).^2)) + xCN];
+%     dzdt=[dzdt1;dzdt2];
     
 % end
 
