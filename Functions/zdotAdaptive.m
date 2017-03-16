@@ -25,13 +25,13 @@ function [dzdt] = zdotAdaptive(t, zColumn, M)
 %     zColumnLength = zColumnLength + M.n{i}.N;
 % end
 
-nOsc = length(zColumn)/2;
+nOscOC = M.n{1}.N;
 
 %% Initialize variables and stimulus
 
 % for nx = 1:numberNetworks
     
-    zOC = zColumn(1:nOsc);
+    zOC = zColumn(1:nOscOC);
     
     n   = M.n{1};
     % z   = n.z;
@@ -66,7 +66,7 @@ nOsc = length(zColumn)/2;
 
 % for nx = 1:numberNetworks
     
-    zCN = zColumn(nOsc+1:end);
+    zCN = zColumn(nOscOC+1:end);
     
     n   = M.n{2};
     % z   = n.z;
@@ -82,7 +82,7 @@ nOsc = length(zColumn)/2;
 %     for cx = 1:length(n.con)
         con = n.con{1};
        
-        y = zColumn(1:nOsc);
+        y = zColumn(1:nOscOC);
         
 %                 if con.no11
 %                     x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ...
