@@ -17,7 +17,9 @@
 %  'type'               Followed by a charater string specifying connection type.
 %                       Options are '1freq', '2freq', '3freq', '3freqAll', 'active',
 %                       'All2freq', and 'Allfreq'. '1freq' is default for stimulus
-%                       source and 'Allfreq' is for network source.
+%                       source and 'Allfreq' is for network source. '2freq' can be
+%                       followed by a number specifying tolerance value for
+%                       fareyratio function (default = .01).
 %  'learn'              Followed by five parameters for the learning rule:
 %                       lambda, mu1, mu2, epsilon, and kappa
 %  'weight'             Followed by a weight (scalar or column vector) to be multiplied
@@ -26,8 +28,6 @@
 %                       resonant monomials.
 %  'scale', 'noScale'   Use these to specify whether or not to scale connection weights
 %                       and learning parameters by natural frequencies. No additional argument.
-%  'tol'                Followed by tolerance value for fareyratio function (only for
-%                       '2freq' connection type).
 %  'display'            Followed by the time step interval at which to display the 
 %                       connectivity matrix during integration. Default is zero.
 %  'phaseDisp'          Sets connection phases to be displayed during integration.
@@ -156,9 +156,14 @@ end
 F2 = repmat(n2.f, 1, n1.N);
 
 if n1.nClass == 1 % if stimulus source
-    F1 = F2;
-    if isempty(n1.f) && ismember(lower(con.type), {'2freq', '3freq', '3freqall'})
-        error(['Connection type ''' lower(con.type) ''' not available for stimulus source with no frequency gradient'])
+    if ismember(lower(con.type), {'2freq', '3freq', '3freqall'}) % single monomial coupling types
+        if ~isempty(n1.f) % if source has frequency vector
+            F1 = repmat(n1.f', n2.N, 1);
+        else
+            error(['Connection type ''' lower(con.type) ''' not available for stimulus source with no frequency gradient'])
+        end
+    else
+        F1 = F2;
     end
 else
     F1 = repmat(n1.f', n2.N, 1);
