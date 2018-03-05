@@ -7,6 +7,7 @@
 %  Use it as either
 %   axLim = getLim(network) or
 %   axLim = getLim(network.f, network.nFspac)
+%     nFspac is 1 for linear spacing or 2 for log
 %
 
 %%
