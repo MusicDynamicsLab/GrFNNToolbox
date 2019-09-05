@@ -1,15 +1,15 @@
 %% AVFGUI
-% AVFGUI(alpha, beta1, beta2, epsilon, force)
+% AVFGUI(alpha, beta1, beta2, epsilon, force, fignum)
 %
 % GUI for drawing amplitude vector field of a canonical oscillator
 % driven by a sinusoid at its natural frequency (i.e., Omega = 0).
 %
-% Parameter values are optional input arguments. Change parameter values
-% by moving the sliders or by entering numbers in the text boxes.
-% Min and max values for the sliders can also be changed.
+% Parameter values and figure number are optional input arguments.
+% Change parameter values by moving the sliders or by entering numbers
+% in the text boxes. Min and max values for the sliders can also be changed.
 
 %%
-function AVFGUI(alpha, beta1, beta2, epsilon, force)
+function AVFGUI(alpha, beta1, beta2, epsilon, force, fignum)
 
 if nargin < 1
   alpha = -1;
@@ -26,13 +26,16 @@ end
 if nargin < 5
   force = 0;
 end
+if nargin < 6
+  fignum = 998;
+end
 
-figure(998)
+figure(fignum)
 set(gcf,'Visible','off','Toolbar','figure','Color',[.8 .8 .8],...
   'Position',[100,100,1000,670]);
 initialRun([],[],alpha,beta1,beta2,epsilon,force)
-movegui(998,'center')
-set(998,'Visible','on')
+movegui(fignum,'center')
+set(fignum,'Visible','on')
 
 % =========================================================================
 function initialRun(~,~,alpha,beta1,beta2,epsilon,force)
