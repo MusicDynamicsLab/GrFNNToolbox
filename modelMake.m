@@ -123,8 +123,9 @@ stimListAll = sort(stimListAll);
 
 %% Check if all connections are valid and at least one network gets stimulus
 for j = netList
-    for k = 1:length(model.n{j}.con)
-        con = model.n{j}.con{k};
+    n = model.n{j};
+    for k = 1:length(n.con)
+        con = n.con{k};
         if con.nSourceClass == 1
             if ~ismember(con.source, stimListAll)
                 error(['Input to Network ' num2str(j) ' is missing (Stimulus ' num2str(k) ')'])
@@ -136,6 +137,17 @@ for j = netList
             if ~ismember(con.source, netList)
                 error(['Input to Network ' num2str(j) ' is missing (Network ' num2str(k) ')'])
             end
+        end
+        % Initialize normalization buffer
+        if con.norm
+            Lbuf = round(fs/min(n.f))*4; % buffer length
+            con.Lbuf = Lbuf; % buffer size
+            con.buffer = single(zeros(1, Lbuf));
+            con.hx = 1; % head position
+            beta2 = n.b2./(n.f.^n.scale);
+            beta2 = max(beta2);
+            con.thrNorm = -beta2/(2*n.e^1.5); % threshold for normalization
+            model.n{j}.con{k} = con;
         end
     end
 end

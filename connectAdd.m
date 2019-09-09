@@ -28,6 +28,8 @@
 %                       resonant monomials.
 %  'scale', 'noScale'   Use these to specify whether or not to scale connection weights
 %                       and learning parameters by natural frequencies. No additional argument.
+%  'norm'               Turns on normalization of nonlinear input function.
+%                       No additional argument.
 %  'display'            Followed by the time step interval at which to display the 
 %                       connectivity matrix during integration. Default is zero.
 %  'phaseDisp'          Sets connection phases to be displayed during integration.
@@ -79,6 +81,7 @@ end
 con.dStep = 0;
 con.sStep = 0;
 con.no11 = 0;
+con.norm = 0;
 con.tol  = .01;         % tolerance for fareyratio (used for 2freq)
 con.phaseDisp = 0;
 w = 1;           % Initialize these in case not specified in varargin
@@ -117,7 +120,6 @@ for i = 1:length(varargin)
         w = varargin{i+1};
     end
     
-    
     if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'dis') && length(varargin) > i && isscalar(varargin{i+1})
         con.dStep = varargin{i+1};
     end
@@ -128,6 +130,10 @@ for i = 1:length(varargin)
     
     if ischar(varargin{i}) && strcmpi(varargin{i},'no11')
         con.no11 = 1;
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i},'norm')
+        con.norm = 1;
     end
     
     if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'sca')
@@ -145,7 +151,7 @@ for i = 1:length(varargin)
     if ischar(varargin{i}) && ~strcmpi(varargin{i},'learn') && ~strcmpi(varargin{i}(1:3),'typ') ...
             && ~strcmpi(varargin{i}(1:3),'wei') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') ...
             && ~any(strcmpi(varargin{i},types)) && ~strcmpi(varargin{i},'no11') && ~strcmpi(varargin{i},'phasedisp') ...
-            && ~any(strcmpi(varargin{i}(1:3),{'sca' 'nos'}))
+            && ~any(strcmpi(varargin{i}(1:3),{'sca' 'nos'})) && ~strcmpi(varargin{i},'norm')
         error(['Unrecognized input to connectAdd: ' varargin{i}])
     end
     
@@ -248,6 +254,11 @@ switch lower(con.type)
         F = (2*F1.*F2)./(F1+F2);
         con.nType = 7;
         
+end
+
+if con.norm && con.nType < 5
+    con.norm = 0;
+    disp('Normalization is available for connection types ''Active'', ''All2Freq'', ''AllFreq''.')
 end
 
 %% Scaling weights and learning parameters
