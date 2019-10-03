@@ -2,7 +2,7 @@
 %  n = zdotNorm(M, nx, kx)
 %
 %  Updates a single network M.n{nx} for kx step of Runge-Kutta integration
-%  Includes buffer normalization for non-no11 connections
+%  Includes buffer normalization for connections
 %
 %  Input arguments:
 %  M        Model
@@ -43,23 +43,19 @@ for cx = 1:length(n.con)
             x = x + con.w.*(con.C*y);
             
         case 6  % all2freq
+            CP = con.C*P(e, y); % raw c*P
             if con.no11
-                x = x + con.w .* sum(con.C.*( A(e, z)*P(e, y.') ...
-                    - A(e^2, z*y').*repmat(y.', con.targetN, 1) ), 2);
-            elseif con.norm
-                CP = con.C*P(e, y); % raw c*P
+                subtract = sum(con.C.*( A(e^2, z*y').*repmat(y.', con.targetN, 1) ), 2);
             else
-                x = x + con.w .* sum(con.C.*( A(e, z)*P(e, y.') ), 2);
+                subtract = 0;
             end
             
         case 7  % allfreq
+            CP = con.C*P_new(e, y); % raw C*P
             if con.no11
-                x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ...
-                    - A(e^2, z*y').*repmat(y.'.*A(e^2, abs(y.').^2), con.targetN, 1) ), 2);
-            elseif con.norm
-                CP = con.C*P_new(e, y); % raw C*P
+                subtract = sum(con.C.*( A(e^2, z*y').*repmat(y.'.*A(e^2, abs(y.').^2), con.targetN, 1) ), 2);
             else
-                x =  x + con.w .* sum(con.C.*( A(e, z)*P_new(e, y.') ), 2);
+                subtract = 0;
             end
             
         case 2  % 2freq
@@ -70,12 +66,11 @@ for cx = 1:length(n.con)
             x = x + con.w .* sum(con.C.*Y.*Z,2)/sqrt(e);
             
         case 5  % active
+            CP = con.C*y; % raw C*P
             if con.no11
-                x = x + con.w .* sum(con.C.*( (sqrt(e)*conj(z).*A(e, z))*y.' ), 2);
-            elseif con.norm
-                CP = con.C*y; % raw C*P
+                subtract = y;
             else
-                x = x + con.w .* sum(con.C.*( A(e, z)*y.' ), 2);
+                subtract = 0;
             end
             
         otherwise % 3freq and 3freqall
@@ -90,24 +85,31 @@ for cx = 1:length(n.con)
             
     end
     
-    % Buffer operation for all2freq, allfreq, active
-    if con.norm
-        hx = con.hx; % current buffer head position
-        buffer = con.buffer;
-        Lbuf = con.Lbuf; % buffer length
-        
-        buffer(hx) = max(abs(CP)); % save to buffer
-        maxBuf = max(buffer); % max in buffer
-        thrNorm = con.thrNorm; % normalization threshold
-        if maxBuf > thrNorm
-            CP = CP/maxBuf*thrNorm; % normalize to threshold
+    % Computation and normalization of input for all2freq, allfreq, active
+    if ismember(con.nType, [5 6 7])
+        if con.norm
+            hx = con.hx; % current buffer head position
+            buffer = con.buffer;
+            Lbuf = con.Lbuf; % buffer length
+            
+            buffer(hx) = max(abs(CP)); % save to buffer
+            maxBuf = max(buffer); % max in buffer
+            thrNorm = con.thrNorm; % normalization threshold
+            if maxBuf > thrNorm
+                multNorm = thrNorm/maxBuf; % multiplier for normalization
+            else
+                multNorm = 1;
+            end
+            
+            n.con{cx}.buffer = buffer;
+            n.con{cx}.hx = mod(hx, Lbuf) + 1; % advance head
+        else
+            multNorm = 1;
         end
         
-        x = x + con.w .* CP.*A(e, z);
-        
-        n.con{cx}.buffer = buffer;
-        n.con{cx}.hx = mod(hx, Lbuf) + 1; % advance head
+        x = x + multNorm * con.w .* (CP.*A(e, z) - subtract);
     end
+    
 end
 
 %% The differential equation
