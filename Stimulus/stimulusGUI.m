@@ -951,7 +951,7 @@ if isempty(filtmask)
     filtmask={[] []};
 end
 
-s=stimulusMake('fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp,...
+s=stimulusMake(1,'fcn',tspan,fs,wave,freqs,amps,Ths,'ramp',rTime,rExp,...
     'am',waveAM,fAM,aAM,1,'fm',waveFM,fFM,aFM,'iter',iterDelay,iterNum,...
     'mask',maskSNR,'filtstim',filtstim,'filtmask',filtmask);
 
@@ -977,7 +977,7 @@ temp=edit4_Callback(hObject, eventdata, handles);
 amps=temp.str;
 
 
-str=['s=stimulusMake(''fcn''' ',' tspan ',' fs ',' '{''' wave '''}' ','...
+str=['s=stimulusMake(1,''fcn''' ',' tspan ',' fs ',' '{''' wave '''}' ','...
     freqs ',' amps];
 
 
