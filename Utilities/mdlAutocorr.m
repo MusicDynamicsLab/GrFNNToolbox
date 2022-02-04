@@ -3,9 +3,11 @@
 %
 %  Plotting function. Produces an autocorrelogram of signal vector y. Input
 %  argument for sampling frequency fs is required. Optional arguments must
-%  come in order afterwards, including N and windowStep. N is the desired
-%  window length in samples, and windowStep is the desired window step size
-%  in samples.
+%  come in order afterwards, including portion, windowSize, and windowStep.
+%  portion is a two-element vector of percentages indicating a window of
+%  lag amounts, from zero to the maximum allowable given length(y), to be
+%  displayed. windowSize is the desired window length in samples, and
+%  windowStep is the desired window step size in samples.
 
 %%
 function mdlAutocorr(y,fs,varargin)
@@ -18,16 +20,23 @@ end
 y=y(:);
 
 if isempty(varargin)
-    N=ceil(length(y)^(1/1.4));
+    portion=[0 100];
+    windowSize=ceil(length(y)^(1/1.4));
     windowStep=ceil(length(y)^(1/2.5));
 elseif length(varargin)==1
-    N=varargin{1};
+    portion=varargin{1};
+    windowSize=ceil(length(y)^(1/1.4));
     windowStep=ceil(length(y)^(1/2.5));
 elseif length(varargin)==2
-    N=varargin{1};
-    windowStep=varargin{2};
+    portion=varargin{1};
+    windowSize=varargin{2};
+    windowStep=ceil(length(y)^(1/2.5));
+elseif length(varargin)==3
+    portion=varargin{1};
+    windowSize=varargin{2};
+    windowStep=varargin{3};
 else
-    error('mdlAutocorr only takes 4 inputs')
+    error('mdlAutocorr only takes 5 inputs')
 end
 if ~isreal(y)
     warning('Input signal is complex; only real portion taken')
@@ -36,32 +45,35 @@ end
 
 t=(0:length(y))/fs;
 
-% if mod(N,2),N=N+1;end
+Tstep = floor((length(y)+windowSize)/windowStep);  % Calculate the size of the autocorrelogram matrix in the time dimension
 
-Tstep = floor((length(y)+N)/windowStep);
+x = zeros(1,length(y)+2*windowSize);  % Create vector of zeros size of input plus a windowSize on both sides
+x(windowSize:length(y)+windowSize-1) = y;  % Write input into the middle of that
 
-x = zeros(1,length(y)+2*N);
-x(N:length(y)+N-1) = y;
-start = 11;
-
-Sautocorr = zeros(N-start+2,Tstep);
+Sautocorr = zeros(windowSize,Tstep);  % Autocorrelogram matrix will have size in lags dimension same as input
 
 count = 1;
-for i = 1:windowStep:length(y)+N
+for i = 1:windowStep:length(y)+windowSize
     
-    Y = xcorr(x(i:i+N-1),N-1,'coeff');
-    Y = Y(N:end);
-    Sautocorr(:,count) = Y(start-1:end)';
+    Y = xcorr(x(i:i+windowSize-1),'coeff');  % Calculate autocorrelation for each window of the zero-padded vector
+    Y = Y(windowSize:end);  % and only take the last half
+
+    Sautocorr(:,count) = Y';
     
     count = count + 1;
     
 end
 
-lags = linspace(start,size(Sautocorr,1)-start+1,size(Sautocorr,1))...
-    *1000./fs;
+lags = (0:windowSize)*1000/fs;
 
-imagesc(t,lags,Sautocorr);colorbar;
-title('Autocorrelogram');
-xlabel('Time (sec)');ylabel('Lags (ms)');
-set(gca,'YDir','normal');
-cbar = colorbar;set(get(cbar,'ylabel'),'string','Correlation (-1 to 1)');
+inds=round(portion/100*size(Sautocorr,1));
+
+if inds(1)==0, inds(1)=1;end  % stupid but simple
+
+imagesc(t,lags(inds(1):inds(2)),Sautocorr(inds(1):inds(2),:))
+title('Autocorrelogram')
+xlabel('Time (sec)')
+ylabel('Lags (ms)')
+set(gca,'YDir','normal')
+cbar = colorbar;
+set(get(cbar,'ylabel'),'string','Correlation (-1 to 1)')

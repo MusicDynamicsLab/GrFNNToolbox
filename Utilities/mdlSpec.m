@@ -13,14 +13,14 @@
 %  struct.f (frequency vector) for axis labels when plotting the matrix.
 
 %%
-function struct = mdlSpec(y,NFFT,fs,varargin)
+function [struct,cbar] = mdlSpec(y,NFFT,fs,varargin)
 
 if nargin<3,error('mdlSpec needs at least 3 inputs: signal vector, fft size, and samp. freq.');end
 if size(y,1)>1 && size(y,2)>1
     error('Signal must be only a vector');
 end
 y=y(:);
-if nargout>1, error('Can have only one arg out: Struct with .spec (spectrogram mat), .t (time vector) and .f (freq vector)');end
+% if nargout>1, error('Can have only one arg out: Struct with .spec (spectrogram mat), .t (time vector) and .f (freq vector)');end
 loop=0;
 dbg=0;
 if isempty(varargin)
@@ -58,7 +58,7 @@ if ~isreal(y)
     y=real(y);
 end
 
-if dbg, tic; end;
+if dbg, tic; end
 
 t=(0:length(y))/fs;
 
@@ -80,7 +80,7 @@ if loop
         Sfft(:,count) = Y(1:NFFT/2+1).';
         
         count = count + 1;
-    end;if dbg, toc; end;
+    end;if dbg, toc; end
     
 else
     
@@ -96,29 +96,31 @@ f1 = floor((portion(1)/100)*length(f))+1;
 f2 = floor((portion(2)/100)*length(f));
 fRange = [f(f1) f(f2)];
 
-if nargout==0
+if nargout~=1
     if loop
         if portion(2)<100
             i1 = floor((portion(1)/100)*size(Sfft,1))+1;
             i2 = floor((portion(2)/100)*size(Sfft,1));
-            imagesc(t,fRange,20*log10(abs(Sfft(i1:i2,:))+1));
+            imagesc(t,fRange,20*log10(abs(Sfft(i1:i2,:))));
         else
             imagesc(t,fRange,20*log10(abs(Sfft)));
         end
         xlabel('Time (sec)');ylabel('Frequency (Hz)');
         set(gca,'YDir','normal');
         cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude (dB)');
-        if dbg, toc; end;
+        if dbg, toc; end
     else
         i1 = floor((portion(1)/200)*size(Sfft,1)+1);
         i2 = floor((portion(2)/200)*size(Sfft,1));
-        temp=20*log10(abs(Sfft(i1:i2,:)));
-        imagesc(t,fRange,temp);
+	subsetMag=abs(Sfft(i1:i2,:));
+        subsetDb=20*log10(subsetMag);
+        imagesc(t,fRange,subsetDb);
         xlabel('Time (sec)');ylabel('Frequency (Hz)');
         set(gca,'YDir','normal');
         cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude (dB)');
-        if dbg, toc; end;
+        if dbg, toc; end
     end
+    struct=[];
 else
     if loop
         if portion(2)<100
@@ -132,13 +134,13 @@ else
             struct.t = t;
             struct.f = linspace(fRange(1),fRange(2),size(struct.spec,1));
         end
-        if dbg, toc; end;
+        if dbg, toc; end
     else
         i1 = floor((portion(1)/200)*size(Sfft,1))+1;
         i2 = floor((portion(2)/200)*size(Sfft,1));
         struct.spec = 20*log10(abs(Sfft(i1:i2,:)));
         struct.t = t;
         struct.f = linspace(fRange(1),fRange(2),size(struct.spec,1));
-        if dbg, toc; end;
+        if dbg, toc; end
     end
 end
