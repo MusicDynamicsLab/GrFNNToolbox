@@ -34,39 +34,36 @@ for b = 1:length(s.fc(a,:))       % For each component of the section
     temp = {fc fm fAM ac am aAM};
     
     for i = 1:6
-        linear = 0;
         if length(temp{i}) > 1
-            if length(temp{i}) == 2, linear = 1;end
             temp{i} = interp1(linspace(0,t(end),length(temp{i})),temp{i},t);
-            if i < 4
-                deriv = diff(temp{i})*fs;
-                if linear
-                    deriv = -[deriv deriv(end)];
-                else
-                    deriv = -interp1(linspace(deriv(1),deriv(end),...
-                        length(deriv)),deriv,linspace(deriv(1),deriv(end),...
-                        length(deriv)+1));
-                end
-                temp{i} = (temp{i} + t.*deriv/2);
-            end
+        else
+	        temp{i} = repmat(temp{i},1,length(t));
         end
     end
     
-    fc = temp{1};fm = temp{2};fAM = temp{3};
-    ac = temp{4};am = temp{5};aAM = temp{6};
+    fc  = temp{1};
+    fm  = temp{2};
+    fAM = temp{3};
+    ac  = temp{4};
+    am  = temp{5};
+    aAM = temp{6};
     
 %% Create frequency modulation
     
     if isfield(s, 'FM')
         
-        if fm ~= 0
+        if any(fm ~= 0)
             tflr = floor(t.*fm)./fm;
             trem = rem(t,1./fm);
-            q = 2*pi*fm.*t;
+%             q = 2*pi*fm.*t;
+            q = 2*pi*cumsum(fm)/fs;
             
             switch lower(s.FM{a,b}(1:3))
+                case 'sin'
+%                     mi= ((q-sin(q))/2)/2/pi./fm; % integral of -cos(q)
+                    mi= cumsum(am.*sin(q))/fs;
                 case 'cos'
-                    mi= ((q-sin(q))/2)/2/pi./fm; % integral of -cos(q)
+                    mi= cumsum(am.*cos(q))/fs;
                 case 'saw'
                     mi= tflr/2 + (fm.*trem.^2)/2; % (fm*t.^2)/2 is integral of fm*t
                 case 'squ'
@@ -89,20 +86,20 @@ for b = 1:length(s.fc(a,:))       % For each component of the section
     
 %% Create amplitude modulation
     
-    if isfield(s, 'AM');
+    if isfield(s, 'AM')
         
         Cfreq = s.CfreqsAM(a,b);
-        AM = zeros(size(t));
+        q = 2*pi*cumsum(fAM)/fs;
         
         switch lower(s.AM{a,b})
             case 'cos'
-                AM = (Cfreq + aAM.*cos(2*pi*fAM.*t));
+                AM = (Cfreq + aAM.*cos(q));
             case 'sin'
-                AM = (Cfreq + aAM.*sin(2*pi*fAM.*t));
+                AM = (Cfreq + aAM.*sin(q));
             case 'squ'
-                AM = (Cfreq + aAM.*square(2*pi*fAM.*t));
+                AM = (Cfreq + aAM.*square(q));
             case 'saw'
-                AM = (Cfreq + aAM.*sawtooth(2*pi*fAM.*t));
+                AM = (Cfreq + aAM.*sawtooth(q));
             otherwise
                 AM = 1;
                 warning('Unknown AM modulator type, not modulating');
@@ -117,15 +114,16 @@ for b = 1:length(s.fc(a,:))       % For each component of the section
     
     switch lower(s.carrier{a,b}(1:3))
         case 'cos'
-            xb = cos(2*pi*fc.*t + 2*pi*fc.*am.*mi + s.Th(a,b)).*AM;
+            xb = cos(2*pi*cumsum(fc)/fs + 2*pi*fc.*mi + s.Th(a,b)).*AM;
         case 'sin'
-            xb = sin(2*pi*fc.*t + 2*pi*fc.*am.*mi + s.Th(a,b)).*AM;
+%            xb = sin(2*pi*cumsum(fc)/fs + 2*pi*fc.*am.*mi + s.Th(a,b)).*AM;
+            xb = sin(2*pi*cumsum(fc)/fs + 2*pi*fc.*mi + s.Th(a,b)).*AM;
         case 'exp'
-            xb = exp(1i*(2*pi*fc.*t + 2*pi*fc.*am.*mi + s.Th(a,b))).*AM;
+            xb = exp(1i*(2*pi*cumsum(fc)/fs + 2*pi*fc.*mi + s.Th(a,b))).*AM;
         case 'saw'
-            xb = sawtooth(2*pi*fc.*t + 2*pi*fc.*am.*mi + s.Th(a,b)).*AM;
+            xb = sawtooth(2*pi*cumsum(fc)/fs + 2*pi*fc.*mi + s.Th(a,b)).*AM;
         case 'squ'
-            xb = square(2*pi*fc.*t + 2*pi*fc.*am.*mi + s.Th(a,b)).*AM;
+            xb = square(2*pi*cumsum(fc)/fs + 2*pi*fc.*mi + s.Th(a,b)).*AM;
         case 'bmp'
             x1 = sqrt(.75)*cos(2*pi*fc.*t + 2*pi*fc.*am.*mi + s.Th(a,b));
             xb = (x1./(1-x1)-1).*AM;
