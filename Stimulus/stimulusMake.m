@@ -93,9 +93,8 @@
 %  The following options apply to BOTH type 'fcn' and 'wav'
 %
 %  ramp: Pass 'ramp' and next TWO varargs are same as the ramp as described above: length
-%  of ramp, up and down, in ms, and power law number. This second vararg should
-%  be one for linear ramp, two for quadratic, .5 for sqrt function, etc. As
-%  before, defaults are 100 and 1 if nothing is spec'd.
+%  of ramp, up and down, in secs, and power law number. This second vararg should
+%  be one for linear ramp, two for quadratic, .5 for sqrt function, etc.
 %
 %  mask: Pass 'mask' and next ONE vararg is a scalar, vector or matrix (with repmat'ing
 %  same as above) of SNR's, in dB, of white mask noise over stimulus time
@@ -214,7 +213,7 @@ s.dt = 1/s.fs;
 s.carrier = varargin{3};    % carrier waveforms
 s.fc = varargin{4};         % carrier frequencies
 s.ac = varargin{5};         % carrier amplitudes
-s.sc = .02;                 % ramp time in sec of beginning and end of stim timecourses
+s.sc = 0;                   % ramp time in sec of beginning and end of stim timecourses
 s.sp = 1;                   % ramp strength exponent, ie, larger than 1, sudden onset, smaller than one, gradual
 
 s = stimulusParser(s, varargin{:});
