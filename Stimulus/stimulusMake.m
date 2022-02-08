@@ -222,10 +222,11 @@ s.t  = min(min(s.ts)):s.dt:max(max(s.ts));
 s.x  = zeros(size(s.t));
 
 for a = 1:size(s.ts,1)                % For each section of the signal
-    t0n = find(s.t <= s.ts(a,1), 1, 'last' );
-    tfn = find(s.t <= s.ts(a,2), 1, 'last' );
-    %     t  = s.t(t0n:tfn);
-    t  = s.t(1:tfn-t0n+1);
+    
+    [~,t0n] = min(abs(s.t - s.ts(a,1)));
+    [~,tfn] = min(abs(s.t - s.ts(a,2)));
+    
+    t = linspace(0,s.ts(a,2)-s.ts(a,1),tfn-t0n+1);
     
     temp = stimulusFcn(t, s, a);  %quicker to write temp vector than keep indexing into s.x
     
