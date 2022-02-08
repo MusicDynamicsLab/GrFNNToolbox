@@ -56,14 +56,18 @@ for b = 1:length(s.fc(a,:))       % For each component of the section
             tflr = floor(t.*fm)./fm;
             trem = rem(t,1./fm);
 %             q = 2*pi*fm.*t;
-            q = 2*pi*cumsum(fm)/fs;
+            q = 2*pi*(cumsum(fm)-fm(1))/fs;
             
             switch lower(s.FM{a,b}(1:3))
                 case 'sin'
 %                     mi= ((q-sin(q))/2)/2/pi./fm; % integral of -cos(q)
-                    mi= cumsum(am.*sin(q))/fs;
+                    moddedFreqs = am.*sin(q);
+                    moddedFreqs = cumsum(moddedFreqs)-moddedFreqs(1);
+                    mi= moddedFreqs/fs;
                 case 'cos'
-                    mi= cumsum(am.*cos(q))/fs;
+                    moddedFreqs = am.*cos(q);
+                    moddedFreqs = cumsum(moddedFreqs)-moddedFreqs(1);
+                    mi= moddedFreqs/fs;
                 case 'saw'
                     mi= tflr/2 + (fm.*trem.^2)/2; % (fm*t.^2)/2 is integral of fm*t
                 case 'squ'
@@ -89,7 +93,7 @@ for b = 1:length(s.fc(a,:))       % For each component of the section
     if isfield(s, 'AM')
         
         Cfreq = s.CfreqsAM(a,b);
-        q = 2*pi*cumsum(fAM)/fs;
+        q = 2*pi*(cumsum(fAM)-fAM(1))/fs;
         
         switch lower(s.AM{a,b})
             case 'cos'
@@ -111,19 +115,19 @@ for b = 1:length(s.fc(a,:))       % For each component of the section
 %% Create carrier and apply modulators
     
     xb = zeros(size(t));
+    freqsIntegral = 2*pi*(cumsum(fc)-fc(1))/fs;
     
     switch lower(s.carrier{a,b}(1:3))
         case 'cos'
-            xb = cos(2*pi*cumsum(fc)/fs + 2*pi*fc.*mi + s.Th(a,b)).*AM;
+            xb = cos(freqsIntegral + 2*pi*fc.*mi + s.Th(a,b)).*AM;
         case 'sin'
-%            xb = sin(2*pi*cumsum(fc)/fs + 2*pi*fc.*am.*mi + s.Th(a,b)).*AM;
-            xb = sin(2*pi*cumsum(fc)/fs + 2*pi*fc.*mi + s.Th(a,b)).*AM;
+            xb = sin(freqsIntegral + 2*pi*fc.*mi + s.Th(a,b)).*AM;
         case 'exp'
-            xb = exp(1i*(2*pi*cumsum(fc)/fs + 2*pi*fc.*mi + s.Th(a,b))).*AM;
+            xb = exp(1i*(freqsIntegral + 2*pi*fc.*mi + s.Th(a,b))).*AM;
         case 'saw'
-            xb = sawtooth(2*pi*cumsum(fc)/fs + 2*pi*fc.*mi + s.Th(a,b)).*AM;
+            xb = sawtooth(freqsIntegral + 2*pi*fc.*mi + s.Th(a,b)).*AM;
         case 'squ'
-            xb = square(2*pi*cumsum(fc)/fs + 2*pi*fc.*mi + s.Th(a,b)).*AM;
+            xb = square(freqsIntegral + 2*pi*fc.*mi + s.Th(a,b)).*AM;
         case 'bmp'
             x1 = sqrt(.75)*cos(2*pi*fc.*t + 2*pi*fc.*am.*mi + s.Th(a,b));
             xb = (x1./(1-x1)-1).*AM;
