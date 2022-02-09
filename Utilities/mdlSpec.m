@@ -85,6 +85,7 @@ if loop
 else
     
     [Y,~]=buffer(y,N,N-windowStep,'nodelay');
+    
     Sfft = fft(bsxfun(@times,Y,window),NFFT);
     if dbg, toc;end
     
@@ -106,16 +107,18 @@ if nargout~=1
             imagesc(t,fRange,20*log10(abs(Sfft)));
         end
         xlabel('Time (sec)');ylabel('Frequency (Hz)');
+        title('Spectrogram')
         set(gca,'YDir','normal');
         cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude (dB)');
         if dbg, toc; end
     else
         i1 = floor((portion(1)/200)*size(Sfft,1)+1);
         i2 = floor((portion(2)/200)*size(Sfft,1));
-	subsetMag=abs(Sfft(i1:i2,:));
+        subsetMag=abs(Sfft(i1:i2,:));
         subsetDb=20*log10(subsetMag);
         imagesc(t,fRange,subsetDb);
         xlabel('Time (sec)');ylabel('Frequency (Hz)');
+        title('Spectrogram')
         set(gca,'YDir','normal');
         cbar = colorbar;set(get(cbar,'ylabel'),'string','Amplitude (dB)');
         if dbg, toc; end
