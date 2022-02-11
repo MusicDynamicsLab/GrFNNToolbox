@@ -10,7 +10,7 @@
 %  windowStep is the desired window step size in samples.
 
 %%
-function mdlAutocorr(y,fs,varargin)
+function [h,cbar] = mdlAutocorr(y,fs,varargin)
 
 if nargin<2,error('mdlAutocorr needs at least 2 inputs: signal vector, and samp. freq.');end
 if size(y,1)>1 && size(y,2)>1
@@ -70,7 +70,7 @@ inds=round(portion/100*size(Sautocorr,1));
 
 if inds(1)==0, inds(1)=1;end  % stupid but simple
 
-imagesc(t,lags(inds(1):inds(2)),Sautocorr(inds(1):inds(2),:))
+h = imagesc(t,lags(inds(1):inds(2)),Sautocorr(inds(1):inds(2),:));
 title('Autocorrelogram')
 xlabel('Time (sec)')
 ylabel('Lags (ms)')

@@ -13,7 +13,7 @@
 %  struct.f (frequency vector) for axis labels when plotting the matrix.
 
 %%
-function [struct,cbar] = mdlSpec(y,NFFT,fs,varargin)
+function [struct,h,cbar] = mdlSpec(y,NFFT,fs,varargin)
 
 if nargin<3,error('mdlSpec needs at least 3 inputs: signal vector, fft size, and samp. freq.');end
 if size(y,1)>1 && size(y,2)>1
@@ -102,9 +102,9 @@ if nargout~=1
         if portion(2)<100
             i1 = floor((portion(1)/100)*size(Sfft,1))+1;
             i2 = floor((portion(2)/100)*size(Sfft,1));
-            imagesc(t,fRange,20*log10(abs(Sfft(i1:i2,:))));
+            h = imagesc(t,fRange,20*log10(abs(Sfft(i1:i2,:))));
         else
-            imagesc(t,fRange,20*log10(abs(Sfft)));
+            h = imagesc(t,fRange,20*log10(abs(Sfft)));
         end
         xlabel('Time (sec)');ylabel('Frequency (Hz)');
         title('Spectrogram')
@@ -116,7 +116,7 @@ if nargout~=1
         i2 = floor((portion(2)/200)*size(Sfft,1));
         subsetMag=abs(Sfft(i1:i2,:));
         subsetDb=20*log10(subsetMag);
-        imagesc(t,fRange,subsetDb);
+        h = imagesc(t,fRange,subsetDb);
         xlabel('Time (sec)');ylabel('Frequency (Hz)');
         title('Spectrogram')
         set(gca,'YDir','normal');
