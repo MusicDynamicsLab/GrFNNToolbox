@@ -137,7 +137,7 @@ for b = 1:length(s.fc(a,:))       % For each component of the section
             end
             xb = xb.*AM;
         case 'pls' %DH added for use with midi
-            xb = exp(4*sin(2*pi*fc*t))/exp(4.05);
+            xb = exp(4*sin(2*pi*fc.*t))/exp(4.05); % AU: changed to .* 10/20/22
             s.sc = -1;
         otherwise
             error('Unknown carrier wave type');
