@@ -22,10 +22,27 @@ elseif isempty(y)
     error('Signal is empty')
 end
 
-cutoff = round(fs*c);
+cutoffs = zeros(1,2);
+ps = zeros(1,2);
+
+if length(c) == 1
+    cutoffs(1) = round(fs*c);
+    cutoffs(2) = cutoffs(1);
+elseif length(c) == 2
+    cutoffs(1) = round(fs*c(1));
+    cutoffs(2) = round(fs*c(2));
+end
+
+if length(p) == 1
+    ps(1) = p;
+    ps(2) = p;
+elseif length(p) == 2
+    ps(1) = p(1);
+    ps(2) = p(2);
+end
+
 
 row = 0;
-maxSamp = cutoff;
 if size(y,1) == 1 && size(y,2) > 1
     row = 1;
     y = y.';
@@ -35,21 +52,20 @@ len = size(y,1);
 
 scfcn = ones(len,1);
 
-if 2 * cutoff == len
+if sum(cutoffs) == len
     warning('Stimulus section length equal to summed ramp times')
-elseif 2 * cutoff > len && len > cutoff
-    warning('Stimulus section length shorter than summed ramp times')
-    maxSamp = len / 2;
-elseif len == cutoff
-    error('Stimulus section length equal to ramp time')
-elseif len < cutoff
-    error('Stimulus section length shorter than ramp time')
+elseif sum(cutoffs) > len
+    error('Stimulus section length shorter than summed ramp times')
 end
 
 
-for i = 1:maxSamp
-    scfcn(i) = ((i-1)/cutoff)^p;
-    scfcn(len+1-i) = ((i-1)/cutoff)^p;
+for i = 1:cutoffs(1)
+    scfcn(i) = ((i-1)/cutoffs(1))^ps(1);
+end
+
+
+for i = 1:cutoffs(2)
+    scfcn(len+1-i) = ((i-1)/cutoffs(2))^ps(2);
 end
 
 scfcn = repmat(scfcn,1,size(y,2));

@@ -230,8 +230,8 @@ for a = 1:size(s.ts,1)                % For each section of the signal
     
     temp = stimulusFcn(t, s, a);  %quicker to write temp vector than keep indexing into s.x
     
-    if any(s.sc) && ~strcmp(s.carrier{1}, 'pls') %kludgy but works for now
-        temp = stimulusRamp(temp, s.sc(a), s.sp(a), s.fs);
+    if ~strcmp(s.carrier{1}, 'pls') %kludgy but works for now
+        temp = stimulusRamp(temp, s.sc{a}, s.sp{a}, s.fs);
     end
     
     if isfield(s, 'filtstim') && ~isempty(s.filtstim{a,1}) && ~isempty(s.filtstim{a,2})

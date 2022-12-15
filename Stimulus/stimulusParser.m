@@ -194,18 +194,35 @@ if strcmpi(s.type,'fcn')
     
     %% Ramp
     
-    if numel(s.sc) == 1 && size(s.fc,1) ~= 1
-        s.sc = repmat(s.sc,size(s.fc,1),1);
-        %     warning('Ramp time copied to all time courses since only one was specified')
-    elseif numel(s.sc) > 1 && size(s.fc,1) ~= numel(s.sc)
-        error('Must specify ramp time for every timecourse, or input just a scalar that will be copied')
+    if ~iscell(s.sc)
+        temp = cell(1,size(s.sc,1));
+        for i = 1:size(s.sc,1)
+            temp{i} = s.sc(i,:);
+        end
+        s.sc = temp;
     end
     
-    if numel(s.sp) == 1 && size(s.fc,1) ~= 1
+    if ~iscell(s.sp)
+        temp = cell(1,size(s.sp,1));
+        for i = 1:size(s.sp,1)
+            temp{i} = s.sp(i,:);
+        end
+        s.sp = temp;
+    end
+    clear temp
+    
+    if length(s.sc) == 1 && size(s.fc,1) ~= 1
+        s.sc = repmat(s.sc,size(s.fc,1),1);
+        %     warning('Ramp time copied to all time courses since only one was specified')
+    elseif length(s.sc) > 1 && size(s.fc,1) ~= numel(s.sc)
+        error('Must specify ramp times for every timecourse, or input just a scalar or two-element vector (ramp on and ramp off) that will be copied')
+    end
+    
+    if length(s.sp) == 1 && size(s.fc,1) ~= 1
         s.sp = repmat(s.sp,size(s.fc,1),1);
         %     warning('Ramp exponent copied to all time courses since only one was specified')
     elseif numel(s.sp) > 1 && size(s.fc,1) ~= numel(s.sp)
-        error('Must specify ramp exponent for every timecourse, or input just a scalar that will be copied')
+        error('Must specify ramp exponents for every timecourse, or input just a scalar or two-element vector (ramp on and ramp off) that will be copied')
     end
     
     %% Frequency modulator
